@@ -316,7 +316,7 @@
                         <div class="w-full md:w-2/3 bg-white rounded-lg flex flex-col shadow-lg border border-gray-200">
                             <div class="p-4 border-b border-gray-200 bg-gray-50 rounded-t-lg">
                                 <h3 class="text-xl font-semibold text-gray-800" id="chat-header-name">Jane Smith</h3>
-                                <p class="text-sm text-gray-500">Online</p>
+                                <p class="text-sm text-green-500">Online</p>
                             </div>
                             <div class="flex-1 p-4 overflow-y-auto space-y-4" id="chat-messages-container">
                                 <!-- Chat messages will be loaded here -->
