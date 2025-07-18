@@ -96,9 +96,10 @@
 
         <!-- Desktop Header Content (Dashboard Title, Icons) -->
         <div class="hidden md:flex items-center justify-between w-full">
-             <a href="{{ route('home') }}" class="text-3xl font-extrabold text-indigo-700 hover:text-indigo-900 transition duration-300">
+            <a href="{{ route('home') }}" class="text-3xl font-extrabold text-indigo-700 hover:text-indigo-900 transition duration-300">
                     <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-10 inline-block align-middle mr-3">
                     {{ config('app.name', 'TouchdCloud') }}
+                </a>
             <div class="flex items-center space-x-4 relative">
                 <!-- Search Bar in Header -->
                 <div class="relative hidden lg:block">
@@ -143,7 +144,6 @@
         <!-- Sidebar for navigation -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 bg-white text-gray-800 w-64 p-6 space-y-6 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-20 md:w-60 border-r border-gray-200">
             <div class="flex items-center justify-between md:justify-center mb-8">
-                <h1 class="text-2xl font-extrabold text-indigo-600">Touch D Cloud</h1>
                 <button id="close-sidebar-button" class="text-gray-400 md:hidden focus:outline-none p-2 rounded-md hover:bg-gray-100">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
                 </button>
