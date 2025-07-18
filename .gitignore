@@ -1,8 +1,17 @@
-*.log
-.DS_Store
+# Ignore compiled files and directories
+/vendor/
+/node_modules/
+/public/build
+/public/hot
+/public/storage
+
+# Environment files
 .env
 .env.backup
 .env.production
+
+# IDE and Editor specific files
+.DS_Store
 .phpactor.json
 .phpunit.result.cache
 /.fleet
@@ -11,14 +20,29 @@
 /.phpunit.cache
 /.vscode
 /.zed
-/auth.json
-/node_modules
-/public/build
-/public/hot
-/public/storage
+
+# Laravel specific files/directories
 /storage/*.key
 /storage/pail
-/vendor
-Homestead.json
+/bootstrap/compiled.php  # For Laravel 4, but good to include if not using
+app/storage/             # For Laravel 4, but good to include if not using
+
+# Homestead & Vagrant specific
 Homestead.yaml
+Homestead.json
+/.vagrant
+
+# Log files
+*.log
+npm-debug.log
+yarn-error.log
+
+# Operating system specific files
 Thumbs.db
+
+# Authentication/Sensitive files
+auth.json
+
+# Laravel 5 & Lumen specific with changed public path (if applicable)
+# public_html/storage
+# public_html/hot
