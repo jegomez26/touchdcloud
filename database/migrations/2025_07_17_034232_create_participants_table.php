@@ -9,28 +9,41 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+    // database/migrations/xxxx_xx_xx_create_participants_table.php (your existing one)
+
     public function up(): void
     {
         Schema::create('participants', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained('users')->onDelete('cascade');
-            $table->string('first_name');
+            $table->foreignId('user_id')->nullable()->unique()->constrained('users')->onDelete('cascade');
+
+            // REMOVE THESE LINES FROM HERE:
+            // $table->string('first_name');
+            // $table->string('last_name');
+
             $table->string('middle_name')->nullable();
-            $table->string('last_name');
-            $table->date('birthday');
-            $table->string('disability_type');
+            $table->date('birthday')->nullable();
+            $table->string('disability_type')->nullable();
             $table->text('specific_disability')->nullable();
-            $table->string('accommodation_type');
+            $table->string('accommodation_type')->nullable();
             $table->string('street_address')->nullable();
             $table->string('suburb')->nullable();
             $table->string('state')->nullable();
             $table->string('post_code')->nullable();
-            $table->boolean('is_looking_hm');
-            $table->string('relative_name')->nullable();
-            $table->foreignId('support_coordinator_id')->nullable()->constrained('support_coordinators')->onDelete('set null'); // Set null if SC is deleted
-            $table->string('participant_code_name')->unique();
-            $table->boolean('has_accommodation');
-            $table->foreignId('added_by_user_id')->constrained('users')->onDelete('cascade'); // User who created the record
+            $table->boolean('is_looking_hm')->default(false);
+            $table->string('relative_name')->nullable(); // This is a string, not an FK
+            $table->foreignId('support_coordinator_id')->nullable()->constrained('support_coordinators')->onDelete('set null');
+
+            $table->string('participant_code_name')->unique()->nullable();
+            $table->boolean('has_accommodation')->default(false);
+
+            // This is how you identify who handles the account for the participant
+            $table->foreignId('representative_user_id')
+                ->nullable()
+                ->constrained('users')
+                ->onDelete('set null');
+
+            $table->foreignId('added_by_user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

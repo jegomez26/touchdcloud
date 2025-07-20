@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,19 +22,27 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
 
         $request->session()->regenerate();
 
-        // Check if the user's profile is completed
-        if (!Auth::user()->profile_completed) {
-            // If profile is not completed, they will see the modal on the next page load (app.blade.php)
-            // You might want to flash a session message if you need to display something specific.
-            // session()->flash('must_complete_profile', true); // No longer strictly needed with x-init
+        // --- ADD THIS CONDITIONAL REDIRECTION LOGIC ---
+        $user = Auth::user(); // Get the authenticated user
+
+        if ($user && !$user->profile_completed) {
+            // If the user's profile is not completed, redirect to the profile completion route
+            return redirect()->route('profile.complete'); // Or 'participant.profile.complete' if you kept that route name
         }
 
+        // Default redirection if profile is completed or for other roles
+        // You might want more sophisticated role-based redirection here
+        if ($user->role === 'participant') {
+             return redirect()->intended(route('indiv.dashboard', absolute: false));
+        }
+        // Add conditions for other roles, e.g., if ($user->role === 'coordinator') { ... }
+        // Fallback for other roles or if no specific dashboard route:
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

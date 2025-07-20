@@ -1,8 +1,8 @@
 <form method="POST" action="{{ route('register') }}">
     @csrf
 
-    {{-- Hidden input for role, as this form is specifically for 'individual' --}}
-    <input type="hidden" name="role" value="individual">
+    {{-- Hidden input for role, as this form is specifically for 'participant' --}}
+    <input type="hidden" name="role" value="participant">
 
     {{-- Alpine data for this specific form to manage internal state --}}
     <div x-data="{ registrationType: 'participant' }">

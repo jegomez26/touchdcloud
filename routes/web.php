@@ -2,75 +2,100 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\RegisteredUserController; // For specific registration handling if needed
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\ProfileCompletionController;
+use App\Http\Controllers\IndividualDashboardController;
+// use App\Http\Controllers\CompleteParticipantProfileController; // Corrected controller import
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
 
-Route::middleware('guest')->group(function () {
-    // We no longer need a GET route for /register as it's purely modal-driven now.
-    // The modal directly POSTs to the store method.
-    // However, if you want direct access for coordinator/provider for any reason, you'd keep a GET route here.
-
-    // Route::post('register', [RegisteredUserController::class, 'store'])->name('register'); // Handles initial registration post
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-});
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-// New route for profile completion
-Route::post('/profile/complete', [ProfileCompletionController::class, 'complete'])
-    ->middleware(['auth', 'verified']) // Only authenticated and verified users can complete profile
-    ->name('profile.complete');
-
-Route::middleware('auth')->group(function () {
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-});
-
-// Your custom landing page (Home)
+// Public Routes (Accessible to everyone)
 Route::get('/', function () {
-    return view('home'); // <-- CHANGE THIS LINE from 'welcome' to 'home'
-})->name('home'); // <-- ADD THIS LINE to name your home route
+    return view('home');
+})->name('home');
 
-// Your custom About Us page
 Route::get('/about-us', function () {
     return view('about');
 })->name('about');
 
-// Your custom Listings page
 Route::get('/listings', function () {
     return view('listings');
 })->name('listings');
 
-Route::get('/indiv-dashboard', function () {
-    return view('indiv-dashboard/indiv-dashboard');
-})->name('indiv-dashboard');
+// Guest Middleware Group (Only for users who are NOT logged in)
+Route::middleware('guest')->group(function () {
+    // Authentication Routes provided by Breeze (including /register GET and POST, login GET and POST)
+    // If you're using a custom modal that POSTs directly to /register, the route from auth.php handles it.
+    // If auth.php is *not* included or customized, you'd add:
+    // Route::get('register', [RegisteredUserController::class, 'create'])->name('register'); // If you need a direct GET route
+    // Route::post('register', [RegisteredUserController::class, 'store'])->name('register'); // Your modal POSTs here
 
-Route::get('/sc-dashboard', function () {
-    return view('sc-dashboard/sc-dashboard');
-})->name('sc-dashboard');
+    // Login routes are typically handled by auth.php as well.
+    // However, if you explicitly want them here:
+    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+});
 
-// Default Breeze dashboard route
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route::get('/register/{role?}', [RegisteredUserController::class, 'create'])
-//             ->name('register'); // The 'role?' makes the parameter optional
-
-// Route::post('/register', [RegisteredUserController::class, 'store']);
-
-// Default Breeze profile routes
+// Authenticated Middleware Group (Only for users who ARE logged in)
 Route::middleware('auth')->group(function () {
+    // Logout Route
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+    // Default Breeze Dashboard
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware('verified')->name('dashboard'); 
+
+    // Custom Dashboards (Protected by auth middleware)
+    Route::get('/indiv-dashboard', [IndividualDashboardController::class, 'index'])
+        ->name('indiv.dashboard'); 
+
+    Route::get('/sc-dashboard', function () {
+        return view('sc-dashboard/sc-dashboard');
+    })->name('sc-dashboard');
+
+    // Route to DISPLAY the profile completion form (GET request)
+    Route::get('/profile/complete', [App\Http\Controllers\IndividualDashboardController::class, 'showCompleteProfileForm'])
+        ->name('profile.complete.show'); // Give it a distinct name
+
+    // Route to HANDLE the submission of the profile completion form (POST request)
+    Route::post('/profile/complete', [App\Http\Controllers\IndividualDashboardController::class, 'completeProfile'])
+        ->name('profile.complete'); // Keep this name for the form action
+
+    // User Profile Management (Breeze default profile routes)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Participant Profile Completion Routes
+    // Route::get('/participant/profile/complete', [CompleteParticipantProfileController::class, 'create'])
+    //     ->middleware('verified') // Ensures email is verified before completing profile
+    //     ->name('participant.profile.complete');
+
+    // Route::post('/participant/profile/store', [CompleteParticipantProfileController::class, 'store'])
+    //     ->middleware('verified') // Ensures email is verified before completing profile
+    //     ->name('participant.profile.store');
+
+    // You would add similar profile completion routes for other roles (e.g., coordinator, provider) here
+    // Example:
+    // Route::get('/coordinator/profile/complete', [CompleteCoordinatorProfileController::class, 'create'])
+    //     ->middleware('verified')
+    //     ->name('coordinator.profile.complete');
+    // Route::post('/coordinator/profile/store', [CompleteCoordinatorProfileController::class, 'store'])
+    //     ->middleware('verified')
+    //     ->name('coordinator.profile.store');
 });
 
-// Includes all authentication routes (login, register, logout, etc.) from Breeze
+// Include all standard authentication routes from Breeze.
+// This handles /register GET/POST, /login GET/POST (if not overridden above),
+// password reset, email verification, etc.
 require __DIR__.'/auth.php';
