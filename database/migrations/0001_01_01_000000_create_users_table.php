@@ -13,11 +13,22 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('email')->unique();
-            $table->enum('role', ['participant', 'support_coordinator', 'provider', 'admin'])->default('participant');
+            // Ensure these match the values sent by your forms and validated by the controller
+            $table->enum('role', ['participant', 'coordinator', 'provider', 'admin'])->default('participant');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('profile_completed')->default(false);
+            $table->boolean('is_representative')->default(false); // Indicates if this user ACCOUNT is a representative (e.g., for login)
+            $table->string('relationship_to_participant')->nullable(); // Relationship of this user (if they are a representative) to the participant they registered
+
+            // Add the fields for the *representative's* name, *if* the user registering is a representative
+            // These are nullable because not every user will be a representative.
+            $table->string('representative_first_name')->nullable();
+            $table->string('representative_last_name')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });

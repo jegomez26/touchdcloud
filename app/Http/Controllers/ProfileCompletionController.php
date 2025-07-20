@@ -33,7 +33,7 @@ class ProfileCompletionController extends Controller
         $data = $request->all(); // Consider only specific fields from request
 
         switch ($user->role) {
-            case 'individual':
+            case 'participant':
                 $rules = [
                     'first_name' => ['required', 'string', 'max:255'],
                     'middle_name' => ['nullable', 'string', 'max:255'],
@@ -96,7 +96,7 @@ class ProfileCompletionController extends Controller
 
         try {
             switch ($user->role) {
-                case 'individual':
+                case 'participant':
                     $participantData = [
                         'first_name' => $request->first_name,
                         'middle_name' => $request->middle_name,

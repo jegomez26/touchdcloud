@@ -9,16 +9,12 @@ class Participant extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'user_id',
-        'first_name',
+        // REMOVE THESE, as per your updated User model:
+        // 'first_name',
+        // 'last_name',
         'middle_name',
-        'last_name',
         'birthday',
         'disability_type',
         'specific_disability',
@@ -28,52 +24,37 @@ class Participant extends Model
         'state',
         'post_code',
         'is_looking_hm',
-        'relative_name', // Ensure this is present
+        'relative_name', // This is a string for now, but could be an FK later
         'support_coordinator_id',
         'participant_code_name',
         'has_accommodation',
         'added_by_user_id',
+        'representative_user_id', // ADD THIS if it's not there
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'birthday' => 'date',
         'is_looking_hm' => 'boolean',
         'has_accommodation' => 'boolean',
     ];
 
-    /**
-     * Get the user that owns the participant profile.
-     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Get the support coordinator associated with the participant.
-     */
     public function supportCoordinator()
     {
-        return $this->belongsTo(SupportCoordinator::class); // Make sure SupportCoordinator model exists
+        return $this->belongsTo(SupportCoordinator::class);
     }
 
-    public function relative()
-    {
-        return $this->belongsTo(Relative::class); // If one participant has one primary relative
-        // OR
-        // return $this->hasMany(Relative::class); // If a participant can have multiple relatives
-    }
-
-    /**
-     * Get the user who added this participant record.
-     */
     public function addedBy()
     {
         return $this->belongsTo(User::class, 'added_by_user_id');
+    }
+
+    public function representativeUser()
+    {
+        return $this->belongsTo(User::class, 'representative_user_id');
     }
 }

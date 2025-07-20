@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Individual Dashboard</title>
+    <title>Touch D Cloud - Participant Dashboard</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -88,7 +88,7 @@
     <header class="bg-white shadow-md p-4 flex items-center justify-between z-20 sticky top-0">
         <!-- Mobile Header Content (Hamburger Menu, Title) -->
         <div class="flex items-center md:hidden w-full justify-between">
-            <h1 class="text-xl font-bold text-gray-800">Individual Dashboard</h1>
+            <h1 class="text-xl font-bold text-gray-800">Participant Dashboard</h1>
             <button id="mobile-menu-button" class="text-gray-600 focus:outline-none p-2 rounded-md hover:bg-gray-100">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
             </button>
@@ -165,7 +165,7 @@
         <!-- Main content area -->
         <main class="flex-1 p-4 md:p-8 overflow-y-auto">
             <div class="max-w-full mx-auto">
-                <!-- Dashboard Section (Placeholder for individual dashboard content) -->
+                <!-- Dashboard Section (Placeholder for participant dashboard content) -->
                 <div id="dashboard-section" class="dashboard-section p-6 bg-white rounded-xl shadow-lg mb-8 hidden">
                     <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome, John Smith!</h2>
                     <p class="text-gray-600">This is your personalized dashboard overview.</p>
