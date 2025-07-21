@@ -49,6 +49,10 @@ Route::middleware('guest')->group(function () {
         return view('supcoor/sc-dashboard');
     })->name('sc-dashboard');
 
+    Route::get('/company-dashboard', function () {
+        return view('company/company-dashboard');
+    })->name('company-dashboard');
+
 // Authenticated Middleware Group (Only for users who ARE logged in)
 Route::middleware('auth')->group(function () {
     // Logout Route

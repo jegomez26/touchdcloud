@@ -69,11 +69,20 @@ class IndividualDashboardController extends Controller
         }
         // --- END NEW LOGIC ---
 
-        // Pass both $user and $participant to the view
-        return view('profile.complete-participant-profile', [
-            'user' => $user,
-            'participant' => $participant // <--- Pass participant as a separate variable
-        ]);
+        // Check if the profile is completed
+        if ($user->profile_completed) {
+            // If profile is completed, show the read-only view
+            return view('profile.view-participant-profile', [
+                'user' => $user,
+                'participant' => $participant
+            ]);
+        } else {
+            // If profile is not completed, show the form
+            return view('profile.complete-participant-profile', [
+                'user' => $user,
+                'participant' => $participant
+            ]);
+        }
     }
 
     /**

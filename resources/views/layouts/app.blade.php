@@ -28,7 +28,7 @@
 
         {{-- Updated Navbar: Sticky and Wider Spacing --}}
         <nav class="bg-white border-b border-gray-200 shadow-sm p-4 sticky top-0 z-50">
-            <div class="container mx-auto flex justify-between items-center">
+            <div class="container mx-auto flex justify-between items-center opacity-100">
                 <a href="{{ route('home') }}" class="text-3xl font-extrabold text-indigo-700 hover:text-indigo-900 transition duration-300">
                     <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-10 inline-block align-middle mr-3">
                     {{ config('app.name', 'TouchdCloud') }}
@@ -38,6 +38,7 @@
                     <a href="{{ route('home') }}" class="text-gray-700 hover:text-indigo-600 font-medium text-lg transition duration-300">Home</a>
                     <a href="{{ route('about') }}" class="text-gray-700 hover:text-indigo-600 font-medium text-lg transition duration-300">About Us</a>
                     <a href="{{ route('listings') }}" class="text-gray-700 hover:text-indigo-600 font-medium text-lg transition duration-300">Listings</a>
+                    <a href="{{ route('company-dashboard') }}" class="text-gray-700 hover:text-indigo-600 font-medium text-lg transition duration-300">Company</a>
                     {{-- <a href="{{ route('indiv-db') }}" class="text-gray-700 hover:text-indigo-600 font-medium text-lg transition duration-300">Participant</a> --}}
                     <a href="{{ route('sc-dashboard') }}" class="text-gray-700 hover:text-indigo-600 font-medium text-lg transition duration-300">Support Coordinator</a>
 

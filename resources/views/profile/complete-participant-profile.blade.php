@@ -5,7 +5,7 @@
     <div class="max-w-2xl mx-auto p-8 bg-white rounded-xl shadow-lg mt-8 border border-gray-200">
         <h2 class="text-3xl font-extrabold text-gray-900 mb-6 text-center">Complete Your Profile 📝</h2>
         <p class="text-gray-700 mb-8 text-center leading-relaxed">
-            Please provide your details to get started with your role as a **{{ ucfirst($user->role) }}**{{ $user->is_representative ? ' (as a representative).' : '.' }}
+            Please provide your details to get started with your role as a <span>{{ ucfirst($user->role) }}</span>{{ $user->is_representative ? ' (as a representative).' : '.' }}
             This information helps us connect you with the right opportunities.
         </p>
 
