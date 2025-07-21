@@ -9,19 +9,19 @@ export default defineConfig({
         }),
     ],
     server: {
-        // host: 'localhost', // Listen on all network interfaces
-        // port: 5173,      // Default Vite port
-        // // hmr: {
-        // //     host: 'localhost', // Use your specific development PC's IP here for HMR (Hot Module Replacement)
-        // //                           // This is crucial for web sockets if using Alpine.js live reload etc.
-        // // },
-        // cors: {
-        //     origin: '*', // Allows all origins. For production, you'd specify your domain.
-        //                  // For development, '*' is often fine to quickly resolve CORS issues.
-        //     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-        //     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Allowed headers
-        //     credentials: true, // Allow cookies and authentication headers to be sent
-        // },
+        host: '192.168.1.22', // Listen on all network interfaces
+        port: 5173,      // Default Vite port
+        hmr: {
+            host: '192.168.1.22', // Use your specific development PC's IP here for HMR (Hot Module Replacement)
+                                  // This is crucial for web sockets if using Alpine.js live reload etc.
+        },
+        cors: {
+            origin: '*', // Allows all origins. For production, you'd specify your domain.
+                         // For development, '*' is often fine to quickly resolve CORS issues.
+            methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
+            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'], // Allowed headers
+            credentials: true, // Allow cookies and authentication headers to be sent
+        },
         // If you're using HTTPS locally, you might need:
         // https: false, // Set to true if you set up HTTPS for Vite
     },

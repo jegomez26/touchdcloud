@@ -59,7 +59,7 @@
             </div>
         </nav>
 
-        <main class="flex-grow py-8">
+        <main class="flex-grow">
             @yield('content')
         </main>
 
