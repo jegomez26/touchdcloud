@@ -45,6 +45,10 @@ Route::middleware('guest')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
 
+    Route::get('/sc-dashboard', function () {
+        return view('supcoor/sc-dashboard');
+    })->name('sc-dashboard');
+
 // Authenticated Middleware Group (Only for users who ARE logged in)
 Route::middleware('auth')->group(function () {
     // Logout Route
@@ -59,9 +63,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/indiv-dashboard', [IndividualDashboardController::class, 'index'])
         ->name('indiv.dashboard'); 
 
-    Route::get('/sc-dashboard', function () {
-        return view('sc-dashboard/sc-dashboard');
-    })->name('sc-dashboard');
+    // Route::get('/sc-dashboard', function () {
+    //     return view('supcoor/sc-dashboard');
+    // })->name('sc-dashboard');
 
     // Route to DISPLAY the profile completion form (GET request)
     Route::get('/profile/complete', [App\Http\Controllers\IndividualDashboardController::class, 'showCompleteProfileForm'])
