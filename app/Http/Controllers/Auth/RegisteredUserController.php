@@ -9,64 +9,93 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule; // Import Rule for conditional validation
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-    // ... (create method as before)
+    /**
+     * Display the registration view.
+     */
+    public function create(): View
+    {
+        // This method would render your 'register-individual' Blade view
+        return view('auth.register-individual');
+    }
 
+    /**
+     * Handle an incoming registration request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
     public function store(Request $request): RedirectResponse
     {
+        // Define base rules for all registrations through this form
         $rules = [
-            'first_name' => ['required', 'string', 'max:255'], // Participant's first name
-            'last_name' => ['required', 'string', 'max:255'],   // Participant's last name
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => ['required', 'string', Rule::in(['participant', 'coordinator', 'provider'])], // Use Rule::in for better readability
+            'role' => ['required', 'string', Rule::in(['participant'])], // Fixed to 'participant' from hidden input
+            'registration_type' => ['required', 'string', Rule::in(['participant', 'representative'])], // From radio buttons
         ];
 
-        // Add conditional validation for 'participant' role when 'representative' is chosen
-        if ($request->input('role') === 'participant' && $request->input('registration_type') === 'representative') {
-            $rules['representative_first_name'] = ['required', 'string', 'max:255'];
-            $rules['representative_last_name'] = ['required', 'string', 'max:255'];
+        // Conditional validation based on registration_type
+        if ($request->input('registration_type') === 'representative') {
+            // If registering as a representative, the primary 'first_name' and 'last_name'
+            // are for the *representative*.
+            $rules['first_name'] = ['required', 'string', 'max:255']; // Representative's first name
+            $rules['last_name'] = ['required', 'string', 'max:255'];  // Representative's last name
+
+            // The 'representative_first_name' and 'representative_last_name' from the form
+            // are for the *participant*. However, your migration defines these on the User table.
+            // This is a potential source of confusion based on your variable names.
+            // Let's assume you intended 'representative_first_name' and 'representative_last_name'
+            // to be the *participant's* names when a representative registers.
+            // And 'first_name'/'last_name' are for the representative.
+            // This is the interpretation of your Blade, so we'll stick to it.
+            $rules['representative_first_name'] = ['required', 'string', 'max:255']; // Participant's first name
+            $rules['representative_last_name'] = ['required', 'string', 'max:255'];  // Participant's last name
+
             $rules['relationship_to_participant'] = ['required', 'string', 'max:255'];
+        } else { // 'participant' (self) registration
+            // If registering as the participant themselves, 'first_name' and 'last_name'
+            // are for the participant (who is also the user account holder).
+            $rules['first_name'] = ['required', 'string', 'max:255']; // Participant's (and user's) first name
+            $rules['last_name'] = ['required', 'string', 'max:255'];  // Participant's (and user's) last name
         }
 
-        // Validate the request
         $request->validate($rules);
 
-        // Prepare user data based on role and registration type
+        // Determine the value for 'is_representative' column
+        $isRepresentativeAccount = ($request->input('registration_type') === 'representative');
+
         $userData = [
-            'first_name' => $request->first_name, // This is always the Participant's first name
-            'last_name' => $request->last_name,   // This is always the Participant's last name
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
+            'role' => 'participant', // Always 'participant' from the hidden input
             'profile_completed' => false,
+            'is_representative' => $isRepresentativeAccount, // Set based on the registration_type
         ];
 
-        // If 'participant' role and registering as 'representative', store representative details separately
-        // You'll need to decide where to store this.
-        // Option 1: Add new columns to the 'users' table (e.g., 'representative_first_name', 'representative_last_name', 'relationship_to_participant')
-        //           This would make the User model quite bloated if these fields only apply to one role/scenario.
-        // Option 2: Create a separate 'representatives' table and link it to the 'users' table.
-        //           This is generally a cleaner architectural approach for complex relationships.
-        // Option 3: Store as a JSON column in 'users' table (less structured but quick).
-        // For now, I'll demonstrate adding to the user data if you decide to add columns to the 'users' table.
-        // **YOU WILL NEED TO ADD THESE COLUMNS TO YOUR USERS MIGRATION FIRST if you choose Option 1.**
-
-        if ($request->input('role') === 'participant' && $request->input('registration_type') === 'representative') {
+        if ($isRepresentativeAccount) {
+            // If this account is a representative's account:
+            // 'first_name' and 'last_name' columns of the User model store the Representative's name.
+            $userData['first_name'] = $request->first_name;
+            $userData['last_name'] = $request->last_name;
+            // 'relationship_to_participant' stores the relationship.
+            $userData['relationship_to_participant'] = $request->relationship_to_participant;
+            // 'representative_first_name' and 'representative_last_name' store the Participant's name.
             $userData['representative_first_name'] = $request->representative_first_name;
             $userData['representative_last_name'] = $request->representative_last_name;
-            $userData['relationship_to_participant'] = $request->relationship_to_participant;
-            // You might also want to set the email and password to be for the representative, not the participant.
-            // This design choice is critical: Is the user account for the participant or the representative?
-            // Current code assumes the user account is for the participant, and representative details are extra.
-            // If the account IS the representative, then email/password should be theirs, and participant details are extra.
-            // Let's assume for now the *account* is the participant, and the representative details are additional.
-            // If the account should be the representative, you'd swap 'first_name', 'last_name' with 'representative_first_name', 'representative_last_name' for the primary user fields.
+        } else {
+            // If this account is the participant's own account:
+            // 'first_name' and 'last_name' columns of the User model store the Participant's own name.
+            $userData['first_name'] = $request->first_name;
+            $userData['last_name'] = $request->last_name;
+            // Set representative-specific fields to null if not applicable to avoid errors
+            $userData['relationship_to_participant'] = null;
+            $userData['representative_first_name'] = null;
+            $userData['representative_last_name'] = null;
         }
 
         $user = User::create($userData);
@@ -75,7 +104,9 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Redirect after successful registration
-        return redirect(route('dashboard', absolute: false)); // Your middleware should handle profile_completed redirection
+        // Redirect after successful registration.
+        // The VerificationController's `verified` method should be configured
+        // to redirect to `profile.complete.show` with a flash message after email verification.
+        return redirect(route('dashboard', absolute: false));
     }
 }
