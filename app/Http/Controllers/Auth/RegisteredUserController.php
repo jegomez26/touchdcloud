@@ -24,6 +24,27 @@ class RegisteredUserController extends Controller
         return view('auth.register-individual');
     }
 
+    public function createIndividual(): View
+    {
+        return view('auth.register-individual');
+    }
+
+    /**
+     * Display the registration view for a support coordinator.
+     */
+    public function createCoordinator(): View
+    {
+        return view('auth.register-coordinator'); // You'll create this file
+    }
+
+    /**
+     * Display the registration view for an accommodation provider.
+     */
+    public function createProvider(): View
+    {
+        return view('auth.register-provider'); // You'll create this file
+    }
+
     /**
      * Handle an incoming registration request.
      *
@@ -34,7 +55,18 @@ class RegisteredUserController extends Controller
         // Define base rules for all registrations through this form
         $rules = [
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required',
+                'confirmed', // Checks password_confirmation for match
+                'min:8',     // Minimum 8 characters
+                Rules\Password::min(8) // Laravel 9+ recommended for stronger rules
+                    ->mixedCase()      // Requires both uppercase and lowercase
+                    ->letters()        // Requires at least one letter
+                    ->numbers()        // Requires at least one digit
+                    ->symbols(),       // Requires at least one symbol (special character)
+                // You can add a custom regex for specific special characters if Rules\Password::symbols() is too broad
+                // 'regex:/[!@#$%^&*()_+\-=\[\]{};\':`~\\|,.<>\/?]/'
+            ],
             'role' => ['required', 'string', Rule::in(['participant'])], // Fixed to 'participant' from hidden input
             'registration_type' => ['required', 'string', Rule::in(['participant', 'representative'])], // From radio buttons
         ];

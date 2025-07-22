@@ -8,6 +8,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Providers\RouteServiceProvider; // Assuming this exists or define a fallback
 
 class AuthenticatedSessionController extends Controller
 {
@@ -24,25 +25,29 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->authenticate(); // Authenticates the user
 
-        $request->session()->regenerate();
+        $request->session()->regenerate(); // Regenerates the session ID
 
-        // --- ADD THIS CONDITIONAL REDIRECTION LOGIC ---
         $user = Auth::user(); // Get the authenticated user
 
-        if ($user && !$user->profile_completed) {
-            // If the user's profile is not completed, redirect to the profile completion route
-            return redirect()->route('profile.complete'); // Or 'participant.profile.complete' if you kept that route name
+        // 1. --- Check Email Verification FIRST ---
+        if ($user && !$user->hasVerifiedEmail()) {
+            // Redirect to the email verification notice if not verified
+            return redirect()->route('verification.notice');
         }
 
-        // Default redirection if profile is completed or for other roles
-        // You might want more sophisticated role-based redirection here
-        if ($user->role === 'participant') {
-             return redirect()->intended(route('indiv.dashboard', absolute: false));
+        // 2. --- Then, check Profile Completion (ONLY if email is verified) ---
+        if ($user && $user->role === 'participant' && !$user->isProfileComplete()) {
+            return redirect()->route('profile.complete.show');
         }
-        // Add conditions for other roles, e.g., if ($user->role === 'coordinator') { ... }
-        // Fallback for other roles or if no specific dashboard route:
+
+        // 3. --- Default Redirection Based on Role ---
+        if ($user->role === 'participant') {
+            return redirect()->intended(route('indiv.dashboard', absolute: false));
+        }
+
+        // Fallback for other roles or if no specific dashboard route
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

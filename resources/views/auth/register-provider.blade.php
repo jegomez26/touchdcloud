@@ -1,47 +1,26 @@
-<form method="POST" action="{{ route('register') }}" class="space-y-6">
-    @csrf
+@extends('layouts.app') {{-- or layouts.guest if you made one --}}
 
-    <input type="hidden" name="registration_type" value="participant"> {{-- Or 'provider-direct' --}}
-    <input type="hidden" name="role" value="provider">
+@section('content')
+<div class="flex flex-col items-center pt-6 sm:pt-0 min-h-screen">
+    <div class="w-full sm:max-w-2xl mt-6 px-6 py-8 bg-custom-white shadow-xl overflow-hidden sm:rounded-lg border border-custom-light-grey-green relative">
+        <h2 class="text-3xl font-extrabold text-custom-black text-center mb-8">Register as an Accommodation Provider</h2>
 
-    <div>
-        <x-input-label for="first_name" :value="__('Your First Name')" />
-        <x-text-input id="first_name" class="block mt-1 w-full" type="text" name="first_name" :value="old('first_name')" required autofocus />
-        <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
-    </div>
-
-    <div class="mt-4">
-        <x-input-label for="last_name" :value="__('Your Last Name')" />
-        <x-text-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" :value="old('last_name')" required />
-        <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
-    </div>
-
-    <div class="mt-4">
-        <x-input-label for="email" :value="__('Email Address')" />
-        <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-        <x-input-error :messages="$errors->get('email')" class="mt-2" />
-    </div>
-
-    <div class="mt-4">
-        <x-input-label for="password" :value="__('Password')" />
-        <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-        <x-input-error :messages="$errors->get('password')" class="mt-2" />
-    </div>
-
-    <div class="mt-4">
-        <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-        <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-    </div>
-
-    <div class="flex items-center justify-end mt-4">
-        <a @click.prevent="$parent.showInitialRegisterModal = false; $parent.showLoginModal = true;"
-           class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer">
-            {{ __('Already registered?') }}
+        <a href="{{ route('home') }}?showRegisterModal=true"
+           class="absolute top-3 right-3 text-custom-light-grey-brown hover:text-custom-black text-3xl font-bold"
+           title="Back to role selection">
+            &times;
         </a>
 
-        <x-primary-button class="ms-4">
-            {{ __('Register Account') }}
-        </x-primary-button>
+        <p class="text-center text-lg text-custom-dark-olive">
+            This is the registration form for NDIS Accommodation Providers.
+            <br>Content will be added here soon!
+        </p>
+
+        <div class="flex items-center justify-center mt-8">
+            <a class="underline text-sm text-custom-dark-teal hover:text-custom-ochre rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-ochre" href="{{ route('login') }}">
+                {{ __('Already registered?') }}
+            </a>
+        </div>
     </div>
-</form> 
+</div>
+@endsection

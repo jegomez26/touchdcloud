@@ -3,10 +3,10 @@
 @section('content')
 
     <section class="relative h-screen flex items-center justify-center text-white overflow-hidden bg-cover bg-center"
-        style="background-image: url('images/hero-bg.jpg');"
+        style="background-image: url('images/VecrtorWB.png'); margin-top:-100px"
         data-parallax-speed="0.3">
         {{-- Subtle gradient overlay for aesthetic depth and text readability using the new palette --}}
-        <div class="absolute inset-0 bg-gradient-to-br from-[#33595a] via-[#3e4732] to-black opacity-80 z-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-[#33595a] via-[#3e4732] to-black opacity-0 z-10"></div>
 
         <div class="container mx-auto px-6 relative z-20 text-center">
             <h1 class="text-4xl sm:text-6xl lg:text-8xl font-extrabold leading-tight mb-6
