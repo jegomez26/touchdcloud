@@ -4,12 +4,15 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable; // Extends Authenticatable
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait; // Correct alias
+
 
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
+    use MustVerifyEmailTrait; // <-- Use the ALIAS for the trait here
 
     /**
      * The attributes that are mass assignable.
@@ -21,13 +24,12 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_name',
         'email',
         'password',
-        'role', // Now includes 'participant', 'representative', 'support_coordinator', 'provider', 'admin'
+        'role',
         'profile_completed',
         'is_representative',
         'relationship_to_participant',
-        // ADD THESE TWO FIELDS if you intend to store them directly on the User model
-        'representative_first_name', // Added
-        'representative_last_name',  // Added
+        'representative_first_name',
+        'representative_last_name',
     ];
 
     /**
@@ -55,13 +57,19 @@ class User extends Authenticatable implements MustVerifyEmail
         ];
     }
 
-    // ... (rest of your relationships and profile method)
+    // You should also add an `isProfileComplete` method to your User model
+    // as it's being used in your AuthenticatedSessionController.
+    public function isProfileComplete()
+    {
+        return (bool) $this->profile_completed;
+    }
+
     public function participant()
     {
         return $this->hasOne(Participant::class);
     }
 
-    public function participantsRepresented() // Renamed for clarity
+    public function participantsRepresented()
     {
         return $this->hasMany(Participant::class, 'representative_user_id');
     }
@@ -76,6 +84,10 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(Provider::class);
     }
 
+    // This method seems redundant as 'user()' typically implies belongsTo.
+    // If a User 'belongs to' another User, clarify this relationship.
+    // If it's meant to be polymorphic, it would be set up differently.
+    // For now, it's not directly causing the `hasVerifiedEmail` error but keep an eye on it.
     public function user()
     {
         return $this->belongsTo(User::class);

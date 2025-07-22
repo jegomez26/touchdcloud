@@ -19,6 +19,11 @@ use App\Http\Controllers\IndividualDashboardController;
 */
 
 // Public Routes (Accessible to everyone)
+
+Route::get('/test-home', function () {
+    return "Test Home Page Loaded!";
+})->name('test.home');
+
 Route::get('/', function () {
     return view('home');
 })->name('home');
@@ -30,6 +35,32 @@ Route::get('/about-us', function () {
 Route::get('/listings', function () {
     return view('listings');
 })->name('listings');
+
+Route::get('/terms-of-service', function () {
+    // You can serve a static Blade view for terms of service
+    // Make sure you create resources/views/terms.blade.php
+    return view('terms');
+})->name('terms.show');
+
+Route::get('/privacy-policy', function () {
+    // You can serve a static Blade view for privacy policy
+    // Make sure you create resources/views/policy.blade.php
+    return view('policy');
+})->name('policy.show');
+
+// Optionally, if you want to use markdown files and parse them
+Route::get('/terms-markdown', function () {
+    $markdownContent = File::get(resource_path('markdown/terms.md'));
+    // You would use a markdown parser here, e.g., league/commonmark
+    // For simplicity, just showing the content for now
+    return view('markdown-page', ['content' => $markdownContent]);
+})->name('terms.markdown');
+
+Route::get('/privacy-markdown', function () {
+    $markdownContent = File::get(resource_path('markdown/privacy.md'));
+    // For simplicity, just showing the content for now
+    return view('markdown-page', ['content' => $markdownContent]);
+})->name('policy.markdown');
 
 // Guest Middleware Group (Only for users who are NOT logged in)
 Route::middleware('guest')->group(function () {
@@ -43,6 +74,24 @@ Route::middleware('guest')->group(function () {
     // However, if you explicitly want them here:
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    // // Registration Role Selection Page
+    // Route::get('register-options', function () {
+    //     return view('auth.register-options');
+    // })->name('register.options');
+
+    // Specific Registration Pages for each role
+    Route::get('register/participant', [RegisteredUserController::class, 'createIndividual'])->name('register.individual.create');
+    Route::post('register/participant', [RegisteredUserController::class, 'storeIndividual'])->name('register.individual.store');
+
+    Route::get('register/coordinator', [RegisteredUserController::class, 'createCoordinator'])->name('register.coordinator.create');
+    Route::post('register/coordinator', [RegisteredUserController::class, 'storeCoordinator'])->name('register.coordinator.store');
+
+    Route::get('register/provider', [RegisteredUserController::class, 'createProvider'])->name('register.provider.create');
+    Route::post('register/provider', [RegisteredUserController::class, 'storeProvider'])->name('register.provider.store');
+
+    // For now, assume a single POST /register route handles all.
+    Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
 });
 
     Route::get('/sc-dashboard', function () {
@@ -65,6 +114,7 @@ Route::middleware('auth')->group(function () {
 
     // Custom Dashboards (Protected by auth middleware)
     Route::get('/indiv-dashboard', [IndividualDashboardController::class, 'index'])
+        ->middleware('verified')
         ->name('indiv.dashboard'); 
 
     // Route::get('/sc-dashboard', function () {
@@ -73,10 +123,12 @@ Route::middleware('auth')->group(function () {
 
     // Route to DISPLAY the profile completion form (GET request)
     Route::get('/profile/complete', [App\Http\Controllers\IndividualDashboardController::class, 'showCompleteProfileForm'])
+        ->middleware('verified') // <-- ADD THIS: ONLY VERIFIED USERS CAN ACCESS PROFILE COMPLETION
         ->name('profile.complete.show'); // Give it a distinct name
 
     // Route to HANDLE the submission of the profile completion form (POST request)
     Route::post('/profile/complete', [App\Http\Controllers\IndividualDashboardController::class, 'completeProfile'])
+        ->middleware('verified') // <-- ADD THIS
         ->name('profile.complete'); // Keep this name for the form action
 
     // User Profile Management (Breeze default profile routes)
