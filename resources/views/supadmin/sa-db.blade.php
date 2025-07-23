@@ -1,10 +1,11 @@
-{{-- resources/views/indiv/indiv-db.blade.php --}}
+{{-- resources/views/supadmin/sa-db.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Touch D Cloud - Participant Dashboard</title>
+    {{-- Updated title to reflect Super Admin --}}
+    <title>Touch D Cloud - Super Admin Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {{-- Flatpickr CSS --}}
@@ -237,7 +238,7 @@
             font-family: 'Inter', sans-serif;
         }
         .flatpickr-calendar .flatpickr-current-month .numInput {
-             font-family: 'Inter', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
     </style>
     @stack('styles')
@@ -246,14 +247,15 @@
 
     <header class="bg-[#ffffff] shadow-md p-4 flex items-center justify-between z-30 sticky top-0 w-full h-16"> {{-- Added h-16 (64px) for header height --}}
         <div class="flex items-center md:hidden w-full justify-between">
-            <h1 class="text-xl font-bold text-[#3e4732]">Participant Dashboard</h1>
+            {{-- Updated header for mobile --}}
+            <h1 class="text-xl font-bold text-[#3e4732]">Super Admin Dashboard</h1>
             <button id="mobile-menu-button" class="text-[#bcbabb] focus:outline-none p-2 rounded-md hover:bg-[#f8f1e1]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
             </button>
         </div>
 
         <div class="hidden md:flex items-center justify-between w-full">
-            <a href="{{ route('home') }}" class="text-3xl font-extrabold text-[#33595a] hover:text-[#3e4732] transition duration-300">
+            <a href="{{ route('sa.dashboard') }}" class="text-3xl font-extrabold text-[#33595a] hover:text-[#3e4732] transition duration-300">
                 <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }}" class="h-10 inline-block align-middle mr-3">
                 {{ config('app.name', 'TouchdCloud') }}
             </a>
@@ -300,13 +302,7 @@
                     </button>
 
                     <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-[#ffffff] rounded-lg shadow-xl py-1 ring-1 ring-black ring-opacity-5 hidden z-30">
-                        <a href="{{ route('profile.complete') }}" class="block px-4 py-2 text-sm text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a] w-full text-left transition-colors duration-150 rounded-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user inline-block mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
-                        </a>
-                        <button data-action="settings" class="block px-4 py-2 text-sm text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a] w-full text-left transition-colors duration-150 rounded-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings inline-block mr-2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
-                        </button>
-                        <hr class="my-1 border-[#bcbabb]">
+                        
                         <button data-action="logout" class="block px-4 py-2 text-sm text-[#cc8e45] hover:bg-[#f8f1e1] w-full text-left transition-colors duration-150 rounded-md" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out inline-block mr-2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="17 16 22 12 17 8"/><line x1="22" x2="11" y1="12" y2="12"/></svg> Log out
                         </button>
@@ -329,16 +325,30 @@
             {{-- Navigation menu: this itself should not scroll --}}
             <nav class="space-y-1 overflow-y-auto pr-2" id="sidebar-nav-container"> {{-- Added overflow-y-auto and pr-2 here for explicit sidebar nav scrolling if needed --}}
                 <p class="text-xs font-semibold text-[#bcbabb] uppercase mb-2 px-4">Menu</p>
-                <button data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                {{-- Dashboard link --}}
+                <a href="{{ route('sa.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
-                </button>
-                <button data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
-                </button>
-                <button data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
-                </button>
-                
+                </a>
+                {{-- Participants link --}}
+                <a href="" data-section="participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Participants
+                </a>
+                {{-- Support Coordinators link --}}
+                <a href="" data-section="support-coordinators" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake mr-3"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.5.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.3-.6h4.4c1.1 0 2.1-.4 2.8-1.2L21 11"/><path d="M19 12v6a2 2 0 0 1-2 2h-4"/></svg> Support Coordinators
+                </a>
+                {{-- Providers link --}}
+                <a href="" data-section="providers" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck mr-3"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M10 18H7"/><path d="M19 18h-6"/><path d="M17 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M7 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M14 6h7l-3 5H6"/></svg> Providers
+                </a>
+                {{-- NDIS Businesses link --}}
+                <a href="" data-section="ndis-businesses" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building mr-3"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg> NDIS Businesses
+                </a>
+                {{-- Messages link --}}
+                <a href="" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                </a>
             </nav>
         </aside>
 
@@ -352,16 +362,30 @@
             </div>
             <nav class="space-y-1 overflow-y-auto pr-2" id="mobile-sidebar-nav-container">
                 <p class="text-xs font-semibold text-[#bcbabb] uppercase mb-2 px-4">Menu</p>
-                <button data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                {{-- Dashboard link for mobile --}}
+                <a href="{{ route('sa.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
-                </button>
-                <button data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
-                </button>
-                <button data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
-                </button>
-                
+                </a>
+                {{-- Participants link for mobile --}}
+                <a href="" data-section="participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Participants
+                </a>
+                {{-- Support Coordinators link for mobile --}}
+                <a href="" data-section="support-coordinators" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake mr-3"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.5.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.3-.6h4.4c1.1 0 2.1-.4 2.8-1.2L21 11"/><path d="M19 12v6a2 2 0 0 1-2 2h-4"/></svg> Support Coordinators
+                </a>
+                {{-- Providers link for mobile --}}
+                <a href="" data-section="providers" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck mr-3"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M10 18H7"/><path d="M19 18h-6"/><path d="M17 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M7 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M14 6h7l-3 5H6"/></svg> Providers
+                </a>
+                {{-- NDIS Businesses link for mobile --}}
+                <a href="" data-section="ndis-businesses" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building mr-3"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg> NDIS Businesses
+                </a>
+                {{-- Messages link for mobile --}}
+                <a href="" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                </a>
             </nav>
         </aside>
 
@@ -414,7 +438,7 @@
         <main class="flex-1 p-4 md:p-8 overflow-y-auto md:ml-60 pt-20 md:pt-8"> {{-- Adjusted padding-top for header clearance --}}
             <div class="max-w-full mx-auto">
                 {{-- This is where the dynamic content will be injected --}}
-                @yield('main-content')
+                @yield('content')
 
             </div>
         </main>
@@ -427,7 +451,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Using a single variable for the mobile sidebar for clarity
             const mobileSidebar = document.getElementById('mobile-sidebar');
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const closeSidebarButton = document.getElementById('close-sidebar-button');
@@ -452,6 +475,21 @@
                 });
             }
 
+            // Function to set the active sidebar link
+            function setActiveSidebarLink() {
+                const path = window.location.pathname;
+                sidebarLinks.forEach(link => {
+                    link.classList.remove('active');
+                    const section = link.getAttribute('data-section');
+                    // Simple check: if the path contains the section name
+                    if (section && path.includes(section)) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            // Call on load
+            setActiveSidebarLink();
 
             // Profile dropdown toggle
             if (profileMenuButton) {
@@ -460,103 +498,62 @@
                 });
             }
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', function(event) {
-                if (profileMenuButton && profileDropdown && !profileMenuButton.contains(event.target) && !profileDropdown.contains(event.target)) {
+            // Close profile dropdown if clicked outside
+            window.addEventListener('click', function(event) {
+                if (profileMenuButton && !profileMenuButton.contains(event.target) && profileDropdown && !profileDropdown.contains(event.target)) {
                     profileDropdown.classList.add('hidden');
                 }
             });
 
-            document.querySelectorAll('[data-action="logout"]').forEach(button => {
-                button.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    document.getElementById('logout-form').submit();
-                });
-            });
-
-            profileDropdownActions.forEach(button => {
-                button.addEventListener('click', function() {
-                    const action = this.dataset.action;
-                    profileDropdown.classList.add('hidden');
-
-                    if (action === 'profile') {
-                        window.location.href = '{{ route('indiv.dashboard') }}';
-                    } else if (action === 'settings') {
-                        console.log('Navigating to settings...');
-                    } else if (action === 'logout') {
-                        document.getElementById('logout-form').submit();
-                    }
-                });
-            });
-
-            // Event listeners for sidebar links
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    const sectionId = this.dataset.section;
-                    console.log(`Navigating to section: ${sectionId}`);
-
-                    sidebarLinks.forEach(item => item.classList.remove('active'));
-                    this.classList.add('active');
-
-                    // If on mobile, close sidebar after clicking a link
-                    if (window.innerWidth < 768 && mobileSidebar) { // 768px is md breakpoint
-                        mobileSidebar.classList.add('-translate-x-full');
-                    }
-                });
-            });
-
-            const initialActiveSection = 'dashboard';
-            const initialLink = document.querySelector(`.sidebar-link[data-section="${initialActiveSection}"]`);
-            if (initialLink) {
-                initialLink.classList.add('active');
-            }
-
-            // --- Flatpickr Initialization ---
-            // Initialize all inputs with the 'flatpickr-input' class
-            flatpickr(".flatpickr-input", { // Changed selector to class
-                dateFormat: "Y-m-d",
-                maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
-                // defaultDate is now automatically handled by the input's 'value' attribute
-            });
-            // --- End Flatpickr Initialization ---
-
+            // Handle session messages (success/error overlays)
             const successOverlay = document.getElementById('success-overlay');
             const errorOverlay = document.getElementById('error-overlay');
 
-            function showOverlay(overlayElement) {
-                if (overlayElement) {
-                    overlayElement.classList.remove('opacity-0', 'pointer-events-none');
-                    overlayElement.querySelector('div').classList.remove('-translate-y-4', 'scale-95'); // Bring modal into view
-                }
-            }
-
-            function hideOverlay(overlayElement) {
-                if (overlayElement) {
-                    overlayElement.classList.add('opacity-0', 'pointer-events-none');
-                    overlayElement.querySelector('div').classList.add('-translate-y-4', 'scale-95'); // Move modal out of view
-                }
-            }
-
-            // Show success overlay if present
             if (successOverlay) {
-                showOverlay(successOverlay);
-                setTimeout(() => hideOverlay(successOverlay), 3000); // Auto-close after 3 seconds
-            }
+                // Show with transition
+                setTimeout(() => {
+                    successOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                    successOverlay.querySelector('div').classList.remove('-translate-y-4', 'scale-95');
+                }, 100); // Small delay to ensure CSS transition applies
 
-            // Show error overlay if present
-            if (errorOverlay) {
-                showOverlay(errorOverlay);
-                setTimeout(() => hideOverlay(errorOverlay), 5000); // Errors might need a bit longer to read (5 seconds)
-            }
-
-            // Add event listeners for close buttons
-            document.querySelectorAll('.close-overlay').forEach(button => {
-                button.addEventListener('click', function() {
-                    const overlayToClose = this.closest('.fixed');
-                    hideOverlay(overlayToClose);
+                // Hide on close button click
+                successOverlay.querySelectorAll('.close-overlay').forEach(button => {
+                    button.addEventListener('click', () => {
+                        successOverlay.classList.add('opacity-0', 'pointer-events-none');
+                        successOverlay.querySelector('div').classList.add('-translate-y-4', 'scale-95');
+                    });
                 });
-            });
+
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    successOverlay.classList.add('opacity-0', 'pointer-events-none');
+                    successOverlay.querySelector('div').classList.add('-translate-y-4', 'scale-95');
+                }, 5000);
+            }
+
+            if (errorOverlay) {
+                // Show with transition
+                setTimeout(() => {
+                    errorOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                    errorOverlay.querySelector('div').classList.remove('-translate-y-4', 'scale-95');
+                }, 100); // Small delay to ensure CSS transition applies
+
+                // Hide on close button click
+                errorOverlay.querySelectorAll('.close-overlay').forEach(button => {
+                    button.addEventListener('click', () => {
+                        errorOverlay.classList.add('opacity-0', 'pointer-events-none');
+                        errorOverlay.querySelector('div').classList.add('-translate-y-4', 'scale-95');
+                    });
+                });
+
+                // Hide after 5 seconds
+                setTimeout(() => {
+                    errorOverlay.classList.add('opacity-0', 'pointer-events-none');
+                    errorOverlay.querySelector('div').classList.add('-translate-y-4', 'scale-95');
+                }, 5000);
+            }
         });
     </script>
 </body>
 </html>
+```

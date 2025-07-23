@@ -12,8 +12,8 @@ class Participant extends Model
     protected $fillable = [
         'user_id',
         // REMOVE THESE, as per your updated User model:
-        // 'first_name',
-        // 'last_name',
+        'first_name',
+        'last_name',
         'middle_name',
         'birthday',
         'disability_type',
@@ -36,6 +36,7 @@ class Participant extends Model
         'birthday' => 'date',
         'is_looking_hm' => 'boolean',
         'has_accommodation' => 'boolean',
+        'disability_type' => 'array',
     ];
 
     public function user()
