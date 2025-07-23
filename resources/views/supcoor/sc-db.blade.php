@@ -1,10 +1,10 @@
-{{-- resources/views/indiv/indiv-db.blade.php --}}
+{{-- resources/views/supcoor/sc-db.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Touch D Cloud - Participant Dashboard</title>
+    <title>Touch D Cloud - Support Coordinator Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {{-- Flatpickr CSS --}}
@@ -246,7 +246,7 @@
 
     <header class="bg-[#ffffff] shadow-md p-4 flex items-center justify-between z-30 sticky top-0 w-full h-16"> {{-- Added h-16 (64px) for header height --}}
         <div class="flex items-center md:hidden w-full justify-between">
-            <h1 class="text-xl font-bold text-[#3e4732]">Participant Dashboard</h1>
+            <h1 class="text-xl font-bold text-[#3e4732]">Support Coordinator Dashboard</h1>
             <button id="mobile-menu-button" class="text-[#bcbabb] focus:outline-none p-2 rounded-md hover:bg-[#f8f1e1]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
             </button>
@@ -300,9 +300,9 @@
                     </button>
 
                     <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-[#ffffff] rounded-lg shadow-xl py-1 ring-1 ring-black ring-opacity-5 hidden z-30">
-                        <a href="{{ route('profile.complete') }}" class="block px-4 py-2 text-sm text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a] w-full text-left transition-colors duration-150 rounded-md">
+                        <button data-action="profile" class="block px-4 py-2 text-sm text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a] w-full text-left transition-colors duration-150 rounded-md">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user inline-block mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
-                        </a>
+                        </button>
                         <button data-action="settings" class="block px-4 py-2 text-sm text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a] w-full text-left transition-colors duration-150 rounded-md">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings inline-block mr-2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
                         </button>
@@ -333,7 +333,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
                 </button>
                 <button data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Participants
                 </button>
                 <button data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
@@ -356,7 +356,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
                 </button>
                 <button data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Participants
                 </button>
                 <button data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
@@ -364,51 +364,6 @@
                 
             </nav>
         </aside>
-
-        {{-- ... existing layout elements like navbars, sidebars etc. ... --}}
-
-    @if (session('success'))
-        <div id="success-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-out opacity-0 pointer-events-none">
-            <div class="bg-white rounded-lg shadow-2xl p-8 max-w-sm w-full relative transform -translate-y-4 scale-95 transition-all duration-300 ease-out">
-                <button type="button" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none close-overlay">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                <div class="text-center">
-                    <div class="flex items-center justify-center text-green-500 mb-4">
-                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-                    <p class="text-gray-700 text-sm">{{ session('success') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div id="error-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-out opacity-0 pointer-events-none">
-            <div class="bg-white rounded-lg shadow-2xl p-8 max-w-sm w-full relative transform -translate-y-4 scale-95 transition-all duration-300 ease-out">
-                <button type="button" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none close-overlay">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                <div class="text-center">
-                    <div class="flex items-center justify-center text-red-500 mb-4">
-                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 14l2-2m0 0l2-2m-2 2L8 6m0 0l-2 2m2 2l-2 2m8-8l2 2m0 0l2 2m-2-2l-2 2m2-2l2-2m-2 2L6 8M6 8l2-2m0 0l2 2M6 8l-2 2" />
-                            <circle cx="12" cy="12" r="10" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Oops!</h3>
-                    <p class="text-gray-700 text-sm">{{ session('error') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
 
 
         <main class="flex-1 p-4 md:p-8 overflow-y-auto md:ml-60 pt-20 md:pt-8"> {{-- Adjusted padding-top for header clearance --}}
@@ -480,7 +435,7 @@
                     profileDropdown.classList.add('hidden');
 
                     if (action === 'profile') {
-                        window.location.href = '{{ route('indiv.dashboard') }}';
+                        window.location.href = '{{ route('sc.dashboard') }}';
                     } else if (action === 'settings') {
                         console.log('Navigating to settings...');
                     } else if (action === 'logout') {
@@ -519,43 +474,6 @@
                 // defaultDate is now automatically handled by the input's 'value' attribute
             });
             // --- End Flatpickr Initialization ---
-
-            const successOverlay = document.getElementById('success-overlay');
-            const errorOverlay = document.getElementById('error-overlay');
-
-            function showOverlay(overlayElement) {
-                if (overlayElement) {
-                    overlayElement.classList.remove('opacity-0', 'pointer-events-none');
-                    overlayElement.querySelector('div').classList.remove('-translate-y-4', 'scale-95'); // Bring modal into view
-                }
-            }
-
-            function hideOverlay(overlayElement) {
-                if (overlayElement) {
-                    overlayElement.classList.add('opacity-0', 'pointer-events-none');
-                    overlayElement.querySelector('div').classList.add('-translate-y-4', 'scale-95'); // Move modal out of view
-                }
-            }
-
-            // Show success overlay if present
-            if (successOverlay) {
-                showOverlay(successOverlay);
-                setTimeout(() => hideOverlay(successOverlay), 3000); // Auto-close after 3 seconds
-            }
-
-            // Show error overlay if present
-            if (errorOverlay) {
-                showOverlay(errorOverlay);
-                setTimeout(() => hideOverlay(errorOverlay), 5000); // Errors might need a bit longer to read (5 seconds)
-            }
-
-            // Add event listeners for close buttons
-            document.querySelectorAll('.close-overlay').forEach(button => {
-                button.addEventListener('click', function() {
-                    const overlayToClose = this.closest('.fixed');
-                    hideOverlay(overlayToClose);
-                });
-            });
         });
     </script>
 </body>

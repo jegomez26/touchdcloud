@@ -9,41 +9,54 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    // database/migrations/xxxx_xx_xx_create_participants_table.php (your existing one)
-
     public function up(): void
     {
         Schema::create('participants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->unique()->constrained('users')->onDelete('cascade');
 
-            // REMOVE THESE LINES FROM HERE:
-            // $table->string('first_name');
-            // $table->string('last_name');
-
+            // Core Participant Information
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('middle_name')->nullable();
             $table->date('birthday')->nullable();
-            $table->string('disability_type')->nullable();
+            $table->string('gender')->nullable(); // New: Gender field
+
+            // Disability and Accommodation Details
+            $table->json('disability_type')->nullable(); 
             $table->text('specific_disability')->nullable();
             $table->string('accommodation_type')->nullable();
+            $table->enum('approved_accommodation_type', ['SDA', 'SIL'])->nullable(); // New: Approved Accommodation Type
+            $table->text('behavior_of_concern')->nullable(); // New: Behavior of Concern (BOC)
+
+            // Address Details
             $table->string('street_address')->nullable();
             $table->string('suburb')->nullable();
             $table->string('state')->nullable();
             $table->string('post_code')->nullable();
+
+            // Funding and Looking Status
             $table->boolean('is_looking_hm')->default(false);
-            $table->string('relative_name')->nullable(); // This is a string, not an FK
-            $table->foreignId('support_coordinator_id')->nullable()->constrained('support_coordinators')->onDelete('set null');
-
-            $table->string('participant_code_name')->unique()->nullable();
             $table->boolean('has_accommodation')->default(false);
+            $table->decimal('funding_amount_support_coor', 10, 2)->nullable(); // New: Funding for Support Coordinator
+            $table->decimal('funding_amount_accommodation', 10, 2)->nullable(); // New: Funding for Accommodation
 
-            // This is how you identify who handles the account for the participant
+            // Associated User Relationships
+            $table->string('relative_name')->nullable();
+            $table->foreignId('support_coordinator_id')->nullable()->constrained('support_coordinators')->onDelete('set null');
             $table->foreignId('representative_user_id')
-                ->nullable()
-                ->constrained('users')
-                ->onDelete('set null');
-
+                  ->nullable()
+                  ->constrained('users')
+                  ->onDelete('set null');
             $table->foreignId('added_by_user_id')->constrained('users')->onDelete('cascade');
+
+            // Unique Code Name
+            $table->string('participant_code_name')->unique()->nullable();
+
+            // Document Paths (for PDF uploads)
+            $table->string('health_report_path')->nullable(); // New: Path to Health Report PDF
+            $table->string('assessment_path')->nullable();   // New: Path to Assessment PDF
+
             $table->timestamps();
         });
     }

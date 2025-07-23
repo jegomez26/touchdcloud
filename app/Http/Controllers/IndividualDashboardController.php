@@ -101,7 +101,8 @@ class IndividualDashboardController extends Controller
             'participant_middle_name' => ['nullable', 'string', 'max:255'],
             'participant_last_name' => ['required', 'string', 'max:255'],
             'birthday' => ['required', 'date', 'before_or_equal:today'],
-            'disability_type' => ['nullable', 'string', 'max:255'],
+            'disability_type' => ['nullable', 'array'], // Changed for multiple selection, can be empty
+            'disability_type.*' => ['string', 'max:255'],
             'specific_disability' => ['nullable', 'string'],
             'accommodation_type' => ['nullable', 'string', 'max:255'],
             'street_address' => ['nullable', 'string', 'max:255'],

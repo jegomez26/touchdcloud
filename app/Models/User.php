@@ -30,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'relationship_to_participant',
         'representative_first_name',
         'representative_last_name',
+        'is_active',
     ];
 
     /**
@@ -82,6 +83,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function provider()
     {
         return $this->hasOne(Provider::class);
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    public function isActive(): bool
+    {
+        return (bool) $this->is_active;
     }
 
     // This method seems redundant as 'user()' typically implies belongsTo.

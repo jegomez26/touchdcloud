@@ -9,26 +9,34 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Define new custom colors based on the screenshot */
-            --color-primary-blue: #E8B270; /* Main sidebar/button color (orange/brown) */
-            --color-white: #FFFFFF; /* Main dashboard background color (light gray/green) */
-            --color-dark-text: #333333; /* Dark gray for most text */
-            --color-light-gray-text: #6B7280; /* Lighter gray for secondary text */
-            --color-white: #FFFFFF; /* White for cards, header, and text on primary backgrounds */
-            --color-border-gray: #D1D5DB; /* Adjusted light border color for new background */
-            --color-accent-light: #F0DDBF; /* Lighter shade for accents like progress bar track */
-            --color-red: #EF4444; /* Standard red for delete/warning */
-            --color-green: #22C55E; /* Standard green for success */
-            --color-primary-darker: #D4A164; /* Darker shade of orange/brown for active menu item background */
-            --color-teal: #33595a
+            /* New Color Palette Variables based on screenshot and user request */
+            --color-sidebar-bg: #FFFFFF; /* White for sidebar */
+            --color-main-accent: #cc8e45; /* Copper for buttons, accents */
+            --color-main-accent-darker: #b87e3a; /* Darker Copper for button hovers */
+            --color-page-background: #f5f2f2ff; /* Light Green/Gray for overall page background */
+            --color-card-background: #FFFFFF; /* White for main content panes/cards */
+            --color-text-white: #FFFFFF; /* White for text */
+            --color-text-dark: #070707ff; /* General Dark Text */
+            --color-text-light: #6B7280; /* Lighter Gray for secondary text */
+            --color-sidebar-text: #333333; /* Dark text for sidebar items */
+            --color-sidebar-icon: #333333; /* Dark icon for sidebar items */
+            --color-sidebar-active-bg: #e0e7ff; /* Light purple/blue for active sidebar link background */
+            --color-sidebar-active-text: #33595a; /* Dark blue-green for active sidebar link text */
+            --color-sidebar-active-icon: #33595a; /* Dark blue-green for active sidebar link icon */
+            --color-button: #33595a; /*Edit Buttons*/
+            --color-button-light: #457c7eff; /*View Details Buttons*/
+            --color-border: #458588ff; /* Light border color */
+            --color-progress-track: #F0DDBF; /* Light copper shade for progress bar track */
+            --color-error: #EF4444; /* Standard red for delete/warning */
+            --color-success: #22C55E; /* Standard green for success */
         }
 
         body {
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: var(--color-white); /* Overall page background */
-            color: var(--color-dark-text); /* Default text color */
+            background-color: var(--color-page-background); /* Overall page background */
+            color: var(--color-text-dark); /* Default text color */
         }
 
         /* Custom styles for sidebar links */
@@ -40,7 +48,7 @@
             border-radius: 0.5rem; /* Slightly rounded corners */
             text-align: left;
             font-weight: 500;
-            color: var(--color-white); /* White text by default on primary sidebar */
+            color: var(--color-sidebar-text); /* Dark text by default on white sidebar */
             transition: all 0.2s ease-in-out;
             margin-bottom: 0.25rem; /* Small gap between links */
             background-color: transparent; /* Ensure default is transparent for non-active */
@@ -49,34 +57,42 @@
         }
 
         .sidebar-link:hover {
-            background-color: rgba(255, 255, 255, 0.2); /* Lighter white/primary on hover */
-            color: var(--color-white);
-            /* Removed box-shadow from hover state */
+            background-color: var(--color-main-accent); /* Hover background color as requested */
+            color: var(--color-white-text-on-dark); /* White text on hover */
+            transform: translateY(-2px) scale(1.02); /* Lift and grow effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for lift effect */
         }
-
-        /* Corrected active state for sidebar links to merge with main content */
+        .sidebar-link:hover svg {
+            color: var(--color-white-text-on-dark); /* White icon on hover */
+        }
         .sidebar-link.active {
-            background-color: var(--color-white); /* Match main content background */
-            color: var(--color-primary-blue); /* Text color from sidebar's main color */
+            color: var(--color-sidebar-active-text); /* Dark blue-green text for active link */
             font-weight: 600;
-            /* Only rounded on the left side, straight on the right to merge */
-            border-top-left-radius: 0.75rem; /* Match main content's rounded-xl */
-            border-bottom-left-radius: 0.75rem; /* Match main content's rounded-xl */
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-            /* Removed box-shadow */
-            transform: none; /* Ensure no unintended translation */
-            position: relative;
-            z-index: 1; /* Ensure it's above the main content's background */
-            /* Re-applying the seamless extension logic */
-            width: calc(100% + 2rem); /* Extend by 2rem (32px) to cover main's left padding */
-            margin-right: -2rem; /* Pull it over the main content's padding */
-            padding-right: 1.25rem; /* Reset padding-right to original to avoid text shift */
-            right: 0; /* Ensure no right shift from previous attempts */
+            border-radius: 0.5rem; /* Rounded corners for active link */
+            /* Remove seamless extension logic as it doesn't match screenshot */
+            width: 100%;
+            margin-right: 0;
+            padding-right: 1.25rem;
+            right: 0;
+            transform: none; /* Ensure active link doesn't lift/grow */
+            box-shadow: none; /* Ensure active link doesn't have extra shadow */
         }
 
         .sidebar-link.active svg {
-            color: var(--color-primary-blue); /* Icon color matches text for active link */
+            color: var(--color-sidebar-active-icon); /* Dark blue-green icon for active link */
+        }
+
+        .sidebar-link svg {
+            color: var(--color-sidebar-icon); /* Icons on sidebar are dark */
+            margin-right: 0.75rem; /* Space between icon and text */
+        }
+        /* General button styling for lift effect */
+        .btn-lift {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-lift:hover {
+            transform: translateY(-2px) scale(1.02); /* Lift and grow effect */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for lift effect */
         }
 
         /* Style for scrollbar in main content area */
@@ -84,15 +100,15 @@
             width: 8px;
         }
         main::-webkit-scrollbar-track {
-            background: var(--color-border-black);
+            background: var(--color-border);
             border-radius: 10px;
         }
         main::-webkit-scrollbar-thumb {
-            background: var(--color-primary-blue);
+            background: var(--color-main-accent);
             border-radius: 10px;
         }
         main::-webkit-scrollbar-thumb:hover {
-            background: var(--color-primary-darker); /* Darker shade on hover */
+            background: var(--color-main-accent-darker); /* Darker shade on hover */
         }
 
         /* Chat bubble styles */
@@ -104,46 +120,54 @@
             word-wrap: break-word;
         }
         .chat-bubble.incoming {
-            background-color: var(--color-light-blue-bg); /* Light background for incoming */
-            color: var(--color-dark-text); /* Dark text for incoming */
+            background-color: var(--color-page-background); /* Light background for incoming (now light green/gray) */
+            color: var(--color-text-dark); /* Dark text for incoming */
             align-self: flex-start;
             border-bottom-left-radius: 0.25rem;
         }
         .chat-bubble.outgoing {
-            background-color: var(--color-primary-blue); /* Darker background for outgoing */
-            color: var(--color-white); /* White text for outgoing */
+            background-color: var(--color-main-accent); /* Darker background for outgoing (now copper) */
+            color: var(--color-white-text-on-dark); /* White text for outgoing */
             align-self: flex-end;
             border-bottom-right-radius: 0.25rem;
         }
         .chat-message-time {
             font-size: 0.75rem;
-            color: var(--color-light-gray-text); /* Light gray for time */
+            color: var(--color-text-light); /* Light gray for time */
             margin-top: 0.25rem;
         }
         .chat-bubble.outgoing .chat-message-sender,
         .chat-bubble.outgoing .chat-message-time {
             color: rgba(255, 255, 255, 0.8); /* Lighter text for sender/time in outgoing */
         }
+
+        /* Progress bar styling for storage details */
+        .progress-bar-container {
+            background-color: var(--color-progress-track); /* Adjusted for new scheme */
+            border-radius: 9999px; /* Full pill shape */
+            height: 8px;
+            overflow: hidden;
+        }
         .progress-bar-fill {
-            background-color: var(--color-white);
+            background-color: var(--color-main-accent); /* Changed to main accent (copper) */
             height: 100%;
             border-radius: 9999px;
         }
     </style>
 </head>
-<body class="min-h-screen bg-[var(--color-light-blue-bg)] text-[var(--color-dark-text)] flex">
+<body class="min-h-screen bg-[var(--color-page-background)] text-[var(--color-text-dark)] flex">
 
     <!-- Sidebar for navigation -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 bg-[var(--color-primary-blue)] text-[var(--color-white)] w-64 p-6 space-y-6 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-20 md:w-72 shadow-lg">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 bg-[var(--color-sidebar-bg)] text-[var(--color-sidebar-text)] w-64 p-6 space-y-6 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out z-20 md:w-72 shadow-lg">
         <div class="flex items-center justify-between md:justify-start mb-8">
             <div class="flex items-center">
                 <!-- Icon for Company Panel - you can change this if needed -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase text-white mr-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase text-[var(--color-sidebar-icon)] mr-2">
                     <rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                 </svg>
-                <h1 class="text-2xl font-extrabold text-[var(--color-white)]">Company Panel</h1>
+                <h1 class="text-2xl font-extrabold text-[var(--color-sidebar-text)]">Company Panel</h1>
             </div>
-            <button id="close-sidebar-button" class="text-[var(--color-white)] md:hidden focus:outline-none p-2 rounded-md hover:bg-white hover:text-[var(--color-primary-blue)]">
+            <button id="close-sidebar-button" class="text-[var(--color-sidebar-text)] md:hidden focus:outline-none p-2 rounded-md hover:bg-gray-100">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
         </div>
@@ -161,6 +185,9 @@
             <button data-section="chat" class="sidebar-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat
             </button>
+            <button data-section="storage" class="sidebar-link">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hard-drive"><path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/></svg> Storage
+            </button>
             <button data-section="settings" class="sidebar-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
             </button>
@@ -171,11 +198,11 @@
     <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         <div class="max-w-full mx-auto">
             <!-- Main Header Content (Dashboard Title, Icons) -->
-            <header class="bg-[var(--color-white)] rounded-full shadow-md p-2 flex items-center justify-between z-10 mb-8">
+            <header class="bg-[var(--color-border)] rounded-full shadow-md p-2 flex items-center justify-between z-10 mb-8">
                 <!-- Mobile Header Content (Hamburger Menu, Title) -->
                 <div class="flex items-center md:hidden w-full justify-between">
-                    <h1 class="text-xl font-bold text-[var(--color-dark-text)]">Company Dashboard</h1>
-                    <button id="mobile-menu-button" class="text-[var(--color-dark-text)] focus:outline-none p-2 rounded-md hover:bg-gray-100">
+                    <h1 class="text-xl font-bold text-[var(--color-text-dark)]">Company Dashboard</h1>
+                    <button id="mobile-menu-button" class="text-[var(--color-text-dark)] focus:outline-none p-2 rounded-md hover:bg-gray-100">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                     </button>
                 </div>
@@ -183,39 +210,39 @@
                 <!-- Desktop Header Content (Dashboard Title, Icons) -->
                 <div class="hidden md:flex items-center justify-between w-full">
                     <div class="relative flex-1 max-w-md mx-auto">
-                        <input type="text" placeholder="Search anything..." class="pl-10 pr-4 py-2 rounded-full border border-[var(--color-border-gray)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:border-transparent text-sm w-full text-[var(--color-dark-text)]">
+                        <input type="text" placeholder="Search anything..." class="pl-10 pr-4 py-2 rounded-full border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border)] focus:border-transparent text-sm w-full text-[var(--color-text-dark)]">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-[var(--color-light-gray-text)]"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-[var(--color-text-light)]"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         </div>
                     </div>
 
                     <div class="flex items-center space-x-4 ml-auto">
                         <!-- Notification Icon -->
-                        <button class="text-[var(--color-dark-text)] hover:text-[var(--color-primary-blue)] focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                        <button class="text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                         </button>
                         <!-- Settings Icon -->
-                        <button class="text-[var(--color-dark-text)] hover:text-[var(--color-primary-blue)] focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                        <button class="text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                         <!-- Profile Icon with Dropdown -->
                         <div class="relative">
-                            <button id="profile-menu-button" class="flex items-center space-x-2 text-[var(--color-dark-text)] focus:outline-none p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
-                                <img src="https://placehold.co/32x32/A78BFA/FFFFFF?text=AD" alt="Admin Avatar" class="w-8 h-8 rounded-full border-2 border-[var(--color-primary-blue)]">
-                                <span class="font-medium text-[var(--color-dark-text)] hidden sm:inline">Admin User</span>
+                            <button id="profile-menu-button" class="flex items-center space-x-2 text-[var(--color-text-dark)] focus:outline-none p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                                <img src="https://placehold.co/32x32/A78BFA/FFFFFF?text=AD" alt="Admin Avatar" class="w-8 h-8 rounded-full border-2 border-[var(--color-main-accent)]">
+                                <span class="font-medium text-[var(--color-text-dark)] hidden sm:inline">Admin User</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
                             </button>
 
                             <!-- Profile Dropdown Menu -->
-                            <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-[var(--color-white)] rounded-lg shadow-xl py-1 ring-1 ring-black ring-opacity-5 hidden z-30">
-                                <button data-action="profile" class="block px-4 py-2 text-sm text-[var(--color-dark-text)] hover:bg-gray-100 hover:text-[var(--color-primary-blue)] w-full text-left transition-colors duration-150 rounded-md">
+                            <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-[var(--color-card-background)] rounded-lg shadow-xl py-1 ring-1 ring-black ring-opacity-5 hidden z-30">
+                                <button data-action="profile" class="block px-4 py-2 text-sm text-[var(--color-text-dark)] hover:bg-gray-100 hover:text-[var(--color-main-accent)] w-full text-left transition-colors duration-150 rounded-md">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user inline-block mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
                                 </button>
-                                <button data-action="settings" class="block px-4 py-2 text-sm text-[var(--color-dark-text)] hover:bg-gray-100 hover:text-[var(--color-primary-blue)] w-full text-left transition-colors duration-150 rounded-md">
+                                <button data-action="settings" class="block px-4 py-2 text-sm text-[var(--color-text-dark)] hover:bg-gray-100 hover:text-[var(--color-main-accent)] w-full text-left transition-colors duration-150 rounded-md">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings inline-block mr-2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
                                 </button>
-                                <hr class="my-1 border-[var(--color-border-gray)]">
-                                <button data-action="logout" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left transition-colors duration-150 rounded-md">
+                                <hr class="my-1 border-[var(--color-border)]">
+                                <button data-action="logout" class="block px-4 py-2 text-sm text-[var(--color-error)] hover:bg-red-50 w-full text-left transition-colors duration-150 rounded-md">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out inline-block mr-2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="17 16 22 12 17 8"/><line x1="22" x2="11" y1="12" y2="12"/></svg> Log out
                                 </button>
                             </div>
@@ -225,10 +252,10 @@
             </header>
 
             <!-- Dashboard Section -->
-            <div id="dashboard-section" class="dashboard-section p-6 bg-[var(--color-teal)] rounded-xl shadow-lg mb-8">
-                <h2 class="text-3xl font-bold text-[var(--color-white)] mb-2">Welcome to your Company Dashboard!</h2>
-                <p class="text-[var(--color-white)]">Here's a quick overview of your company's operations.</p>
-                <div class="mt-6 p-4 bg-[var(--color-light-blue-bg)] rounded-lg border border-[var(--color-primary-darker)] text-[var(--color-white)]">
+            <div id="dashboard-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg mb-8">
+                <h2 class="text-3xl font-bold text-[var(--color-text-dark)] mb-2">Welcome to your Company Dashboard!</h2>
+                <p class="text-[var(--color-text-light)]">Here's a quick overview of your company's operations.</p>
+                <div class="mt-6 p-4 bg-[var(--color-page-background)] rounded-lg border border-[var(--color-border)] text-[var(--color-text-dark)]">
                     <p class="font-semibold">Company Updates:</p>
                     <ul class="list-disc list-inside mt-2 space-y-1">
                         <li>New policy updates rolled out on 2024-07-18.</li>
@@ -239,20 +266,20 @@
             </div>
 
             <!-- Participants Section -->
-            <div id="participants-section" class="dashboard-section p-6 bg-[var(--color-teal)] rounded-xl shadow-lg hidden">
-                <h2 class="text-2xl font-bold text-[var(--color-white)] mb-4">Participants</h2>
-                <p class="text-[var(--color-white)] mb-4">View and manage participant records.</p>
+            <div id="participants-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg hidden">
+                <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Participants</h2>
+                <p class="text-[var(--color-text-light)] mb-4">View and manage participant records.</p>
                 <div class="mb-6 flex flex-wrap items-end gap-4">
                     <div class="relative flex-1 min-w-[180px]">
-                        <label for="participant-search-input" class="block text-xs font-medium text-[var(--color-white)] mb-1">Search Participant</label>
-                        <input type="text" id="participant-search-input" class="block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 pl-10 text-[var(--color-dark-text)]" placeholder="Search by name or ID..." />
+                        <label for="participant-search-input" class="block text-xs font-medium text-[var(--color-text-dark)] mb-1">Search Participant</label>
+                        <input type="text" id="participant-search-input" class="block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 pl-10 text-[var(--color-text-dark)]" placeholder="Search by name or ID..." />
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-[var(--color-light-gray-text)]"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-[var(--color-text-light)]"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         </div>
                     </div>
                     <div class="relative flex-1 min-w-[180px]">
-                        <label for="accommodation-type-filter" class="block text-xs font-medium text-[var(--color-white)] mb-1">Accommodation Type</label>
-                        <select id="accommodation-type-filter" class="block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]">
+                        <label for="accommodation-type-filter" class="block text-xs font-medium text-[var(--color-text-dark)] mb-1">Accommodation Type</label>
+                        <select id="accommodation-type-filter" class="block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]">
                             <option value="">All</option>
                             <option value="SIL">SIL</option>
                             <option value="SDA">SDA</option>
@@ -261,12 +288,12 @@
                         </select>
                     </div>
                     <div class="relative flex-1 min-w-[120px]">
-                        <label for="age-filter" class="block text-xs font-medium text-[var(--color-white)] mb-1">Age</label>
-                        <input type="number" id="age-filter" class="block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" placeholder="Min Age" min="0" />
+                        <label for="age-filter" class="block text-xs font-medium text-[var(--color-text-dark)] mb-1">Age</label>
+                        <input type="number" id="age-filter" class="block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="Min Age" min="0" />
                     </div>
                     <div class="relative flex-1 min-w-[150px]">
-                        <label for="gender-filter" class="block text-xs font-medium text-[var(--color-white)] mb-1">Gender</label>
-                        <select id="gender-filter" class="block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]">
+                        <label for="gender-filter" class="block text-xs font-medium text-[var(--color-text-dark)] mb-1">Gender</label>
+                        <select id="gender-filter" class="block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]">
                             <option value="">All</option>
                             <option value="male">Male</option>
                             <option value="female">Female</option>
@@ -274,8 +301,8 @@
                         </select>
                     </div>
                     <div class="relative flex-1 min-w-[180px]">
-                        <label for="disability-type-filter" class="block text-xs font-medium text-[var(--color-white)] mb-1">Disability Type</label>
-                        <select id="disability-type-filter" class="block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]">
+                        <label for="disability-type-filter" class="block text-xs font-medium text-[var(--color-text-dark)] mb-1">Disability Type</label>
+                        <select id="disability-type-filter" class="block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]">
                             <option value="">All</option>
                             <option value="Physical">Physical Disability</option>
                             <option value="Intellectual">Intellectual Disability</option>
@@ -286,13 +313,13 @@
                         </select>
                     </div>
                     <div class="relative flex-1 min-w-[180px]">
-                        <label for="location-filter" class="block text-xs font-medium text-[var(--color-white)] mb-1">Location</label>
-                        <input type="text" id="location-filter" class="block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" placeholder="Filter by city/town" />
+                        <label for="location-filter" class="block text-xs font-medium text-[var(--color-text-dark)] mb-1">Location</label>
+                        <input type="text" id="location-filter" class="block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="Filter by city/town" />
                     </div>
-                    <button id="apply-filters-button" class="px-6 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-primary-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
+                    <button id="apply-filters-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-text-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
                         Apply Filters
                     </button>
-                    <button id="add-participant-button" class="px-6 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-primary-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
+                    <button id="add-participant-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-text-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
                         Add New Participant
                     </button>
                 </div>
@@ -302,90 +329,108 @@
             </div>
 
             <!-- Accommodations Section -->
-            <div id="accommodations-section" class="dashboard-section p-6 bg-[var(--color-teal)] rounded-xl shadow-lg hidden">
-                <h2 class="text-2xl font-bold text-[var(--color-white)] mb-4">Accommodations</h2>
-                <p class="text-[var(--color-white)] mb-4">Browse and manage available accommodations for participants.</p>
+            <div id="accommodations-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg hidden">
+                <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Accommodations</h2>
+                <p class="text-[var(--color-text-light)] mb-4">Browse and manage available accommodations for participants.</p>
                 <div class="mb-6 flex flex-wrap items-end gap-4">
                     <div class="relative flex-1 min-w-[180px]">
-                        <label for="accommodation-search-input" class="block text-xs font-medium text-[var(--color-white)] mb-1">Search Accommodation</label>
-                        <input type="text" id="accommodation-search-input" class="block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 pl-10 text-[var(--color-dark-text)]" placeholder="Search by title, address, or type..." />
+                        <label for="accommodation-search-input" class="block text-xs font-medium text-[var(--color-text-dark)] mb-1">Search Accommodation</label>
+                        <input type="text" id="accommodation-search-input" class="block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 pl-10 text-[var(--color-text-dark)]" placeholder="Search by title, address, or type..." />
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-[var(--color-light-gray-text)]"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-[var(--color-text-light)]"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         </div>
                     </div>
-                    <button id="submit-accommodation-button" class="px-6 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-primary-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
+                    <button id="submit-accommodation-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-text-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
                         Submit New Accommodation
                     </button>
                 </div>
-                <div class="space-y-5" id="accommodations-container">
-
+                <div class="space-y-4" id="accommodations-container">
                     <!-- Accommodation items will be rendered here by JavaScript -->
                 </div>
             </div>
 
             <!-- Chat Section -->
-            <div id="chat-section" class="dashboard-section p-6 bg-[var(--color-white)] rounded-xl shadow-lg hidden flex">
-                <div class="w-1/3 border-r border-[var(--color-border-gray)] pr-4">
-                    <h3 class="text-xl font-bold text-[var(--color-dark-text)] mb-4">Contacts</h3>
+            <div id="chat-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg hidden flex">
+                <div class="w-1/3 border-r border-[var(--color-border)] pr-4">
+                    <h3 class="text-xl font-bold text-[var(--color-text-dark)] mb-4">Contacts</h3>
                     <div class="space-y-2">
                         <button data-contact="jane-smith" class="chat-contact flex items-center w-full p-3 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
                             <img src="https://placehold.co/40x40/FF7F50/FFFFFF?text=JS" alt="Jane Smith" class="w-10 h-10 rounded-full mr-3">
                             <div>
-                                <p class="font-medium text-[var(--color-dark-text)]">Jane Smith</p>
-                                <p class="text-sm text-[var(--color-light-gray-text)]">Last message...</p>
+                                <p class="font-medium text-[var(--color-text-dark)]">Jane Smith</p>
+                                <p class="text-sm text-[var(--color-text-light)]">Last message...</p>
                             </div>
                         </button>
                         <button data-contact="mark-jones" class="chat-contact flex items-center w-full p-3 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
                             <img src="https://placehold.co/40x40/6A5ACD/FFFFFF?text=MJ" alt="Mark Jones" class="w-10 h-10 rounded-full mr-3">
                             <div>
-                                <p class="font-medium text-[var(--color-dark-text)]">Mark Jones</p>
-                                <p class="text-sm text-[var(--color-light-gray-text)]">Last message...</p>
+                                <p class="font-medium text-[var(--color-text-dark)]">Mark Jones</p>
+                                <p class="text-sm text-[var(--color-text-light)]">Last message...</p>
                             </div>
                         </button>
                         <button data-contact="sarah-davis" class="chat-contact flex items-center w-full p-3 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
                             <img src="https://placehold.co/40x40/3CB371/FFFFFF?text=SD" alt="Sarah Davis" class="w-10 h-10 rounded-full mr-3">
                             <div>
-                                <p class="font-medium text-[var(--color-dark-text)]">Sarah Davis</p>
-                                <p class="text-sm text-[var(--color-light-gray-text)]">Last message...</p>
+                                <p class="font-medium text-[var(--color-text-dark)]">Sarah Davis</p>
+                                <p class="text-sm text-[var(--color-text-light)]">Last message...</p>
                             </div>
                         </button>
                     </div>
                 </div>
                 <div class="flex-1 flex flex-col pl-4">
-                    <div class="border-b border-[var(--color-border-gray)] pb-4 mb-4 flex items-center">
+                    <div class="border-b border-[var(--color-border)] pb-4 mb-4 flex items-center">
                         <img src="https://placehold.co/40x40/FF7F50/FFFFFF?text=JS" alt="Contact Avatar" class="w-10 h-10 rounded-full mr-3" id="chat-window-header-image">
-                        <p class="text-xl font-bold text-[var(--color-dark-text)]" id="chat-window-header-name">Jane Smith</p>
+                        <p class="text-xl font-bold text-[var(--color-text-dark)]" id="chat-window-header-name">Jane Smith</p>
                     </div>
                     <div class="flex-1 overflow-y-auto space-y-3 p-2" id="chat-messages-container">
                         <!-- Chat messages will be loaded here by JavaScript -->
                     </div>
                     <div class="mt-4 flex items-center">
-                        <input type="text" placeholder="Type your message..." class="flex-1 p-3 rounded-full border border-[var(--color-border-gray)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:border-transparent text-[var(--color-dark-text)]">
-                        <button class="ml-3 p-3 bg-[var(--color-primary-blue)] text-[var(--color-white)] rounded-full hover:bg-[var(--color-primary-darker)] transition duration-150">
+                        <input type="text" placeholder="Type your message..." class="flex-1 p-3 rounded-full border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:border-transparent text-[var(--color-text-dark)]">
+                        <button class="ml-3 p-3 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-full hover:bg-[var(--color-main-accent-darker)] transition duration-150">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                         </button>
                     </div>
                 </div>
             </div>
 
+            <!-- Storage Section -->
+            <div id="storage-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg hidden">
+                <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Storage Overview</h2>
+                <p class="text-[var(--color-text-light)] mb-4">Monitor your company's data storage usage.</p>
+                <div class="bg-[var(--color-page-background)] p-6 rounded-lg border border-[var(--color-border)] shadow-sm">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-semibold text-[var(--color-text-dark)]">Total Storage Used:</span>
+                        <span class="text-lg font-semibold text-[var(--color-text-dark)]">75 GB / 100 GB</span>
+                    </div>
+                    <div class="progress-bar-container mb-4">
+                        <div class="progress-bar-fill" style="width: 75%;"></div>
+                    </div>
+                    <p class="text-sm text-[var(--color-text-light)]">You are currently using 75% of your allocated storage.</p>
+                    <button class="mt-6 px-6 py-3 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-lg shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                        Manage Storage
+                    </button>
+                </div>
+            </div>
+
             <!-- Settings Section -->
-            <div id="settings-section" class="dashboard-section p-6 bg-[var(--color-white)] rounded-xl shadow-lg hidden">
-                <h2 class="text-2xl font-bold text-[var(--color-dark-text)] mb-4">Application Settings</h2>
-                <p class="text-[var(--color-light-gray-text)] mb-4">Configure application preferences and integrations.</p>
+            <div id="settings-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg hidden">
+                <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Application Settings</h2>
+                <p class="text-[var(--color-text-light)] mb-4">Configure application preferences and integrations.</p>
                 <div class="space-y-4">
-                    <div class="bg-[var(--color-light-blue-bg)] p-4 rounded-lg border border-[var(--color-border-gray)]">
+                    <div class="bg-[var(--color-page-background)] p-4 rounded-lg border border-[var(--color-border)]">
                         <label for="app-notifications" class="flex items-center justify-between cursor-pointer">
-                            <span class="text-sm font-medium text-[var(--color-dark-text)]">App Notifications</span>
-                            <input type="checkbox" id="app-notifications" class="form-checkbox h-5 w-5 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded" checked />
+                            <span class="text-sm font-medium text-[var(--color-text-dark)]">App Notifications</span>
+                            <input type="checkbox" id="app-notifications" class="form-checkbox h-5 w-5 text-[var(--color-main-accent)] border-[var(--color-border)] rounded" checked />
                         </label>
                     </div>
-                    <div class="bg-[var(--color-light-blue-bg)] p-4 rounded-lg border border-[var(--color-border-gray)]">
+                    <div class="bg-[var(--color-page-background)] p-4 rounded-lg border border-[var(--color-border)]">
                         <label for="data-sync" class="flex items-center justify-between cursor-pointer">
-                            <span class="text-sm font-medium text-[var(--color-dark-text)]">Enable Data Sync</span>
-                            <input type="checkbox" id="data-sync" class="form-checkbox h-5 w-5 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded" />
+                            <span class="text-sm font-medium text-[var(--color-text-dark)]">Enable Data Sync</span>
+                            <input type="checkbox" id="data-sync" class="form-checkbox h-5 w-5 text-[var(--color-main-accent)] border-[var(--color-border)] rounded" />
                         </label>
                     </div>
-                    <button class="px-6 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-primary-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                    <button class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
                         Manage Integrations
                     </button>
                 </div>
@@ -393,48 +438,48 @@
 
 
             <!-- Profile Section (Accessible via dropdown) -->
-            <div id="profile-section" class="dashboard-section p-6 bg-[var(--color-white)] rounded-lg shadow-md hidden">
-                <h2 class="text-2xl font-bold text-[var(--color-dark-text)] mb-4">Your Company Profile</h2>
-                <p class="text-[var(--color-light-gray-text)] mb-2">Manage your personal and company-related information.</p>
+            <div id="profile-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-lg shadow-md hidden">
+                <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Your Company Profile</h2>
+                <p class="text-[var(--color-text-light)] mb-2">Manage your personal and company-related information.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-[var(--color-light-blue-bg)] p-4 rounded-md">
-                        <label for="company-name" class="block text-sm font-medium text-[var(--color-dark-text)]">Company Name</label>
-                        <input type="text" id="company-name" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" placeholder="Acme Corp" />
+                    <div class="bg-[var(--color-page-background)] p-4 rounded-md">
+                        <label for="company-name" class="block text-sm font-medium text-[var(--color-text-dark)]">Company Name</label>
+                        <input type="text" id="company-name" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="Acme Corp" />
                     </div>
-                    <div class="bg-[var(--color-light-blue-bg)] p-4 rounded-md">
-                        <label for="admin-email" class="block text-sm font-medium text-[var(--color-dark-text)]">Admin Email</label>
-                        <input type="email" id="admin-email" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" placeholder="admin@acmecorp.com" />
+                    <div class="bg-[var(--color-page-background)] p-4 rounded-md">
+                        <label for="admin-email" class="block text-sm font-medium text-[var(--color-text-dark)]">Admin Email</label>
+                        <input type="email" id="admin-email" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="admin@acmecorp.com" />
                     </div>
-                    <div class="bg-[var(--color-light-blue-bg)] p-4 rounded-md col-span-full">
-                        <label for="company-bio" class="block text-sm font-medium text-[var(--color-dark-text)]">Company Description</label>
-                        <textarea id="company-bio" rows="3" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" placeholder="Describe your company's mission and services..."></textarea>
+                    <div class="bg-[var(--color-page-background)] p-4 rounded-md col-span-full">
+                        <label for="company-bio" class="block text-sm font-medium text-[var(--color-text-dark)]">Company Description</label>
+                        <textarea id="company-bio" rows="3" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="Describe your company's mission and services..."></textarea>
                     </div>
                 </div>
-                <button class="mt-6 px-6 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-primary-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                <button class="mt-6 px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
                     Save Company Profile
                 </button>
             </div>
 
             <!-- Settings Section (Accessible via dropdown) -->
-            <div id="settings-section" class="dashboard-section p-6 bg-[var(--color-white)] rounded-lg shadow-md hidden">
-                <h2 class="text-2xl font-bold text-[var(--color-dark-text)] mb-4">Account Settings</h2>
-                <p class="text-[var(--color-light-gray-text)] mb-2">Adjust your account preferences and security settings.</p>
+            <div id="settings-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-lg shadow-md hidden">
+                <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Account Settings</h2>
+                <p class="text-[var(--color-text-light)] mb-2">Adjust your account preferences and security settings.</p>
                 <div class="space-y-4">
-                    <div class="bg-[var(--color-light-blue-bg)] p-4 rounded-lg shadow-sm">
+                    <div class="bg-[var(--color-page-background)] p-4 rounded-lg shadow-sm">
                         <label for="notifications" class="flex items-center justify-between cursor-pointer">
-                            <span class="text-sm font-medium text-[var(--color-dark-text)]">Email Notifications</span>
-                            <input type="checkbox" id="notifications" class="form-checkbox h-5 w-5 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded" checked />
+                            <span class="text-sm font-medium text-[var(--color-text-dark)]">Email Notifications</span>
+                            <input type="checkbox" id="notifications" class="form-checkbox h-5 w-5 text-[var(--color-main-accent)] border-[var(--color-border)] rounded" checked />
                         </label>
                     </div>
-                    <div class="bg-[var(--color-light-blue-bg)] p-4 rounded-lg shadow-sm">
-                        <label for="theme" class="block text-sm font-medium text-[var(--color-dark-text)] mb-2">Theme Preference</label>
-                        <select id="theme" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]">
+                    <div class="bg-[var(--color-page-background)] p-4 rounded-lg shadow-sm">
+                        <label for="theme" class="block text-sm font-medium text-[var(--color-text-dark)] mb-2">Theme Preference</label>
+                        <select id="theme" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]">
                             <option>Light</option>
                             <option>Dark</option>
                             <option>System Default</option>
                         </select>
                     </div>
-                    <button class="px-6 py-2 bg-red-600 text-[var(--color-white)] font-semibold rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-150 ease-in-out">
+                    <button class="px-6 py-2 bg-[var(--color-error)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-[var(--color-error)] focus:ring-offset-2 transition duration-150 ease-in-out">
                         Change Password
                     </button>
                 </div>
@@ -443,20 +488,20 @@
     </main>
 
     <!-- Add New Participant Modal -->
-    <div id="add-participant-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-[var(--color-white)] p-8 rounded-lg shadow-xl w-full max-w-md relative">
-            <button id="close-participant-modal" class="absolute top-4 right-4 text-[var(--color-dark-text)] hover:text-[var(--color-primary-blue)] p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
+    <div id="add-participant-modal" class="fixed inset-0 bg-gray-600 bg-opacity50 flex items-center justify-center z-50 hidden">
+        <div class="bg-[var(--color-card-background)] p-8 rounded-lg shadow-xl w-full max-w-md relative">
+            <button id="close-participant-modal" class="absolute top-4 right-4 text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
-            <h2 class="text-2xl font-bold text-[var(--color-dark-text)] mb-6">Add New Participant</h2>
+            <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-6">Add New Participant</h2>
             <form id="add-participant-form">
                 <div class="mb-4">
-                    <label for="participant-name" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Participant Name</label>
-                    <input type="text" id="participant-name" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" required />
+                    <label for="participant-name" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Participant Name</label>
+                    <input type="text" id="participant-name" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" required />
                 </div>
                 <div class="mb-4">
-                    <label for="participant-gender" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Gender</label>
-                    <select id="participant-gender" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" required>
+                    <label for="participant-gender" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Gender</label>
+                    <select id="participant-gender" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" required>
                         <option value="">Select Gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -464,12 +509,12 @@
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label for="participant-age" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Age</label>
-                    <input type="number" id="participant-age" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" min="0" required />
+                    <label for="participant-age" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Age</label>
+                    <input type="number" id="participant-age" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" min="0" required />
                 </div>
                 <div class="mb-4">
-                    <label for="participant-disability" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Type of Disability</label>
-                    <select id="participant-disability" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" required>
+                    <label for="participant-disability" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Type of Disability</label>
+                    <select id="participant-disability" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" required>
                         <option value="">Select Disability</option>
                         <option value="Physical">Physical Disability</option>
                         <option value="Intellectual">Intellectual Disability</option>
@@ -480,18 +525,18 @@
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label for="participant-location" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Location</label>
-                    <input type="text" id="participant-location" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" required />
+                    <label for="participant-location" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Location</label>
+                    <input type="text" id="participant-location" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" required />
                 </div>
                 <div class="mb-6">
-                    <label for="participant-last-contact" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Last Contact Date</label>
-                    <input type="date" id="participant-last-contact" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" required />
+                    <label for="participant-last-contact" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Last Contact Date</label>
+                    <input type="date" id="participant-last-contact" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" required />
                 </div>
                 <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancel-add-participant" class="px-5 py-2 border border-[var(--color-border-gray)] rounded-md shadow-sm text-sm font-medium text-[var(--color-dark-text)] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                    <button type="button" id="cancel-add-participant" class="px-5 py-2 border border-[var(--color-border)] rounded-md shadow-sm text-sm font-medium text-[var(--color-text-dark)] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
                         Cancel
                     </button>
-                    <button type="submit" class="px-5 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-primary-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2">
+                    <button type="submit" class="px-5 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2">
                         Add Participant
                     </button>
                 </div>
@@ -501,77 +546,77 @@
 
     <!-- Submit New Accommodation Modal -->
     <div id="submit-accommodation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="bg-[var(--color-white)] p-8 rounded-lg shadow-xl w-full max-w-2xl relative overflow-y-auto max-h-[90vh]">
-            <button id="close-accommodation-modal" class="absolute top-4 right-4 text-[var(--color-dark-text)] hover:text-[var(--color-primary-blue)] p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
+        <div class="bg-[var(--color-card-background)] p-8 rounded-lg shadow-xl w-full max-w-2xl relative overflow-y-auto max-h-[90vh]">
+            <button id="close-accommodation-modal" class="absolute top-4 right-4 text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
-            <h2 class="text-2xl font-bold text-[var(--color-dark-text)] mb-6">Submit New Accommodation</h2>
+            <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-6">Submit New Accommodation</h2>
             <form id="submit-accommodation-form">
                 <div class="mb-4">
-                    <label for="accommodation-title" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Property Title</label>
-                    <input type="text" id="accommodation-title" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" placeholder="e.g., Spacious Home with Garden" required />
+                    <label for="accommodation-title" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Property Title</label>
+                    <input type="text" id="accommodation-title" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="e.g., Spacious Home with Garden" required />
                 </div>
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Property Address</label>
-                    <input type="text" id="accommodation-address-province" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 mb-2 text-[var(--color-dark-text)]" placeholder="Province/State" required />
-                    <input type="text" id="accommodation-address-city" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" placeholder="City/Town" required />
+                    <label class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Property Address</label>
+                    <input type="text" id="accommodation-address-province" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 mb-2 text-[var(--color-text-dark)]" placeholder="Province/State" required />
+                    <input type="text" id="accommodation-address-city" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="City/Town" required />
                 </div>
                 <div class="mb-4">
-                    <label for="accommodation-description" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Property Description</label>
-                    <textarea id="accommodation-description" rows="3" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" placeholder="Describe the property..."></textarea>
+                    <label for="accommodation-description" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Property Description</label>
+                    <textarea id="accommodation-description" rows="3" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="Describe the property..."></textarea>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-[var(--color-dark-text)] mb-2">Accommodation Type</label>
+                    <label class="block text-sm font-medium text-[var(--color-text-dark)] mb-2">Accommodation Type</label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
-                            <input type="checkbox" id="acc-type-apartment" name="accommodation-type" value="Apartment" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]">
-                            <label for="acc-type-apartment" class="ml-2 text-sm text-[var(--color-dark-text)]">Apartment</label>
+                            <input type="checkbox" id="acc-type-apartment" name="accommodation-type" value="Apartment" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]">
+                            <label for="acc-type-apartment" class="ml-2 text-sm text-[var(--color-text-dark)]">Apartment</label>
                         </div>
                         <div class="flex items-center">
-                            <input type="checkbox" id="acc-type-house" name="accommodation-type" value="House" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]">
-                            <label for="acc-type-house" class="ml-2 text-sm text-[var(--color-dark-text)]">House</label>
+                            <input type="checkbox" id="acc-type-house" name="accommodation-type" value="House" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]">
+                            <label for="acc-type-house" class="ml-2 text-sm text-[var(--color-text-dark)]">House</label>
                         </div>
                         <div class="flex items-center">
-                            <input type="checkbox" id="acc-type-villa" name="accommodation-type" value="Villa/Duplex/Townhouse" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]">
-                            <label for="acc-type-villa" class="ml-2 text-sm text-[var(--color-dark-text)]">Villa/Duplex/Townhouse</label>
+                            <input type="checkbox" id="acc-type-villa" name="accommodation-type" value="Villa/Duplex/Townhouse" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]">
+                            <label for="acc-type-villa" class="ml-2 text-sm text-[var(--color-text-dark)]">Villa/Duplex/Townhouse</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-[var(--color-dark-text)] mb-2">Property Type</label>
+                    <label class="block text-sm font-medium text-[var(--color-text-dark)] mb-2">Property Type</label>
                     <div class="flex flex-wrap gap-4">
                         <div class="flex items-center">
-                            <input type="checkbox" id="prop-type-sda" name="property-type" value="SDA" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]">
-                            <label for="prop-type-sda" class="ml-2 text-sm text-[var(--color-dark-text)]">SDA</label>
+                            <input type="checkbox" id="prop-type-sda" name="property-type" value="SDA" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]">
+                            <label for="prop-type-sda" class="ml-2 text-sm text-[var(--color-text-dark)]">SDA</label>
                         </div>
                         <div class="flex items-center">
-                            <input type="checkbox" id="prop-type-sil" name="property-type" value="SIL" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]">
-                            <label for="prop-type-sil" class="ml-2 text-sm text-[var(--color-dark-text)]">SIL</label>
+                            <input type="checkbox" id="prop-type-sil" name="property-type" value="SIL" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]">
+                            <label for="prop-type-sil" class="ml-2 text-sm text-[var(--color-text-dark)]">SIL</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <label for="date-available" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Date Available</label>
-                    <input type="date" id="date-available" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" required />
+                    <label for="date-available" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Date Available</label>
+                    <input type="date" id="date-available" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" required />
                 </div>
                 <div class="mb-4">
-                    <label for="num-bedrooms" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Number of Bedrooms</label>
-                    <input type="number" id="num-bedrooms" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" min="0" required />
+                    <label for="num-bedrooms" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Number of Bedrooms</label>
+                    <input type="number" id="num-bedrooms" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" min="0" required />
                 </div>
                 <div class="mb-4">
-                    <label for="num-bathrooms" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Number of Bathrooms</label>
-                    <input type="number" id="num-bathrooms" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" min="0" required />
+                    <label for="num-bathrooms" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Number of Bathrooms</label>
+                    <input type="number" id="num-bathrooms" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" min="0" required />
                 </div>
                 <div class="mb-4">
-                    <label for="num-current-participants" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Number of Current Participants</label>
-                    <input type="number" id="num-current-participants" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" min="0" required />
+                    <label for="num-current-participants" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Number of Current Participants</label>
+                    <input type="number" id="num-current-participants" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" min="0" required />
                 </div>
                 <div class="mb-4">
-                    <label for="gender-participants" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Gender of Participants in Accommodation</label>
-                    <select id="gender-participants" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" required>
+                    <label for="gender-participants" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Gender of Participants in Accommodation</label>
+                    <select id="gender-participants" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" required>
                         <option value="">Select Gender</option>
                         <option value="Mixed">Mixed</option>
                         <option value="Male">Male</option>
@@ -580,40 +625,40 @@
                     </select>
                 </div>
                 <div class="mb-4">
-                    <label for="num-vacancies" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Current Number of Vacancies</label>
-                    <input type="number" id="num-vacancies" class="mt-1 block w-full rounded-md border-[var(--color-border-gray)] shadow-sm focus:border-[var(--color-primary-blue)] focus:ring-[var(--color-primary-blue)] sm:text-sm p-2 text-[var(--color-dark-text)]" min="0" required />
+                    <label for="num-vacancies" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Current Number of Vacancies</label>
+                    <input type="number" id="num-vacancies" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" min="0" required />
                 </div>
 
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-[var(--color-dark-text)] mb-2">Property Features (Check all that Apply)</label>
+                    <label class="block text-sm font-medium text-[var(--color-text-dark)] mb-2">Property Features (Check all that Apply)</label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <div class="flex items-center"><input type="checkbox" id="feat-accessible-bathroom" name="property-features" value="Accessible Bathroom" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-accessible-bathroom" class="ml-2 text-sm text-[var(--color-dark-text)]">Accessible Bathroom</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-accessible-kitchen" name="property-features" value="Accessible Kitchen" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-accessible-kitchen" class="ml-2 text-sm text-[var(--color-dark-text)]">Accessible Kitchen</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-ramps" name="property-features" value="Ramps/Level Access" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-ramps" class="ml-2 text-sm text-[var(--color-dark-text)]">Ramps/Level Access</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-wide-doorways" name="property-features" value="Wide Doorways" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-wide-doorways" class="ml-2 text-sm text-[var(--color-dark-text)]">Wide Doorways</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-hoist-provision" name="property-features" value="Hoist Provision" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-hoist-provision" class="ml-2 text-sm text-[var(--color-dark-text)]">Hoist Provision</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-smart-home" name="property-features" value="Smart Home Technology" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-smart-home" class="ml-2 text-sm text-[var(--color-dark-text)]">Smart Home Technology</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-on-site-staff" name="property-features" value="On-site Staff" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-on-site-staff" class="ml-2 text-sm text-[var(--color-dark-text)]">On-site Staff</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-garden" name="property-features" value="Garden/Outdoor Area" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-garden" class="ml-2 text-sm text-[var(--color-dark-text)]">Garden/Outdoor Area</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-close-to-transport" name="property-features" value="Close to Public Transport" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-close-to-transport" class="ml-2 text-sm text-[var(--color-dark-text)]">Close to Public Transport</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-air-conditioning" name="property-features" value="Air Conditioning" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-air-conditioning" class="ml-2 text-sm text-[var(--color-dark-text)]">Air Conditioning</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-heating" name="property-features" value="Heating" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-heating" class="ml-2 text-sm text-[var(--color-dark-text)]">Heating</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-pets-allowed" name="property-features" value="Pets Allowed" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-pets-allowed" class="ml-2 text-sm text-[var(--color-dark-text)]">Pets Allowed</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-emergency-call" name="property-features" value="Emergency Call System" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-emergency-call" class="ml-2 text-sm text-[var(--color-dark-text)]">Emergency Call System</label></div>
-                        <div class="flex items-center"><input type="checkbox" id="feat-security" name="property-features" value="Security System" class="h-4 w-4 text-[var(--color-primary-blue)] border-[var(--color-border-gray)] rounded focus:ring-[var(--color-primary-blue)]"><label for="feat-security" class="ml-2 text-sm text-[var(--color-dark-text)]">Security System</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-accessible-bathroom" name="property-features" value="Accessible Bathroom" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-accessible-bathroom" class="ml-2 text-sm text-[var(--color-text-dark)]">Accessible Bathroom</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-accessible-kitchen" name="property-features" value="Accessible Kitchen" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-accessible-kitchen" class="ml-2 text-sm text-[var(--color-text-dark)]">Accessible Kitchen</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-ramps" name="property-features" value="Ramps/Level Access" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-ramps" class="ml-2 text-sm text-[var(--color-text-dark)]">Ramps/Level Access</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-wide-doorways" name="property-features" value="Wide Doorways" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-wide-doorways" class="ml-2 text-sm text-[var(--color-text-dark)]">Wide Doorways</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-hoist-provision" name="property-features" value="Hoist Provision" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-hoist-provision" class="ml-2 text-sm text-[var(--color-text-dark)]">Hoist Provision</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-smart-home" name="property-features" value="Smart Home Technology" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-smart-home" class="ml-2 text-sm text-[var(--color-text-dark)]">Smart Home Technology</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-on-site-staff" name="property-features" value="On-site Staff" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-on-site-staff" class="ml-2 text-sm text-[var(--color-text-dark)]">On-site Staff</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-garden" name="property-features" value="Garden/Outdoor Area" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-garden" class="ml-2 text-sm text-[var(--color-text-dark)]">Garden/Outdoor Area</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-close-to-transport" name="property-features" value="Close to Public Transport" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-close-to-transport" class="ml-2 text-sm text-[var(--color-text-dark)]">Close to Public Transport</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-air-conditioning" name="property-features" value="Air Conditioning" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-air-conditioning" class="ml-2 text-sm text-[var(--color-text-dark)]">Air Conditioning</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-heating" name="property-features" value="Heating" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-heating" class="ml-2 text-sm text-[var(--color-text-dark)]">Heating</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-pets-allowed" name="property-features" value="Pets Allowed" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-pets-allowed" class="ml-2 text-sm text-[var(--color-text-dark)]">Pets Allowed</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-emergency-call" name="property-features" value="Emergency Call System" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-emergency-call" class="ml-2 text-sm text-[var(--color-text-dark)]">Emergency Call System</label></div>
+                        <div class="flex items-center"><input type="checkbox" id="feat-security" name="property-features" value="Security System" class="h-4 w-4 text-[var(--color-main-accent)] border-[var(--color-border)] rounded focus:ring-[var(--color-main-accent)]"><label for="feat-security" class="ml-2 text-sm text-[var(--color-text-dark)]">Security System</label></div>
                     </div>
                 </div>
 
                 <div class="mb-6">
-                    <label for="image-upload" class="block text-sm font-medium text-[var(--color-dark-text)] mb-1">Upload Property Image</label>
-                    <input type="file" id="image-upload" accept="image/*" class="mt-1 block w-full text-sm text-[var(--color-dark-text)] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-[var(--color-primary-blue)] hover:file:bg-gray-200" />
+                    <label for="image-upload" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Upload Property Image</label>
+                    <input type="file" id="image-upload" accept="image/*" class="mt-1 block w-full text-sm text-[var(--color-text-dark)] file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-[var(--color-main-accent)] hover:file:bg-gray-200" />
                 </div>
 
                 <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancel-accommodation-submission" class="px-5 py-2 border border-[var(--color-border-gray)] rounded-md shadow-sm text-sm font-medium text-[var(--color-dark-text)] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                    <button type="button" id="cancel-accommodation-submission" class="px-5 py-2 border border-[var(--color-border)] rounded-md shadow-sm text-sm font-medium text-[var(--color-text-dark)] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
                         Cancel
                     </button>
-                    <button type="submit" class="px-5 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-primary-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-blue)] focus:ring-offset-2">
+                    <button type="submit" class="px-5 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2">
                         Submit New Accommodation
                     </button>
                 </div>
@@ -709,41 +754,93 @@
 
             // --- Data Storage (for demonstration) ---
             let participants = [
-                { name: 'Alice Wonderland', lastContact: '2024-07-17', accommodationType: 'SIL', age: 25, gender: 'female', disability: 'Physical', location: 'Dreamville' },
-                { name: 'Bob The Builder', lastContact: '2024-07-16', accommodationType: 'Group Home', age: 30, gender: 'male', disability: 'Intellectual', location: 'Worktown' },
-                { name: 'Charlie Chaplin', lastContact: '2024-07-15', accommodationType: 'Respite', age: 40, gender: 'male', disability: 'Psychosocial', location: 'Hollywood' }
+                { name: 'Emily Johnson', lastContact: '2024-07-20', accommodationType: 'SIL', age: 28, gender: 'female', disability: 'Physical', location: 'Melbourne' },
+                { name: 'Daniel Garcia', lastContact: '2024-07-19', accommodationType: 'SDA', age: 35, gender: 'male', disability: 'Intellectual', location: 'Melbourne' },
+                { name: 'Sophia Lee', lastContact: '2024-07-18', accommodationType: 'Respite', age: 22, gender: 'female', disability: 'Sensory', location: 'Melbourne' },
+                { name: 'Michael Chen', lastContact: '2024-07-17', accommodationType: 'Group Home', age: 42, gender: 'male', disability: 'Psychosocial', location: 'Melbourne' },
+                { name: 'Olivia Martinez', lastContact: '2024-07-16', accommodationType: 'SIL', age: 31, gender: 'female', disability: 'Neurological', location: 'Melbourne' }
             ];
 
             let accommodations = [
                 {
-                    title: 'Cozy SIL Apartment',
-                    address: { province: 'NSW', city: 'Sydney' },
-                    description: 'A comfortable apartment suitable for independent living.',
+                    title: 'Modern Apartment with City View',
+                    address: { province: 'Victoria', city: 'Melbourne' },
+                    description: 'Spacious 2-bedroom apartment, fully accessible, near CBD.',
                     accommodationTypes: ['Apartment'],
                     propertyTypes: ['SIL'],
-                    dateAvailable: '2024-08-01',
+                    dateAvailable: '2024-08-10',
                     bedrooms: 2,
-                    bathrooms: 1,
+                    bathrooms: 2,
                     currentParticipants: 1,
                     genderParticipants: 'Mixed',
                     vacancies: 1,
-                    features: ['Accessible Bathroom', 'Ramps/Level Access'],
-                    image: 'https://placehold.co/120x90/E8B270/FFFFFF?text=SIL+Apartment'
+                    features: ['Accessible Bathroom', 'Wide Doorways', 'Air Conditioning'],
+                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Apt+City+View',
+                    status: 'Active'
                 },
                 {
-                    title: 'Large Group Home',
-                    address: { province: 'VIC', city: 'Melbourne' },
-                    description: 'Spacious group home with 3 current residents.',
+                    title: 'Suburban Family House',
+                    address: { province: 'Victoria', city: 'Melbourne' },
+                    description: 'Comfortable house with a large garden, ideal for a small group.',
                     accommodationTypes: ['House'],
-                    propertyTypes: ['SDA'],
-                    dateAvailable: '2024-09-15',
+                    propertyTypes: ['Group Home'],
+                    dateAvailable: '2024-09-01',
                     bedrooms: 4,
-                    bathrooms: 2,
+                    bathrooms: 3,
                     currentParticipants: 3,
                     genderParticipants: 'Mixed',
                     vacancies: 1,
-                    features: ['Accessible Kitchen', 'On-site Staff', 'Garden/Outdoor Area'],
-                    image: 'https://placehold.co/120x90/E8B270/FFFFFF?text=Group+Home'
+                    features: ['Garden/Outdoor Area', 'On-site Staff', 'Close to Public Transport'],
+                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Family+House',
+                    status: 'Active'
+                },
+                {
+                    title: 'Accessible Villa near Park',
+                    address: { province: 'Victoria', city: 'Melbourne' },
+                    description: 'Beautiful villa designed for wheelchair access, perfect for respite care.',
+                    accommodationTypes: ['Villa/Duplex/Townhouse'],
+                    propertyTypes: ['Respite'],
+                    dateAvailable: '2024-08-25',
+                    bedrooms: 3,
+                    bathrooms: 2,
+                    currentParticipants: 0,
+                    genderParticipants: 'Mixed',
+                    vacancies: 3,
+                    features: ['Accessible Bathroom', 'Ramps/Level Access', 'Hoist Provision', 'Pets Allowed'],
+                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Park+Villa',
+                    status: 'Active'
+                },
+                {
+                    title: 'Cozy Townhouse in Quiet Neighborhood',
+                    address: { province: 'Victoria', city: 'Melbourne' },
+                    description: 'Safe and peaceful townhouse, close to amenities.',
+                    accommodationTypes: ['Townhouse'],
+                    propertyTypes: ['SIL'],
+                    dateAvailable: '2024-10-01',
+                    bedrooms: 2,
+                    bathrooms: 1,
+                    currentParticipants: 1,
+                    genderParticipants: 'Female',
+                    vacancies: 1,
+                    features: ['Security System', 'Heating'],
+                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Townhouse',
+                    status: 'Active'
+                },
+                {
+                    title: 'SDA Certified Duplex',
+                    address: { province: 'Victoria', city: 'Melbourne' },
+                    description: 'Newly built duplex with high-level SDA features.',
+                    accommodationTypes: ['Duplex'],
+                    propertyTypes: ['SDA'],
+                    dateAvailable: '2024-09-05',
+                    bedrooms: 3,
+                    bathrooms: 2,
+                    currentParticipants: 0,
+                    genderParticipants: 'Male',
+                    vacancies: 2,
+                    features: ['Smart Home Technology', 'Emergency Call System', 'Accessible Kitchen'],
+                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=SDA+Duplex',
+                    status: 'Active'
                 }
             ];
 
@@ -755,22 +852,22 @@
                 }
                 participantsContainer.innerHTML = ''; // Clear current list
                 if (filteredParticipants.length === 0) {
-                    participantsContainer.innerHTML = '<p class="text-[var(--color-dark-text)] text-center py-4">No participants found matching your criteria.</p>';
+                    participantsContainer.innerHTML = '<p class="text-[var(--color-text-dark)] text-center py-4">No participants found matching your criteria.</p>';
                     return;
                 }
                 filteredParticipants.forEach(p => {
                     const participantDiv = document.createElement('div');
-                    participantDiv.className = 'bg-[var(--color-white)] p-4 rounded-lg border border-[var(--color-border-gray)] flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm';
+                    participantDiv.className = 'bg-[var(--color-card-background)] p-4 rounded-lg border border-[var(--color-border)] flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm';
                     participantDiv.innerHTML = `
                         <div class="flex items-center mb-2 sm:mb-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user-round ${p.gender === 'female' ? 'text-pink-500' : 'text-[var(--color-primary-blue)]'} mr-2"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user-round ${p.gender === 'female' ? 'text-pink-500' : 'text-[var(--color-main-accent)]'} mr-2"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
                             <div>
-                                <p class="font-semibold text-[var(--color-dark-text)]">${p.name}</p>
-                                <p class="text-sm text-[var(--color-light-gray-text)]">Last Contact: ${p.lastContact}</p>
-                                <p class="text-xs text-[var(--color-light-gray-text)]">Accommodation: ${p.accommodationType}, Age: ${p.age}, Gender: ${p.gender}, Disability: ${p.disability}, Location: ${p.location}</p>
+                                <p class="font-semibold text-[var(--color-text-dark)]">${p.name}</p>
+                                <p class="text-sm text-[var(--color-text-light)]">Last Contact: ${p.lastContact}</p>
+                                <p class="text-xs text-[var(--color-text-light)]">Accommodation: ${p.accommodationType}, Age: ${p.age}, Gender: ${p.gender}, Disability: ${p.disability}, Location: ${p.location}</p>
                             </div>
                         </div>
-                        <button class="px-4 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] rounded-md hover:bg-[var(--color-primary-darker)] transition duration-150">View Details</button>
+                        <button class="px-4 py-2 bg-[var(--color-button-light)] text-[var(--color-text-white)] rounded-md hover:bg-[var(--color-main-accent-darker)] transition duration-150">View Details</button>
                     `;
                     participantsContainer.appendChild(participantDiv);
                 });
@@ -784,31 +881,31 @@
                 }
                 accommodationsContainer.innerHTML = ''; // Clear current list
                 if (filteredAccommodations.length === 0) {
-                    accommodationsContainer.innerHTML = '<p class="text-[var(--color-dark-text)] text-center py-4">No accommodations found matching your criteria.</p>';
+                    accommodationsContainer.innerHTML = '<p class="text-[var(--color-text-dark)] text-center py-4">No accommodations found matching your criteria.</p>';
                     return;
                 }
                 filteredAccommodations.forEach(acc => {
                     const accommodationDiv = document.createElement('div');
-                    accommodationDiv.className = 'bg-[var(--color-white)] p-4 rounded-lg border border-[var(--color-border-gray)] flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm';
+                    accommodationDiv.className = 'bg-[var(--color-card-background)] p-4 rounded-lg border border-[var(--color-border)] flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm';
 
                     // Determine image source, use placeholder if not available
-                    const imageUrl = acc.image && acc.image !== '' ? acc.image : `https://placehold.co/120x90/E8B270/FFFFFF?text=No+Image`;
+                    const imageUrl = acc.image && acc.image !== '' ? acc.image : `https://placehold.co/120x90/cc8e45/FFFFFF?text=No+Image`;
 
                     accommodationDiv.innerHTML = `
                         <img src="${imageUrl}" alt="${acc.title || 'Accommodation Image'}" class="w-full md:w-32 h-auto rounded-md object-cover shadow-sm">
                         <div class="flex-1">
-                            <p class="font-semibold text-[var(--color-dark-text)] text-lg mb-1">${acc.title}</p>
-                            <p class="text-[var(--color-light-gray-text)] text-sm">Address: ${acc.address.city}, ${acc.address.province}</p>
-                            <p class="text-[var(--color-light-gray-text)] text-sm">Type: ${acc.accommodationTypes.join(', ')} (${acc.propertyTypes.join(', ')})</p>
-                            <p class="text-[var(--color-light-gray-text)] text-sm">Bedrooms: ${acc.bedrooms}, Bathrooms: ${acc.bathrooms}</p>
-                            <p class="text-[var(--color-light-gray-text)] text-sm">Participants: ${acc.currentParticipants} (${acc.genderParticipants}), Vacancies: ${acc.vacancies}</p>
-                            <p class="text-[var(--color-light-gray-text)] text-sm">Available: ${acc.dateAvailable}</p>
-                            <p class="text-[var(--color-light-gray-text)] text-sm">Features: ${acc.features.length > 0 ? acc.features.join(', ') : 'N/A'}</p>
-                            <p class="text-[var(--color-light-gray-text)] text-sm">Status: ${acc.status}</p>
+                            <p class="font-semibold text-[var(--color-text-dark)] text-lg mb-1">${acc.title}</p>
+                            <p class="text-[var(--color-text-light)] text-sm">Address: ${acc.address.city}, ${acc.address.province}</p>
+                            <p class="text-[var(--color-text-light)] text-sm">Type: ${acc.accommodationTypes.join(', ')} (${acc.propertyTypes.join(', ')})</p>
+                            <p class="text-[var(--color-text-light)] text-sm">Bedrooms: ${acc.bedrooms}, Bathrooms: ${acc.bathrooms}</p>
+                            <p class="text-[var(--color-text-light)] text-sm">Participants: ${acc.currentParticipants} (${acc.genderParticipants}), Vacancies: ${acc.vacancies}</p>
+                            <p class="text-[var(--color-text-light)] text-sm">Available: ${acc.dateAvailable}</p>
+                            <p class="text-[var(--color-text-light)] text-sm">Features: ${acc.features.length > 0 ? acc.features.join(', ') : 'N/A'}</p>
+                            <p class="text-[var(--color-text-light)] text-sm">Status: ${acc.status}</p>
                         </div>
                         <div class="flex flex-row md:flex-col gap-2 md:gap-1 ml-auto items-end">
-                            <button class="px-4 py-2 bg-[var(--color-primary-blue)] text-[var(--color-white)] rounded-md hover:bg-[var(--color-primary-darker)] transition duration-150 text-sm">Edit</button>
-                            <button class="px-4 py-2 bg-red-600 text-[var(--color-white)] rounded-md hover:bg-red-700 transition duration-150 text-sm">Delete</button>
+                            <button class="px-4 py-2 bg-[var(--color-button)] text-[var(--color-text-white)] rounded-md hover:bg-[var(--color-main-accent-darker)] transition duration-150 text-sm">Edit</button>
+                            <button class="px-4 py-2 bg-[var(--color-error)] text-[var(--color-text-white)] rounded-md hover:bg-red-700 transition duration-150 text-sm">Delete</button>
                         </div>
                     `;
                     accommodationsContainer.appendChild(accommodationDiv);
@@ -1112,7 +1209,7 @@
                     if (imageUploadInput.files && imageUploadInput.files[0]) {
                         // In a real application, you would upload this file to a server
                         // and get a URL back. For this example, we'll use a generic placeholder.
-                        imageUrl = 'https://placehold.co/120x90/E8B270/FFFFFF?text=Uploaded+Image';
+                        imageUrl = 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Uploaded+Image';
                         console.log('Image selected:', imageUploadInput.files[0].name);
                     }
 
