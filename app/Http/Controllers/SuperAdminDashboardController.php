@@ -45,7 +45,7 @@ class SuperAdminDashboardController extends Controller
 
         // Basic Counts
         $participantCount = User::where('role', 'participant')->count();
-        $coordinatorCount = User::where('role', 'support_coordinator')->count();
+        $coordinatorCount = User::where('role', 'coordinator')->count();
         $providerCount = User::where('role', 'provider')->count();
         $ndisBusinessCount = User::where('role', 'ndis_business')->count();
         $superAdminCount = User::where('role', 'admin')->count(); // Assuming you still have 'super_admin' in DB

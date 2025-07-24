@@ -8,27 +8,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            /* New Color Palette Variables based on screenshot and user request */
-            --color-sidebar-bg: #FFFFFF; /* White for sidebar */
-            --color-main-accent: #cc8e45; /* Copper for buttons, accents */
-            --color-main-accent-darker: #b87e3a; /* Darker Copper for button hovers */
-            --color-page-background: #f5f2f2ff; /* Light Green/Gray for overall page background */
-            --color-card-background: #FFFFFF; /* White for main content panes/cards */
-            --color-text-white: #FFFFFF; /* White for text */
-            --color-text-dark: #070707ff; /* General Dark Text */
-            --color-text-light: #6B7280; /* Lighter Gray for secondary text */
-            --color-sidebar-text: #333333; /* Dark text for sidebar items */
-            --color-sidebar-icon: #333333; /* Dark icon for sidebar items */
-            --color-sidebar-active-bg: #e0e7ff; /* Light purple/blue for active sidebar link background */
-            --color-sidebar-active-text: #33595a; /* Dark blue-green for active sidebar link text */
-            --color-sidebar-active-icon: #33595a; /* Dark blue-green for active sidebar link icon */
-            --color-button: #33595a; /*Edit Buttons*/
-            --color-button-light: #457c7eff; /*View Details Buttons*/
-            --color-border: #458588ff; /* Light border color */
-            --color-progress-track: #F0DDBF; /* Light copper shade for progress bar track */
-            --color-error: #EF4444; /* Standard red for delete/warning */
-            --color-success: #22C55E; /* Standard green for success */
+        /* Original Light Theme Colors (now hardcoded as the only theme) */
+        :root { /* Using :root to define variables for consistency, but no toggling logic */
+            --color-sidebar-bg: #FFFFFF;
+            --color-main-accent: #cc8e45;
+            --color-main-accent-darker: #b87e3a;
+            --color-page-background: #e1e7dd;
+            --color-card-background: #FFFFFF;
+            --color-text-dark: #333333;
+            --color-text-light: #6B7280;
+            --color-sidebar-text: #333333;
+            --color-sidebar-icon: #333333;
+            --color-sidebar-active-bg: #e0e7ff;
+            --color-sidebar-active-text: #33595a;
+            --color-sidebar-active-icon: #33595a;
+            --color-border: #D1D5DB;
+            --color-progress-track: #F0DDBF;
+            --color-error: #EF4444;
+            --color-success: #22C55E;
+            --color-info-box-bg-transparent: rgba(62, 71, 50, 0.1);
+            --color-white-text-on-dark: #FFFFFF;
+            --color-search-input-text: #33595a;
         }
 
         body {
@@ -37,6 +37,7 @@
             -moz-osx-font-smoothing: grayscale;
             background-color: var(--color-page-background); /* Overall page background */
             color: var(--color-text-dark); /* Default text color */
+            /* Removed transition as theme toggling is gone */
         }
 
         /* Custom styles for sidebar links */
@@ -44,55 +45,58 @@
             display: flex;
             align-items: center;
             width: 100%;
-            padding: 0.75rem 1.25rem; /* Adjusted padding for links */
-            border-radius: 0.5rem; /* Slightly rounded corners */
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
             text-align: left;
             font-weight: 500;
-            color: var(--color-sidebar-text); /* Dark text by default on white sidebar */
+            color: var(--color-sidebar-text);
             transition: all 0.2s ease-in-out;
-            margin-bottom: 0.25rem; /* Small gap between links */
-            background-color: transparent; /* Ensure default is transparent for non-active */
-            border: none; /* Ensure no default button border */
-            cursor: pointer; /* Indicate it's clickable */
+            margin-bottom: 0.25rem;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
         }
 
         .sidebar-link:hover {
-            background-color: var(--color-main-accent); /* Hover background color as requested */
-            color: var(--color-white-text-on-dark); /* White text on hover */
-            transform: translateY(-2px) scale(1.02); /* Lift and grow effect */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for lift effect */
+            background-color: var(--color-main-accent);
+            color: var(--color-white-text-on-dark);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .sidebar-link:hover svg {
-            color: var(--color-white-text-on-dark); /* White icon on hover */
+            color: var(--color-white-text-on-dark);
         }
+
+        /* Corrected active state for sidebar links to match screenshot */
         .sidebar-link.active {
-            color: var(--color-sidebar-active-text); /* Dark blue-green text for active link */
+            background-color: var(--color-sidebar-active-bg);
+            color: var(--color-sidebar-active-text);
             font-weight: 600;
-            border-radius: 0.5rem; /* Rounded corners for active link */
-            /* Remove seamless extension logic as it doesn't match screenshot */
+            border-radius: 0.5rem;
             width: 100%;
             margin-right: 0;
             padding-right: 1.25rem;
             right: 0;
-            transform: none; /* Ensure active link doesn't lift/grow */
-            box-shadow: none; /* Ensure active link doesn't have extra shadow */
+            transform: none;
+            box-shadow: none;
         }
 
         .sidebar-link.active svg {
-            color: var(--color-sidebar-active-icon); /* Dark blue-green icon for active link */
+            color: var(--color-sidebar-active-icon);
         }
 
         .sidebar-link svg {
-            color: var(--color-sidebar-icon); /* Icons on sidebar are dark */
-            margin-right: 0.75rem; /* Space between icon and text */
+            color: var(--color-sidebar-icon);
+            margin-right: 0.75rem;
         }
+
         /* General button styling for lift effect */
         .btn-lift {
             transition: all 0.2s ease-in-out;
         }
         .btn-lift:hover {
-            transform: translateY(-2px) scale(1.02); /* Lift and grow effect */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for lift effect */
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         /* Style for scrollbar in main content area */
@@ -108,7 +112,7 @@
             border-radius: 10px;
         }
         main::-webkit-scrollbar-thumb:hover {
-            background: var(--color-main-accent-darker); /* Darker shade on hover */
+            background: var(--color-main-accent-darker);
         }
 
         /* Chat bubble styles */
@@ -118,40 +122,78 @@
             border-radius: 0.75rem;
             margin-bottom: 0.5rem;
             word-wrap: break-word;
+            transition: all 0.2s ease-in-out;
         }
         .chat-bubble.incoming {
-            background-color: var(--color-page-background); /* Light background for incoming (now light green/gray) */
-            color: var(--color-text-dark); /* Dark text for incoming */
+            background-color: var(--color-info-box-bg-transparent);
+            color: var(--color-text-dark);
             align-self: flex-start;
             border-bottom-left-radius: 0.25rem;
         }
         .chat-bubble.outgoing {
-            background-color: var(--color-main-accent); /* Darker background for outgoing (now copper) */
-            color: var(--color-white-text-on-dark); /* White text for outgoing */
+            background-color: var(--color-main-accent);
+            color: var(--color-white-text-on-dark);
             align-self: flex-end;
             border-bottom-right-radius: 0.25rem;
         }
+        /* Apply lift effect to chat bubbles on hover */
+        .chat-bubble:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
         .chat-message-time {
             font-size: 0.75rem;
-            color: var(--color-text-light); /* Light gray for time */
+            color: var(--color-text-light);
             margin-top: 0.25rem;
         }
         .chat-bubble.outgoing .chat-message-sender,
         .chat-bubble.outgoing .chat-message-time {
-            color: rgba(255, 255, 255, 0.8); /* Lighter text for sender/time in outgoing */
+            color: rgba(255, 255, 255, 0.8);
         }
 
         /* Progress bar styling for storage details */
         .progress-bar-container {
-            background-color: var(--color-progress-track); /* Adjusted for new scheme */
-            border-radius: 9999px; /* Full pill shape */
+            background-color: var(--color-progress-track);
+            border-radius: 9999px;
             height: 8px;
             overflow: hidden;
         }
         .progress-bar-fill {
-            background-color: var(--color-main-accent); /* Changed to main accent (copper) */
+            background-color: var(--color-main-accent);
             height: 100%;
             border-radius: 9999px;
+        }
+
+        /* Styles for action buttons within the request box */
+        .request-action-button {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+        .request-action-button:hover {
+            transform: translateY(-1px) scale(1.02);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .request-action-button.accept {
+            background-color: var(--color-success);
+            color: var(--color-white-text-on-dark);
+        }
+        .request-action-button.revoke {
+            background-color: var(--color-error);
+            color: var(--color-white-text-on-dark);
+        }
+
+        /* Search input specific styling */
+        .header-search-input {
+            color: var(--color-search-input-text); /* Uses the new variable */
+        }
+        .header-search-input::placeholder { /* For placeholder text */
+            color: var(--color-text-light);
+            opacity: 1; /* Firefox default is lower */
         }
     </style>
 </head>
@@ -184,13 +226,10 @@
             </button>
             <button data-section="chat" class="sidebar-link">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Chat
+                <span id="chat-notification-count" class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full hidden">0</span>
             </button>
-            <button data-section="storage" class="sidebar-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-hard-drive"><path d="M22 12H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/></svg> Storage
-            </button>
-            <button data-section="settings" class="sidebar-link">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
-            </button>
+            <!-- Removed Storage Link -->
+            <!-- Removed Settings Link -->
         </nav>
     </aside>
 
@@ -198,7 +237,7 @@
     <main class="flex-1 p-4 md:p-8 overflow-y-auto">
         <div class="max-w-full mx-auto">
             <!-- Main Header Content (Dashboard Title, Icons) -->
-            <header class="bg-[var(--color-border)] rounded-full shadow-md p-2 flex items-center justify-between z-10 mb-8">
+            <header class="bg-[var(--color-search-input-text)] rounded-full shadow-md p-2 flex items-center justify-between z-10 mb-8">
                 <!-- Mobile Header Content (Hamburger Menu, Title) -->
                 <div class="flex items-center md:hidden w-full justify-between">
                     <h1 class="text-xl font-bold text-[var(--color-text-dark)]">Company Dashboard</h1>
@@ -210,7 +249,7 @@
                 <!-- Desktop Header Content (Dashboard Title, Icons) -->
                 <div class="hidden md:flex items-center justify-between w-full">
                     <div class="relative flex-1 max-w-md mx-auto">
-                        <input type="text" placeholder="Search anything..." class="pl-10 pr-4 py-2 rounded-full border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border)] focus:border-transparent text-sm w-full text-[var(--color-text-dark)]">
+                        <input type="text" placeholder="Search anything..." class="pl-10 pr-4 py-2 rounded-full border border-[var(--color-search-input-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-search-input-text)] focus:border-transparent text-sm w-full header-search-input">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-[var(--color-text-light)]"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         </div>
@@ -218,18 +257,18 @@
 
                     <div class="flex items-center space-x-4 ml-auto">
                         <!-- Notification Icon -->
-                        <button class="text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                        <button id="notification-button" class="text-[var(--color-white-text-on-dark)] hover:text-[var(--color-main-accent)] focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
                         </button>
-                        <!-- Settings Icon -->
-                        <button class="text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                        <!-- Settings Icon (This is the general settings icon, not the sidebar link) -->
+                        <button class="text-[var(--color-white-text-on-dark)] hover:text-[var(--color-main-accent)] focus:outline-none p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                         <!-- Profile Icon with Dropdown -->
                         <div class="relative">
-                            <button id="profile-menu-button" class="flex items-center space-x-2 text-[var(--color-text-dark)] focus:outline-none p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                            <button id="profile-menu-button" class="flex items-center space-x-2 text-[var(--color-white-text-on-dark)] focus:outline-none p-1 rounded-full hover:text-[var(--color-main-accent)] transition-colors duration-200">
                                 <img src="https://placehold.co/32x32/A78BFA/FFFFFF?text=AD" alt="Admin Avatar" class="w-8 h-8 rounded-full border-2 border-[var(--color-main-accent)]">
-                                <span class="font-medium text-[var(--color-text-dark)] hidden sm:inline">Admin User</span>
+                                <span class="font-medium text-[var(--color-white-text-on-dark)] hidden sm:inline">Admin User</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
                             </button>
 
@@ -255,7 +294,7 @@
             <div id="dashboard-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg mb-8">
                 <h2 class="text-3xl font-bold text-[var(--color-text-dark)] mb-2">Welcome to your Company Dashboard!</h2>
                 <p class="text-[var(--color-text-light)]">Here's a quick overview of your company's operations.</p>
-                <div class="mt-6 p-4 bg-[var(--color-page-background)] rounded-lg border border-[var(--color-border)] text-[var(--color-text-dark)]">
+                <div class="mt-6 p-4 bg-[var(--color-info-box-bg-transparent)] rounded-lg border border-[var(--color-border)] text-[var(--color-text-dark)]">
                     <p class="font-semibold">Company Updates:</p>
                     <ul class="list-disc list-inside mt-2 space-y-1">
                         <li>New policy updates rolled out on 2024-07-18.</li>
@@ -316,10 +355,10 @@
                         <label for="location-filter" class="block text-xs font-medium text-[var(--color-text-dark)] mb-1">Location</label>
                         <input type="text" id="location-filter" class="block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="Filter by city/town" />
                     </div>
-                    <button id="apply-filters-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-text-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
+                    <button id="apply-filters-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end btn-lift">
                         Apply Filters
                     </button>
-                    <button id="add-participant-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-text-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
+                    <button id="add-participant-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end btn-lift">
                         Add New Participant
                     </button>
                 </div>
@@ -340,10 +379,11 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-[var(--color-text-light)]"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         </div>
                     </div>
-                    <button id="submit-accommodation-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-text-white)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end">
+                    <button id="submit-accommodation-button" class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out self-end btn-lift">
                         Submit New Accommodation
                     </button>
                 </div>
+                <!-- Changed from grid to space-y for listing layout -->
                 <div class="space-y-4" id="accommodations-container">
                     <!-- Accommodation items will be rendered here by JavaScript -->
                 </div>
@@ -353,30 +393,21 @@
             <div id="chat-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg hidden flex">
                 <div class="w-1/3 border-r border-[var(--color-border)] pr-4">
                     <h3 class="text-xl font-bold text-[var(--color-text-dark)] mb-4">Contacts</h3>
-                    <div class="space-y-2">
-                        <button data-contact="jane-smith" class="chat-contact flex items-center w-full p-3 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
-                            <img src="https://placehold.co/40x40/FF7F50/FFFFFF?text=JS" alt="Jane Smith" class="w-10 h-10 rounded-full mr-3">
-                            <div>
-                                <p class="font-medium text-[var(--color-text-dark)]">Jane Smith</p>
-                                <p class="text-sm text-[var(--color-text-light)]">Last message...</p>
-                            </div>
-                        </button>
-                        <button data-contact="mark-jones" class="chat-contact flex items-center w-full p-3 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
-                            <img src="https://placehold.co/40x40/6A5ACD/FFFFFF?text=MJ" alt="Mark Jones" class="w-10 h-10 rounded-full mr-3">
-                            <div>
-                                <p class="font-medium text-[var(--color-text-dark)]">Mark Jones</p>
-                                <p class="text-sm text-[var(--color-text-light)]">Last message...</p>
-                            </div>
-                        </button>
-                        <button data-contact="sarah-davis" class="chat-contact flex items-center w-full p-3 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer">
-                            <img src="https://placehold.co/40x40/3CB371/FFFFFF?text=SD" alt="Sarah Davis" class="w-10 h-10 rounded-full mr-3">
-                            <div>
-                                <p class="font-medium text-[var(--color-text-dark)]">Sarah Davis</p>
-                                <p class="text-sm text-[var(--color-text-light)]">Last message...</p>
-                            </div>
-                        </button>
+                    <div class="space-y-2 chat-contacts-container">
+                        <!-- Chat contacts will be rendered here by JavaScript -->
+                    </div>
+
+                    <!-- Incoming Request Box -->
+                    <div id="john-doe-request-box" class="mt-6 p-4 bg-[var(--color-info-box-bg-transparent)] rounded-lg border border-[var(--color-border)] text-[var(--color-text-dark)] text-sm">
+                        <p class="font-semibold mb-2">Incoming Request from John Doe</p>
+                        <p>"John Doe would like to connect with your company."</p>
+                        <div class="flex space-x-2 mt-3">
+                            <button class="request-action-button accept" data-request-id="john-doe-connect">Accept</button>
+                            <button class="request-action-button revoke" data-request-id="john-doe-connect">Revoke</button>
+                        </div>
                     </div>
                 </div>
+
                 <div class="flex-1 flex flex-col pl-4">
                     <div class="border-b border-[var(--color-border)] pb-4 mb-4 flex items-center">
                         <img src="https://placehold.co/40x40/FF7F50/FFFFFF?text=JS" alt="Contact Avatar" class="w-10 h-10 rounded-full mr-3" id="chat-window-header-image">
@@ -387,54 +418,15 @@
                     </div>
                     <div class="mt-4 flex items-center">
                         <input type="text" placeholder="Type your message..." class="flex-1 p-3 rounded-full border border-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:border-transparent text-[var(--color-text-dark)]">
-                        <button class="ml-3 p-3 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-full hover:bg-[var(--color-main-accent-darker)] transition duration-150">
+                        <button class="ml-3 p-3 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-full hover:bg-[var(--color-main-accent-darker)] transition duration-150 btn-lift">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/></svg>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- Storage Section -->
-            <div id="storage-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg hidden">
-                <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Storage Overview</h2>
-                <p class="text-[var(--color-text-light)] mb-4">Monitor your company's data storage usage.</p>
-                <div class="bg-[var(--color-page-background)] p-6 rounded-lg border border-[var(--color-border)] shadow-sm">
-                    <div class="flex justify-between items-center mb-4">
-                        <span class="text-lg font-semibold text-[var(--color-text-dark)]">Total Storage Used:</span>
-                        <span class="text-lg font-semibold text-[var(--color-text-dark)]">75 GB / 100 GB</span>
-                    </div>
-                    <div class="progress-bar-container mb-4">
-                        <div class="progress-bar-fill" style="width: 75%;"></div>
-                    </div>
-                    <p class="text-sm text-[var(--color-text-light)]">You are currently using 75% of your allocated storage.</p>
-                    <button class="mt-6 px-6 py-3 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-lg shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
-                        Manage Storage
-                    </button>
-                </div>
-            </div>
-
-            <!-- Settings Section -->
-            <div id="settings-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg hidden">
-                <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Application Settings</h2>
-                <p class="text-[var(--color-text-light)] mb-4">Configure application preferences and integrations.</p>
-                <div class="space-y-4">
-                    <div class="bg-[var(--color-page-background)] p-4 rounded-lg border border-[var(--color-border)]">
-                        <label for="app-notifications" class="flex items-center justify-between cursor-pointer">
-                            <span class="text-sm font-medium text-[var(--color-text-dark)]">App Notifications</span>
-                            <input type="checkbox" id="app-notifications" class="form-checkbox h-5 w-5 text-[var(--color-main-accent)] border-[var(--color-border)] rounded" checked />
-                        </label>
-                    </div>
-                    <div class="bg-[var(--color-page-background)] p-4 rounded-lg border border-[var(--color-border)]">
-                        <label for="data-sync" class="flex items-center justify-between cursor-pointer">
-                            <span class="text-sm font-medium text-[var(--color-text-dark)]">Enable Data Sync</span>
-                            <input type="checkbox" id="data-sync" class="form-checkbox h-5 w-5 text-[var(--color-main-accent)] border-[var(--color-border)] rounded" />
-                        </label>
-                    </div>
-                    <button class="px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
-                        Manage Integrations
-                    </button>
-                </div>
-            </div>
+            <!-- Removed Storage Section -->
+            <!-- Removed Settings Section -->
 
 
             <!-- Profile Section (Accessible via dropdown) -->
@@ -442,36 +434,37 @@
                 <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Your Company Profile</h2>
                 <p class="text-[var(--color-text-light)] mb-2">Manage your personal and company-related information.</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-[var(--color-page-background)] p-4 rounded-md">
+                    <div class="bg-[var(--color-info-box-bg-transparent)] p-4 rounded-md">
                         <label for="company-name" class="block text-sm font-medium text-[var(--color-text-dark)]">Company Name</label>
                         <input type="text" id="company-name" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="Acme Corp" />
                     </div>
-                    <div class="bg-[var(--color-page-background)] p-4 rounded-md">
+                    <div class="bg-[var(--color-info-box-bg-transparent)] p-4 rounded-md">
                         <label for="admin-email" class="block text-sm font-medium text-[var(--color-text-dark)]">Admin Email</label>
                         <input type="email" id="admin-email" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="admin@acmecorp.com" />
                     </div>
-                    <div class="bg-[var(--color-page-background)] p-4 rounded-md col-span-full">
+                    <div class="bg-[var(--color-info-box-bg-transparent)] p-4 rounded-md col-span-full">
                         <label for="company-bio" class="block text-sm font-medium text-[var(--color-text-dark)]">Company Description</label>
                         <textarea id="company-bio" rows="3" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="Describe your company's mission and services..."></textarea>
                     </div>
                 </div>
-                <button class="mt-6 px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                <button class="mt-6 px-6 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out btn-lift">
                     Save Company Profile
                 </button>
             </div>
 
             <!-- Settings Section (Accessible via dropdown) -->
+            <!-- Note: This settings section is still here because it's linked from the profile dropdown, not the sidebar. -->
             <div id="settings-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-lg shadow-md hidden">
                 <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Account Settings</h2>
                 <p class="text-[var(--color-text-light)] mb-2">Adjust your account preferences and security settings.</p>
                 <div class="space-y-4">
-                    <div class="bg-[var(--color-page-background)] p-4 rounded-lg shadow-sm">
+                    <div class="bg-[var(--color-info-box-bg-transparent)] p-4 rounded-lg shadow-sm">
                         <label for="notifications" class="flex items-center justify-between cursor-pointer">
                             <span class="text-sm font-medium text-[var(--color-text-dark)]">Email Notifications</span>
                             <input type="checkbox" id="notifications" class="form-checkbox h-5 w-5 text-[var(--color-main-accent)] border-[var(--color-border)] rounded" checked />
                         </label>
                     </div>
-                    <div class="bg-[var(--color-page-background)] p-4 rounded-lg shadow-sm">
+                    <div class="bg-[var(--color-info-box-bg-transparent)] p-4 rounded-lg shadow-sm">
                         <label for="theme" class="block text-sm font-medium text-[var(--color-text-dark)] mb-2">Theme Preference</label>
                         <select id="theme" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]">
                             <option>Light</option>
@@ -479,7 +472,7 @@
                             <option>System Default</option>
                         </select>
                     </div>
-                    <button class="px-6 py-2 bg-[var(--color-error)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-[var(--color-error)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                    <button class="px-6 py-2 bg-[var(--color-error)] text-[var(--color-white-text-on-dark)] font-semibold rounded-md shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-[var(--color-error)] focus:ring-offset-2 transition duration-150 ease-in-out btn-lift">
                         Change Password
                     </button>
                 </div>
@@ -488,7 +481,7 @@
     </main>
 
     <!-- Add New Participant Modal -->
-    <div id="add-participant-modal" class="fixed inset-0 bg-gray-600 bg-opacity50 flex items-center justify-center z-50 hidden">
+    <div id="add-participant-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
         <div class="bg-[var(--color-card-background)] p-8 rounded-lg shadow-xl w-full max-w-md relative">
             <button id="close-participant-modal" class="absolute top-4 right-4 text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -533,10 +526,10 @@
                     <input type="date" id="participant-last-contact" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" required />
                 </div>
                 <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancel-add-participant" class="px-5 py-2 border border-[var(--color-border)] rounded-md shadow-sm text-sm font-medium text-[var(--color-text-dark)] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                    <button type="button" id="cancel-add-participant" class="px-5 py-2 border border-[var(--color-border)] rounded-md shadow-sm text-sm font-medium text-[var(--color-text-dark)] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out btn-lift">
                         Cancel
                     </button>
-                    <button type="submit" class="px-5 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2">
+                    <button type="submit" class="px-5 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 btn-lift">
                         Add Participant
                     </button>
                 </div>
@@ -550,11 +543,16 @@
             <button id="close-accommodation-modal" class="absolute top-4 right-4 text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
-            <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-6">Submit New Accommodation</h2>
+            <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-6" id="accommodation-modal-title">Submit New Accommodation</h2>
             <form id="submit-accommodation-form">
+                <input type="hidden" id="accommodation-index" value="-1"> <!-- Hidden field to store index for editing -->
                 <div class="mb-4">
                     <label for="accommodation-title" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Property Title</label>
                     <input type="text" id="accommodation-title" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="e.g., Spacious Home with Garden" required />
+                </div>
+                <div class="mb-4">
+                    <label for="accommodation-phone" class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Telephone/Phone Number</label>
+                    <input type="tel" id="accommodation-phone" class="mt-1 block w-full rounded-md border-[var(--color-border)] shadow-sm focus:border-[var(--color-main-accent)] focus:ring-[var(--color-main-accent)] sm:text-sm p-2 text-[var(--color-text-dark)]" placeholder="e.g., +1234567890" />
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-[var(--color-text-dark)] mb-1">Property Address</label>
@@ -655,10 +653,10 @@
                 </div>
 
                 <div class="flex justify-end space-x-3">
-                    <button type="button" id="cancel-accommodation-submission" class="px-5 py-2 border border-[var(--color-border)] rounded-md shadow-sm text-sm font-medium text-[var(--color-text-dark)] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out">
+                    <button type="button" id="cancel-accommodation-submission" class="px-5 py-2 border border-[var(--color-border)] rounded-md shadow-sm text-sm font-medium text-[var(--color-text-dark)] hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 transition duration-150 ease-in-out btn-lift">
                         Cancel
                     </button>
-                    <button type="submit" class="px-5 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2">
+                    <button type="submit" id="submit-accommodation-form-button" class="px-5 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 btn-lift">
                         Submit New Accommodation
                     </button>
                 </div>
@@ -666,9 +664,46 @@
         </div>
     </div>
 
+    <!-- Notification Modal -->
+    <div id="notification-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-[var(--color-card-background)] p-8 rounded-lg shadow-xl w-full max-w-sm relative">
+            <button id="close-notification-modal" class="absolute top-4 right-4 text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-4">Notifications</h2>
+            <div id="notification-content" class="text-[var(--color-text-dark)]">
+                <p>No new notifications at this time.</p>
+            </div>
+            <div class="flex justify-end mt-6">
+                <button type="button" id="ok-notification-modal" class="px-5 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 btn-lift">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Participant Details Modal -->
+    <div id="participant-details-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-[var(--color-card-background)] p-8 rounded-lg shadow-xl w-full max-w-md relative">
+            <button id="close-participant-details-modal" class="absolute top-4 right-4 text-[var(--color-text-dark)] hover:text-[var(--color-main-accent)] p-1 rounded-full hover:bg-gray-100 transition-colors duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+            <h2 class="text-2xl font-bold text-[var(--color-text-dark)] mb-6">Participant Details</h2>
+            <div id="participant-details-content" class="space-y-2 text-[var(--color-text-dark)]">
+                <!-- Details will be populated here by JavaScript -->
+            </div>
+            <div class="flex justify-end mt-6">
+                <button type="button" id="ok-participant-details-modal" class="px-5 py-2 bg-[var(--color-main-accent)] text-[var(--color-white-text-on-dark)] rounded-md shadow-sm text-sm font-medium hover:bg-[var(--color-main-accent-darker)] focus:outline-none focus:ring-2 focus:ring-[var(--color-main-accent)] focus:ring-offset-2 btn-lift">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const htmlElement = document.documentElement;
             const sidebar = document.getElementById('sidebar');
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const closeSidebarButton = document.getElementById('close-sidebar-button');
@@ -679,6 +714,8 @@
             const profileMenuButton = document.getElementById('profile-menu-button');
             const profileDropdown = document.getElementById('profile-dropdown');
             const profileDropdownActions = profileDropdown ? profileDropdown.querySelectorAll('button[data-action]') : [];
+            const notificationButton = document.getElementById('notification-button');
+
 
             // Participants List elements
             const participantsContainer = document.getElementById('participants-container');
@@ -714,7 +751,10 @@
             const closeAccommodationModalButton = document.getElementById('close-accommodation-modal');
             const cancelAccommodationSubmissionButton = document.getElementById('cancel-accommodation-submission');
             const submitAccommodationForm = document.getElementById('submit-accommodation-form');
+            const accommodationModalTitle = document.getElementById('accommodation-modal-title');
+            const accommodationIndexInput = document.getElementById('accommodation-index'); // Hidden input for editing
             const accommodationTitleInput = document.getElementById('accommodation-title');
+            const accommodationPhoneInput = document.getElementById('accommodation-phone'); // New phone input
             const accommodationAddressProvinceInput = document.getElementById('accommodation-address-province');
             const accommodationAddressCityInput = document.getElementById('accommodation-address-city');
             const accommodationDescriptionTextarea = document.getElementById('accommodation-description');
@@ -728,42 +768,74 @@
             const numVacanciesInput = document.getElementById('num-vacancies');
             const propertyFeaturesCheckboxes = document.querySelectorAll('input[name="property-features"]');
             const imageUploadInput = document.getElementById('image-upload');
+            const submitAccommodationFormButton = document.getElementById('submit-accommodation-form-button'); // Reference to the submit button
+
+            // Notification Modal elements
+            const notificationModal = document.getElementById('notification-modal');
+            const closeNotificationModalButton = document.getElementById('close-notification-modal');
+            const okNotificationModalButton = document.getElementById('ok-notification-modal');
+            const notificationContent = document.getElementById('notification-content');
+
+            // Participant Details Modal elements
+            const participantDetailsModal = document.getElementById('participant-details-modal');
+            const closeParticipantDetailsModalButton = document.getElementById('close-participant-details-modal');
+            const okParticipantDetailsModalButton = document.getElementById('ok-participant-details-modal');
+            const participantDetailsContent = document.getElementById('participant-details-content');
 
 
             // Chat elements
-            const chatContacts = document.querySelectorAll('.chat-contact');
+            let chatContacts = document.querySelectorAll('.chat-contact');
             const chatWindowHeaderName = document.querySelector('#chat-section .border-b p');
             const chatWindowHeaderImage = document.querySelector('#chat-section .border-b img');
             const chatMessagesContainer = document.querySelector('#chat-section .overflow-y-auto');
+            const johnDoeRequestBox = document.getElementById('john-doe-request-box');
+            const chatContactsContainer = document.querySelector('.chat-contacts-container');
+            const chatNotificationCountSpan = document.getElementById('chat-notification-count');
 
-            // Sample chat data (you would load this from a backend in a real application)
-            const chatData = {
-                'jane-smith': [
-                    { sender: 'Jane Smith', message: 'Hi team! Just wanted to share the latest project updates.', time: '10:00 AM', type: 'incoming' },
-                    { sender: 'You', message: 'Thanks Jane! I\'ll review them now.', time: '10:05 AM', type: 'outgoing' },
-                    { sender: 'Jane Smith', message: 'Great! Let me know if you have any questions.', time: '10:06 AM', type: 'incoming' },
-                ],
-                'mark-jones': [
-                    { sender: 'Mark Jones', message: 'Good morning! Meeting at 11 AM today.', time: 'Yesterday', type: 'incoming' },
-                    { sender: 'You', message: 'Got it, thanks Mark!', time: 'Yesterday', type: 'outgoing' },
-                ],
-                'sarah-davis': [
-                    { sender: 'Sarah Davis', message: 'Please submit your weekly reports by EOD.', time: '2 days ago', type: 'incoming' },
-                ]
+
+            // Sample chat data (for demonstration)
+            let chatData = {
+                'jane-smith': {
+                    name: 'Jane Smith',
+                    image: 'https://placehold.co/40x40/FF7F50/FFFFFF?text=JS',
+                    messages: [
+                        { sender: 'Jane Smith', message: 'Hi team! Just wanted to share the latest project updates.', time: '10:00 AM', type: 'incoming', read: true },
+                        { sender: 'You', message: 'Thanks Jane! I\'ll review them now.', time: '10:05 AM', type: 'outgoing', read: true },
+                        { sender: 'Jane Smith', message: 'Great! Let me know if you have any questions.', time: '10:06 AM', type: 'incoming', read: false }, // Mark this as unread
+                    ]
+                },
+                'mark-jones': {
+                    name: 'Mark Jones',
+                    image: 'https://placehold.co/40x40/6A5ACD/FFFFFF?text=MJ',
+                    messages: [
+                        { sender: 'Mark Jones', message: 'Good morning! Meeting at 11 AM today.', time: 'Yesterday', type: 'incoming', read: true },
+                        { sender: 'You', message: 'Got it, thanks Mark!', time: 'Yesterday', type: 'outgoing', read: true },
+                    ]
+                },
+                'sarah-davis': {
+                    name: 'Sarah Davis',
+                    image: 'https://placehold.co/40x40/3CB371/FFFFFF?text=SD',
+                    messages: [
+                        { sender: 'Sarah Davis', message: 'Please submit your weekly reports by EOD.', time: '2 days ago', type: 'incoming', read: false }, // Mark this as unread
+                    ]
+                },
+                // John Doe will be added here dynamically
             };
 
             // --- Data Storage (for demonstration) ---
             let participants = [
-                { name: 'Emily Johnson', lastContact: '2024-07-20', accommodationType: 'SIL', age: 28, gender: 'female', disability: 'Physical', location: 'Melbourne' },
-                { name: 'Daniel Garcia', lastContact: '2024-07-19', accommodationType: 'SDA', age: 35, gender: 'male', disability: 'Intellectual', location: 'Melbourne' },
-                { name: 'Sophia Lee', lastContact: '2024-07-18', accommodationType: 'Respite', age: 22, gender: 'female', disability: 'Sensory', location: 'Melbourne' },
-                { name: 'Michael Chen', lastContact: '2024-07-17', accommodationType: 'Group Home', age: 42, gender: 'male', disability: 'Psychosocial', location: 'Melbourne' },
-                { name: 'Olivia Martinez', lastContact: '2024-07-16', accommodationType: 'SIL', age: 31, gender: 'female', disability: 'Neurological', location: 'Melbourne' }
+                { id: 'p1', name: 'Emily Johnson', lastContact: '2024-07-20', accommodationType: 'SIL', age: 28, gender: 'female', disability: 'Physical', location: 'Melbourne' },
+                { id: 'p2', name: 'Daniel Garcia', lastContact: '2024-07-19', accommodationType: 'SDA', age: 35, gender: 'male', disability: 'Intellectual', location: 'Melbourne' },
+                { id: 'p3', name: 'Sophia Lee', lastContact: '2024-07-18', accommodationType: 'Respite', age: 22, gender: 'female', disability: 'Sensory', location: 'Melbourne' },
+                { id: 'p4', name: 'Michael Chen', lastContact: '2024-07-17', accommodationType: 'Group Home', age: 42, gender: 'male', disability: 'Psychosocial', location: 'Melbourne' },
+                { id: 'p5', name: 'Olivia Martinez', lastContact: '2024-07-16', accommodationType: 'SIL', age: 31, gender: 'female', disability: 'Neurological', location: 'Melbourne' }
             ];
 
             let accommodations = [
                 {
+                    id: 'a1',
                     title: 'Modern Apartment with City View',
+                    phone: '+61 412 345 678',
                     address: { province: 'Victoria', city: 'Melbourne' },
                     description: 'Spacious 2-bedroom apartment, fully accessible, near CBD.',
                     accommodationTypes: ['Apartment'],
@@ -775,11 +847,13 @@
                     genderParticipants: 'Mixed',
                     vacancies: 1,
                     features: ['Accessible Bathroom', 'Wide Doorways', 'Air Conditioning'],
-                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Apt+City+View',
+                    image: 'https://placehold.co/250x150/cc8e45/FFFFFF?text=Apt+City+View',
                     status: 'Active'
                 },
                 {
+                    id: 'a2',
                     title: 'Suburban Family House',
+                    phone: '+61 400 111 222',
                     address: { province: 'Victoria', city: 'Melbourne' },
                     description: 'Comfortable house with a large garden, ideal for a small group.',
                     accommodationTypes: ['House'],
@@ -791,11 +865,13 @@
                     genderParticipants: 'Mixed',
                     vacancies: 1,
                     features: ['Garden/Outdoor Area', 'On-site Staff', 'Close to Public Transport'],
-                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Family+House',
+                    image: 'https://placehold.co/250x150/cc8e45/FFFFFF?text=Family+House',
                     status: 'Active'
                 },
                 {
+                    id: 'a3',
                     title: 'Accessible Villa near Park',
+                    phone: '+61 455 999 888',
                     address: { province: 'Victoria', city: 'Melbourne' },
                     description: 'Beautiful villa designed for wheelchair access, perfect for respite care.',
                     accommodationTypes: ['Villa/Duplex/Townhouse'],
@@ -807,11 +883,13 @@
                     genderParticipants: 'Mixed',
                     vacancies: 3,
                     features: ['Accessible Bathroom', 'Ramps/Level Access', 'Hoist Provision', 'Pets Allowed'],
-                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Park+Villa',
+                    image: 'https://placehold.co/250x150/cc8e45/FFFFFF?text=Park+Villa',
                     status: 'Active'
                 },
                 {
+                    id: 'a4',
                     title: 'Cozy Townhouse in Quiet Neighborhood',
+                    phone: '+61 423 765 432',
                     address: { province: 'Victoria', city: 'Melbourne' },
                     description: 'Safe and peaceful townhouse, close to amenities.',
                     accommodationTypes: ['Townhouse'],
@@ -823,11 +901,13 @@
                     genderParticipants: 'Female',
                     vacancies: 1,
                     features: ['Security System', 'Heating'],
-                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Townhouse',
+                    image: 'https://placehold.co/250x150/cc8e45/FFFFFF?text=Townhouse',
                     status: 'Active'
                 },
                 {
+                    id: 'a5',
                     title: 'SDA Certified Duplex',
+                    phone: '+61 498 765 432',
                     address: { province: 'Victoria', city: 'Melbourne' },
                     description: 'Newly built duplex with high-level SDA features.',
                     accommodationTypes: ['Duplex'],
@@ -839,25 +919,43 @@
                     genderParticipants: 'Male',
                     vacancies: 2,
                     features: ['Smart Home Technology', 'Emergency Call System', 'Accessible Kitchen'],
-                    image: 'https://placehold.co/120x90/cc8e45/FFFFFF?text=SDA+Duplex',
+                    image: 'https://placehold.co/250x150/cc8e45/FFFFFF?text=SDA+Duplex',
                     status: 'Active'
                 }
             ];
 
+            // --- Function to update chat notification count ---
+            function updateChatNotificationCount() {
+                let unreadCount = 0;
+                for (const contactId in chatData) {
+                    const contact = chatData[contactId];
+                    unreadCount += contact.messages.filter(msg => msg.type === 'incoming' && !msg.read).length;
+                }
+
+                if (chatNotificationCountSpan) {
+                    if (unreadCount > 0) {
+                        chatNotificationCountSpan.textContent = unreadCount;
+                        chatNotificationCountSpan.classList.remove('hidden');
+                    } else {
+                        chatNotificationCountSpan.classList.add('hidden');
+                    }
+                }
+            }
+
             // --- Function to render participants list ---
             function renderParticipants(filteredParticipants = participants) {
-                if (!participantsContainer) { // Check if the container exists
+                if (!participantsContainer) {
                     console.error("Participants container not found. Cannot render participants.");
                     return;
                 }
-                participantsContainer.innerHTML = ''; // Clear current list
+                participantsContainer.innerHTML = '';
                 if (filteredParticipants.length === 0) {
                     participantsContainer.innerHTML = '<p class="text-[var(--color-text-dark)] text-center py-4">No participants found matching your criteria.</p>';
                     return;
                 }
                 filteredParticipants.forEach(p => {
                     const participantDiv = document.createElement('div');
-                    participantDiv.className = 'bg-[var(--color-card-background)] p-4 rounded-lg border border-[var(--color-border)] flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm';
+                    participantDiv.className = 'bg-[var(--color-info-box-bg-transparent)] p-4 rounded-lg border border-[var(--color-border)] flex flex-col sm:flex-row items-start sm:items-center justify-between shadow-sm btn-lift';
                     participantDiv.innerHTML = `
                         <div class="flex items-center mb-2 sm:mb-0">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-user-round ${p.gender === 'female' ? 'text-pink-500' : 'text-[var(--color-main-accent)]'} mr-2"><path d="M18 20a6 6 0 0 0-12 0"/><circle cx="12" cy="10" r="4"/><circle cx="12" cy="12" r="10"/></svg>
@@ -867,7 +965,7 @@
                                 <p class="text-xs text-[var(--color-text-light)]">Accommodation: ${p.accommodationType}, Age: ${p.age}, Gender: ${p.gender}, Disability: ${p.disability}, Location: ${p.location}</p>
                             </div>
                         </div>
-                        <button class="px-4 py-2 bg-[var(--color-button-light)] text-[var(--color-text-white)] rounded-md hover:bg-[var(--color-main-accent-darker)] transition duration-150">View Details</button>
+                        <button class="view-details-participant px-4 py-2 bg-[var(--color-sidebar-active-icon)] text-[var(--color-white-text-on-dark)] rounded-md hover:bg-[var(--color-progress-track)] transition duration-150 btn-lift" data-participant-id="${p.id}">View Details</button>
                     `;
                     participantsContainer.appendChild(participantDiv);
                 });
@@ -875,52 +973,84 @@
 
             // --- Function to render accommodations list ---
             function renderAccommodations(filteredAccommodations = accommodations) {
-                if (!accommodationsContainer) { // Check if the container exists
+                if (!accommodationsContainer) {
                     console.error("Accommodations container not found. Cannot render accommodations.");
                     return;
                 }
-                accommodationsContainer.innerHTML = ''; // Clear current list
+                accommodationsContainer.innerHTML = '';
                 if (filteredAccommodations.length === 0) {
-                    accommodationsContainer.innerHTML = '<p class="text-[var(--color-text-dark)] text-center py-4">No accommodations found matching your criteria.</p>';
+                    accommodationsContainer.innerHTML = '<p class="text-[var(--color-text-dark)] text-center py-4 col-span-full">No accommodations found matching your criteria.</p>';
                     return;
                 }
-                filteredAccommodations.forEach(acc => {
+                filteredAccommodations.forEach((acc, index) => {
                     const accommodationDiv = document.createElement('div');
-                    accommodationDiv.className = 'bg-[var(--color-card-background)] p-4 rounded-lg border border-[var(--color-border)] flex flex-col md:flex-row items-start md:items-center gap-4 shadow-sm';
+                    // Changed class for listing layout
+                    accommodationDiv.className = 'bg-[var(--color-info-box-bg-transparent)] p-4 rounded-lg border border-[var(--color-border)] shadow-sm flex flex-col md:flex-row items-start md:items-center gap-4 btn-lift';
 
-                    // Determine image source, use placeholder if not available
-                    const imageUrl = acc.image && acc.image !== '' ? acc.image : `https://placehold.co/120x90/cc8e45/FFFFFF?text=No+Image`;
+                    const imageUrl = acc.image && acc.image !== '' ? acc.image : `https://placehold.co/250x150/cc8e45/FFFFFF?text=No+Image`;
 
                     accommodationDiv.innerHTML = `
-                        <img src="${imageUrl}" alt="${acc.title || 'Accommodation Image'}" class="w-full md:w-32 h-auto rounded-md object-cover shadow-sm">
-                        <div class="flex-1">
-                            <p class="font-semibold text-[var(--color-text-dark)] text-lg mb-1">${acc.title}</p>
+                        <img src="${imageUrl}" alt="${acc.title || 'Accommodation Image'}" class="w-full md:w-40 h-auto object-cover rounded-md mb-4 md:mb-0 shadow-sm">
+                        <div class="flex-1 w-full">
+                            <p class="font-semibold text-[var(--color-text-dark)] text-lg mb-1">${acc.title} <span class="text-sm text-[var(--color-text-light)] ml-2">${acc.phone ? `(${acc.phone})` : ''}</span></p>
                             <p class="text-[var(--color-text-light)] text-sm">Address: ${acc.address.city}, ${acc.address.province}</p>
                             <p class="text-[var(--color-text-light)] text-sm">Type: ${acc.accommodationTypes.join(', ')} (${acc.propertyTypes.join(', ')})</p>
                             <p class="text-[var(--color-text-light)] text-sm">Bedrooms: ${acc.bedrooms}, Bathrooms: ${acc.bathrooms}</p>
                             <p class="text-[var(--color-text-light)] text-sm">Participants: ${acc.currentParticipants} (${acc.genderParticipants}), Vacancies: ${acc.vacancies}</p>
                             <p class="text-[var(--color-text-light)] text-sm">Available: ${acc.dateAvailable}</p>
-                            <p class="text-[var(--color-text-light)] text-sm">Features: ${acc.features.length > 0 ? acc.features.join(', ') : 'N/A'}</p>
+                            <p class="text-[var(--color-text-light)] text-sm mb-4">Features: ${acc.features.length > 0 ? acc.features.join(', ') : 'N/A'}</p>
                             <p class="text-[var(--color-text-light)] text-sm">Status: ${acc.status}</p>
                         </div>
-                        <div class="flex flex-row md:flex-col gap-2 md:gap-1 ml-auto items-end">
-                            <button class="px-4 py-2 bg-[var(--color-button)] text-[var(--color-text-white)] rounded-md hover:bg-[var(--color-main-accent-darker)] transition duration-150 text-sm">Edit</button>
-                            <button class="px-4 py-2 bg-[var(--color-error)] text-[var(--color-text-white)] rounded-md hover:bg-red-700 transition duration-150 text-sm">Delete</button>
+                        <div class="flex justify-end w-full md:w-auto gap-2 mt-4 md:mt-0">
+                            <button class="edit-accommodation-btn px-4 py-2 bg-[var(--color-sidebar-active-icon)] text-[var(--color-white-text-on-dark)] rounded-md hover:bg-[var( --color-progress-track)] transition duration-150 text-sm btn-lift" data-index="${index}">Edit</button>
+                            <button class="delete-accommodation-btn px-4 py-2 bg-[var(--color-error)] text-[var(--color-white-text-on-dark)] rounded-md hover:bg-red-700 transition duration-150 text-sm btn-lift" data-index="${index}">Delete</button>
                         </div>
                     `;
                     accommodationsContainer.appendChild(accommodationDiv);
                 });
             }
 
+            // Function to render chat contacts
+            function renderChatContacts() {
+                chatContactsContainer.innerHTML = '';
+                for (const id in chatData) {
+                    const contact = chatData[id];
+                    const contactButton = document.createElement('button');
+                    contactButton.className = 'chat-contact flex items-center w-full p-3 rounded-lg hover:bg-gray-100 transition-colors duration-150 cursor-pointer btn-lift';
+                    contactButton.dataset.contact = id;
+                    contactButton.innerHTML = `
+                        <img src="${contact.image}" alt="${contact.name}" class="w-10 h-10 rounded-full mr-3">
+                        <div class="flex-1">
+                            <p class="font-medium text-[var(--color-text-dark)]">${contact.name}</p>
+                            <p class="text-sm text-[var(--color-text-light)]">Last message...</p>
+                        </div>
+                        <button class="delete-chat-contact-btn text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-gray-200 transition-colors duration-200 ml-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                        </button>
+                    `;
+                    chatContactsContainer.appendChild(contactButton);
+                }
+                // Re-attach event listeners after rendering
+                chatContacts = document.querySelectorAll('.chat-contact');
+                chatContacts.forEach(btn => {
+                    btn.removeEventListener('click', handleChatContactClick); // Remove existing to prevent duplicates
+                    btn.addEventListener('click', handleChatContactClick);
+                });
+                document.querySelectorAll('.delete-chat-contact-btn').forEach(btn => {
+                    btn.addEventListener('click', handleDeleteChatContact);
+                });
+                updateChatNotificationCount(); // Update count after rendering contacts
+            }
+
 
             // Function to show a specific section
             function showSection(sectionId) {
                 dashboardSections.forEach(section => {
-                    section.classList.add('hidden'); // Hide all sections
+                    section.classList.add('hidden');
                 });
                 const targetSection = document.getElementById(`${sectionId}-section`);
                 if (targetSection) {
-                    targetSection.classList.remove('hidden'); // Show the target section
+                    targetSection.classList.remove('hidden');
                 } else {
                     console.error(`Section with ID ${sectionId}-section not found.`);
                 }
@@ -939,11 +1069,17 @@
 
             // Function to load chat messages for a selected contact
             function loadChatMessages(contactId) {
-                chatMessagesContainer.innerHTML = ''; // Clear previous messages
-                const messages = chatData[contactId] || [];
+                chatMessagesContainer.innerHTML = '';
+                const contact = chatData[contactId];
+                if (!contact) {
+                    chatMessagesContainer.innerHTML = '<p class="text-[var(--color-text-dark)] text-center py-4">Select a contact to view messages.</p>';
+                    return;
+                }
+                const messages = contact.messages || [];
                 messages.forEach(msg => {
                     const messageDiv = document.createElement('div');
                     messageDiv.className = `flex ${msg.type === 'outgoing' ? 'justify-end' : 'justify-start'}`;
+
                     messageDiv.innerHTML = `
                         <div class="chat-bubble ${msg.type}">
                             <p class="chat-message-sender ${msg.type === 'outgoing' ? 'text-right' : ''}">${msg.sender}</p>
@@ -953,7 +1089,15 @@
                     `;
                     chatMessagesContainer.appendChild(messageDiv);
                 });
-                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight; // Scroll to bottom
+                chatMessagesContainer.scrollTop = chatMessagesContainer.scrollHeight;
+
+                // Mark all incoming messages for this contact as read
+                contact.messages.forEach(msg => {
+                    if (msg.type === 'incoming') {
+                        msg.read = true;
+                    }
+                });
+                updateChatNotificationCount(); // Update count after messages are read
             }
 
             // Initial display: Show Dashboard section and set active link
@@ -962,6 +1106,43 @@
             // Initial rendering of lists (only if their containers exist)
             if (participantsContainer) renderParticipants();
             if (accommodationsContainer) renderAccommodations();
+            if (chatContactsContainer) renderChatContacts(); // Call this to set initial count
+
+
+            // Function to handle chat contact clicks (refactored for reusability)
+            function handleChatContactClick() {
+                chatContacts.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+
+                const contactName = this.querySelector('.font-medium').textContent;
+                const contactImageSrc = this.querySelector('img').src;
+                const contactId = this.dataset.contact;
+
+                if (chatWindowHeaderName) chatWindowHeaderName.textContent = contactName;
+                if (chatWindowHeaderImage) chatWindowHeaderImage.src = contactImageSrc;
+
+                loadChatMessages(contactId);
+            }
+
+            // Function to handle deleting a chat contact
+            function handleDeleteChatContact(event) {
+                event.stopPropagation(); // Prevent the parent button's click event from firing
+                const button = event.currentTarget;
+                const contactIdToDelete = button.closest('.chat-contact').dataset.contact;
+
+                if (confirm(`Are you sure you want to delete this chat with ${chatData[contactIdToDelete].name}?`)) {
+                    delete chatData[contactIdToDelete];
+                    renderChatContacts(); // Re-render the contacts list
+                    // If the deleted contact was active, clear the chat window
+                    if (chatWindowHeaderName.textContent === chatData[contactIdToDelete]?.name) { // This check might fail if chatData[contactIdToDelete] is already deleted
+                        chatWindowHeaderName.textContent = 'Select a contact';
+                        chatWindowHeaderImage.src = 'https://placehold.co/40x40/CCCCCC/FFFFFF?text=NA';
+                        chatMessagesContainer.innerHTML = '';
+                    }
+                    updateChatNotificationCount(); // Update count after deletion
+                    console.log(`Chat with ${contactIdToDelete} deleted.`);
+                }
+            }
 
 
             // Event listeners for sidebar links
@@ -973,30 +1154,35 @@
 
                     // If navigating to chat, ensure a chat is loaded (e.g., first contact)
                     if (sectionId === 'chat') {
-                        const firstContactButton = document.querySelector('#chat-section .chat-contact');
+                        renderChatContacts(); // Ensure contacts are up-to-date
+                        const firstContactButton = chatContactsContainer.querySelector('.chat-contact'); // Get the first contact dynamically
                         if (firstContactButton) {
                             firstContactButton.classList.add('active');
                             chatWindowHeaderName.textContent = firstContactButton.querySelector('.font-medium').textContent;
                             chatWindowHeaderImage.src = firstContactButton.querySelector('img').src;
                             loadChatMessages(firstContactButton.dataset.contact);
+                        } else {
+                            chatWindowHeaderName.textContent = 'No contacts available';
+                            chatWindowHeaderImage.src = 'https://placehold.co/40x40/CCCCCC/FFFFFF?text=NA';
+                            chatMessagesContainer.innerHTML = '<p class="text-[var(--color-text-dark)] text-center py-4">No contacts to display.</p>';
                         }
                     }
                     // Close sidebar on mobile after selection
-                    if (window.innerWidth < 768) { // Tailwind's 'md' breakpoint is 768px
+                    if (window.innerWidth < 768) {
                         sidebar.classList.add('-translate-x-full');
                     }
                 });
             });
 
             // Mobile menu toggle
-            if (mobileMenuButton) { // Check if the button exists before adding event listener
+            if (mobileMenuButton) {
                 mobileMenuButton.addEventListener('click', function() {
                     sidebar.classList.remove('-translate-x-full');
                 });
             }
 
             // Close sidebar button for mobile
-            if (closeSidebarButton) { // Check if the button exists before adding event listener
+            if (closeSidebarButton) {
                 closeSidebarButton.addEventListener('click', function() {
                     sidebar.classList.add('-translate-x-full');
                 });
@@ -1012,7 +1198,7 @@
             // --- JavaScript for Profile Dropdown ---
             if (profileMenuButton && profileDropdown) {
                 profileMenuButton.addEventListener('click', function(event) {
-                    event.stopPropagation(); // Prevent click from bubbling to document and closing immediately
+                    event.stopPropagation();
                     profileDropdown.classList.toggle('hidden');
                 });
 
@@ -1027,68 +1213,91 @@
                 profileDropdownActions.forEach(button => {
                     button.addEventListener('click', function() {
                         const action = this.dataset.action;
-                        profileDropdown.classList.add('hidden'); // Hide dropdown after selection
+                        profileDropdown.classList.add('hidden');
 
                         if (action === 'profile') {
                             showSection('profile');
                         } else if (action === 'settings') {
                             showSection('settings');
                         } else if (action === 'logout') {
-                            // In a real Laravel app, this would be a form submission or redirect
-                            alert('Logging out...'); // Replace with actual logout logic
-                            // window.location.href = '/logout';
+                            alert('Logging out...');
                         }
                     });
                 });
             }
 
+            // --- JavaScript for Notification Modal ---
+            if (notificationButton) {
+                notificationButton.addEventListener('click', function() {
+                    notificationModal.classList.remove('hidden');
+                });
+            }
+
+            if (closeNotificationModalButton) {
+                closeNotificationModalButton.addEventListener('click', function() {
+                    notificationModal.classList.add('hidden');
+                });
+            }
+
+            if (okNotificationModalButton) {
+                okNotificationModalButton.addEventListener('click', function() {
+                    notificationModal.classList.add('hidden');
+                });
+            }
+
+            if (notificationModal) {
+                notificationModal.addEventListener('click', function(event) {
+                    if (event.target === notificationModal) {
+                        notificationModal.classList.add('hidden');
+                    }
+                });
+            }
+
+
             // --- JavaScript for Add New Participant Modal ---
-            // Show modal when "Add New Participant" button is clicked
             if (addParticipantButton) {
                 addParticipantButton.addEventListener('click', function() {
                     addParticipantModal.classList.remove('hidden');
-                    // Set today's date as default for last contact
+                    addParticipantForm.reset(); // Clear form for new entry
                     participantLastContactInput.value = new Date().toISOString().slice(0, 10);
                 });
             }
 
-            // Close modal when close button (X) or Cancel button is clicked
             if (closeParticipantModalButton) {
                 closeParticipantModalButton.addEventListener('click', function() {
                     addParticipantModal.classList.add('hidden');
-                    addParticipantForm.reset(); // Clear form fields
+                    addParticipantForm.reset();
                 });
             }
             if (cancelAddParticipantButton) {
                 cancelAddParticipantButton.addEventListener('click', function() {
                     addParticipantModal.classList.add('hidden');
-                    addParticipantForm.reset(); // Clear form fields
+                    addParticipantForm.reset();
                 });
             }
 
-            // Close modal if clicking outside the modal content
             if (addParticipantModal) {
                 addParticipantModal.addEventListener('click', function(event) {
                     if (event.target === addParticipantModal) {
                         addParticipantModal.classList.add('hidden');
-                        addParticipantForm.reset(); // Clear form fields
+                        addParticipantForm.reset();
                     }
                 });
             }
 
-            // Handle form submission for adding new participant
             if (addParticipantForm) {
                 addParticipantForm.addEventListener('submit', function(event) {
-                    event.preventDefault(); // Prevent default form submission
+                    event.preventDefault();
 
                     const newParticipant = {
+                        id: 'p' + (participants.length + 1), // Simple unique ID
                         name: participantNameInput.value.trim(),
                         gender: participantGenderSelect.value,
                         age: parseInt(participantAgeInput.value),
                         disability: participantDisabilitySelect.value,
                         location: participantLocationInput.value.trim(),
                         lastContact: participantLastContactInput.value,
-                        accommodationType: 'N/A' // Default for new participants, can be updated later
+                        accommodationType: 'N/A' // Default for newly added
                     };
 
                     if (!newParticipant.name || !newParticipant.gender || !newParticipant.age || !newParticipant.disability || !newParticipant.location || !newParticipant.lastContact) {
@@ -1096,15 +1305,13 @@
                         return;
                     }
 
-                    participants.push(newParticipant); // Add new participant to the array
-                    renderParticipants(); // Re-render the list with the new participant
+                    participants.push(newParticipant);
+                    renderParticipants(); // Re-render to show new participant
 
-                    // Clear the form and hide the modal
                     addParticipantForm.reset();
                     addParticipantModal.classList.add('hidden');
                 });
             }
-
 
             // --- JavaScript for Participant Search and Filters ---
             function filterParticipants() {
@@ -1136,6 +1343,47 @@
             if (disabilityTypeFilter) disabilityTypeFilter.addEventListener('change', filterParticipants);
             if (locationFilter) locationFilter.addEventListener('input', filterParticipants);
 
+            // --- JavaScript for Participant Details Modal ---
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('view-details-participant')) {
+                    const participantId = event.target.dataset.participantId;
+                    const participant = participants.find(p => p.id === participantId);
+
+                    if (participant) {
+                        participantDetailsContent.innerHTML = `
+                            <p><span class="font-semibold">Name:</span> ${participant.name}</p>
+                            <p><span class="font-semibold">Gender:</span> ${participant.gender}</p>
+                            <p><span class="font-semibold">Age:</span> ${participant.age}</p>
+                            <p><span class="font-semibold">Disability:</span> ${participant.disability}</p>
+                            <p><span class="font-semibold">Location:</span> ${participant.location}</p>
+                            <p><span class="font-semibold">Accommodation Type:</span> ${participant.accommodationType}</p>
+                            <p><span class="font-semibold">Last Contact:</span> ${participant.lastContact}</p>
+                        `;
+                        participantDetailsModal.classList.remove('hidden');
+                    } else {
+                        console.error('Participant not found for ID:', participantId);
+                    }
+                }
+            });
+
+            if (closeParticipantDetailsModalButton) {
+                closeParticipantDetailsModalButton.addEventListener('click', function() {
+                    participantDetailsModal.classList.add('hidden');
+                });
+            }
+            if (okParticipantDetailsModalButton) {
+                okParticipantDetailsModalButton.addEventListener('click', function() {
+                    participantDetailsModal.classList.add('hidden');
+                });
+            }
+            if (participantDetailsModal) {
+                participantDetailsModal.addEventListener('click', function(event) {
+                    if (event.target === participantDetailsModal) {
+                        participantDetailsModal.classList.add('hidden');
+                    }
+                });
+            }
+
 
             // --- JavaScript for Accommodation Search ---
             if (accommodationSearchInput && accommodationsContainer) {
@@ -1143,6 +1391,7 @@
                     const searchTerm = this.value.toLowerCase();
                     const filteredAccommodations = accommodations.filter(acc => {
                         return acc.title.toLowerCase().includes(searchTerm) ||
+                               (acc.phone && acc.phone.toLowerCase().includes(searchTerm)) || // Include phone in search
                                acc.address.province.toLowerCase().includes(searchTerm) ||
                                acc.address.city.toLowerCase().includes(searchTerm) ||
                                acc.description.toLowerCase().includes(searchTerm) ||
@@ -1153,12 +1402,20 @@
                 });
             }
 
-            // --- JavaScript for Submit New Accommodation Modal ---
+            // --- JavaScript for Submit New Accommodation Modal (and Edit) ---
             if (submitAccommodationButton) {
                 submitAccommodationButton.addEventListener('click', function() {
-                    submitAccommodationModal.classList.remove('hidden');
-                    // Set today's date as default for date available
+                    accommodationModalTitle.textContent = 'Submit New Accommodation';
+                    submitAccommodationFormButton.textContent = 'Submit New Accommodation'; // Set button text for new
+                    submitAccommodationFormButton.classList.remove('hidden'); // Ensure button is visible
+                    accommodationIndexInput.value = -1; // Indicate new accommodation
+                    submitAccommodationForm.reset();
+                    // Uncheck all checkboxes
+                    accommodationTypeCheckboxes.forEach(cb => cb.checked = false);
+                    propertyTypeCheckboxes.forEach(cb => cb.checked = false);
+                    propertyFeaturesCheckboxes.forEach(cb => cb.checked = false);
                     dateAvailableInput.value = new Date().toISOString().slice(0, 10);
+                    submitAccommodationModal.classList.remove('hidden');
                 });
             }
 
@@ -1189,32 +1446,27 @@
                 submitAccommodationForm.addEventListener('submit', function(event) {
                     event.preventDefault();
 
-                    // Get selected accommodation types
                     const selectedAccommodationTypes = Array.from(accommodationTypeCheckboxes)
                         .filter(checkbox => checkbox.checked)
                         .map(checkbox => checkbox.value);
 
-                    // Get selected property types
                     const selectedPropertyTypes = Array.from(propertyTypeCheckboxes)
                         .filter(checkbox => checkbox.checked)
                         .map(checkbox => checkbox.value);
 
-                    // Get selected property features
                     const selectedPropertyFeatures = Array.from(propertyFeaturesCheckboxes)
                         .filter(checkbox => checkbox.checked)
                         .map(checkbox => checkbox.value);
 
-                    // Handle image upload (for demonstration, just store a placeholder or base64)
                     let imageUrl = '';
                     if (imageUploadInput.files && imageUploadInput.files[0]) {
-                        // In a real application, you would upload this file to a server
-                        // and get a URL back. For this example, we'll use a generic placeholder.
-                        imageUrl = 'https://placehold.co/120x90/cc8e45/FFFFFF?text=Uploaded+Image';
+                        imageUrl = 'https://placehold.co/250x150/cc8e45/FFFFFF?text=Uploaded+Image';
                         console.log('Image selected:', imageUploadInput.files[0].name);
                     }
 
-                    const newAccommodation = {
+                    const newOrUpdatedAccommodation = {
                         title: accommodationTitleInput.value.trim(),
+                        phone: accommodationPhoneInput.value.trim(), // Get phone number
                         address: {
                             province: accommodationAddressProvinceInput.value.trim(),
                             city: accommodationAddressCityInput.value.trim()
@@ -1230,45 +1482,130 @@
                         vacancies: parseInt(numVacanciesInput.value),
                         features: selectedPropertyFeatures,
                         image: imageUrl,
-                        status: 'Active' // Default status for new accommodations
+                        status: 'Active'
                     };
 
-                    // Basic validation
-                    if (!newAccommodation.title || !newAccommodation.address.province || !newAccommodation.address.city ||
-                        newAccommodation.accommodationTypes.length === 0 || newAccommodation.propertyTypes.length === 0 ||
-                        !newAccommodation.dateAvailable || isNaN(newAccommodation.bedrooms) || isNaN(newAccommodation.bathrooms) ||
-                        isNaN(newAccommodation.currentParticipants) || !newAccommodation.genderParticipants || isNaN(newAccommodation.vacancies)) {
+                    if (!newOrUpdatedAccommodation.title || !newOrUpdatedAccommodation.address.province || !newOrUpdatedAccommodation.address.city ||
+                        newOrUpdatedAccommodation.accommodationTypes.length === 0 || newOrUpdatedAccommodation.propertyTypes.length === 0 ||
+                        !newOrUpdatedAccommodation.dateAvailable || isNaN(newOrUpdatedAccommodation.bedrooms) || isNaN(newOrUpdatedAccommodation.bathrooms) ||
+                        isNaN(newOrUpdatedAccommodation.currentParticipants) || !newOrUpdatedAccommodation.genderParticipants || isNaN(newOrUpdatedAccommodation.vacancies)) {
                         alert('Please fill in all required fields and select at least one Accommodation Type and Property Type.');
                         return;
                     }
 
-                    accommodations.push(newAccommodation); // Add new accommodation to the array
-                    renderAccommodations(); // Re-render the list with the new accommodation
+                    const editIndex = parseInt(accommodationIndexInput.value);
+                    if (editIndex !== -1 && !isNaN(editIndex) && editIndex < accommodations.length) {
+                        // Update existing accommodation
+                        newOrUpdatedAccommodation.id = accommodations[editIndex].id; // Preserve original ID
+                        accommodations[editIndex] = newOrUpdatedAccommodation;
+                        console.log('Accommodation updated:', newOrUpdatedAccommodation);
+                    } else {
+                        // Add new accommodation
+                        newOrUpdatedAccommodation.id = 'a' + (accommodations.length + 1); // Simple new ID
+                        accommodations.push(newOrUpdatedAccommodation);
+                        console.log('New accommodation added:', newOrUpdatedAccommodation);
+                    }
 
+                    renderAccommodations(); // Re-render to show changes
                     submitAccommodationForm.reset();
                     submitAccommodationModal.classList.add('hidden');
                 });
             }
 
+            // --- Event listeners for Accommodation Edit/Delete Buttons ---
+            document.addEventListener('click', function(event) {
+                // Edit button click
+                if (event.target.classList.contains('edit-accommodation-btn')) {
+                    const index = parseInt(event.target.dataset.index);
+                    const accommodationToEdit = accommodations[index];
+
+                    if (accommodationToEdit) {
+                        accommodationModalTitle.textContent = 'Edit Accommodation';
+                        submitAccommodationFormButton.textContent = 'Save Acommodation'; // Set button text for editing
+                        submitAccommodationFormButton.classList.remove('hidden'); // Ensure button is visible
+                        accommodationIndexInput.value = index; // Store index for saving
+                        accommodationTitleInput.value = accommodationToEdit.title;
+                        accommodationPhoneInput.value = accommodationToEdit.phone || ''; // Populate phone number
+                        accommodationAddressProvinceInput.value = accommodationToEdit.address.province;
+                        accommodationAddressCityInput.value = accommodationToEdit.address.city;
+                        accommodationDescriptionTextarea.value = accommodationToEdit.description;
+                        dateAvailableInput.value = accommodationToEdit.dateAvailable;
+                        numBedroomsInput.value = accommodationToEdit.bedrooms;
+                        numBathroomsInput.value = accommodationToEdit.bathrooms;
+                        numCurrentParticipantsInput.value = accommodationToEdit.currentParticipants;
+                        genderParticipantsSelect.value = accommodationToEdit.genderParticipants;
+                        numVacanciesInput.value = accommodationToEdit.vacancies;
+
+                        // Reset and set checkboxes
+                        accommodationTypeCheckboxes.forEach(cb => cb.checked = accommodationToEdit.accommodationTypes.includes(cb.value));
+                        propertyTypeCheckboxes.forEach(cb => cb.checked = accommodationToEdit.propertyTypes.includes(cb.value));
+                        propertyFeaturesCheckboxes.forEach(cb => cb.checked = accommodationToEdit.features.includes(cb.value));
+
+                        submitAccommodationModal.classList.remove('hidden');
+                    }
+                }
+
+                // Delete button click
+                if (event.target.classList.contains('delete-accommodation-btn')) {
+                    const index = parseInt(event.target.dataset.index);
+                    if (confirm('Are you sure you want to delete this accommodation?')) {
+                        accommodations.splice(index, 1); // Remove from array
+                        renderAccommodations(); // Re-render the list
+                        console.log('Accommodation deleted.');
+                    }
+                }
+            });
+
 
             // --- Chat Contact Selection Logic ---
+            // Initial setup for existing chat contacts
             if (chatContacts.length > 0) {
                 chatContacts.forEach(contactButton => {
-                    contactButton.addEventListener('click', function() {
-                        chatContacts.forEach(btn => btn.classList.remove('active'));
-                        this.classList.add('active');
-
-                        const contactName = this.querySelector('.font-medium').textContent;
-                        const contactImageSrc = this.querySelector('img').src;
-                        const contactId = this.dataset.contact;
-
-                        if (chatWindowHeaderName) chatWindowHeaderName.textContent = contactName;
-                        if (chatWindowHeaderImage) chatWindowHeaderImage.src = contactImageSrc;
-
-                        loadChatMessages(contactId);
-                    });
+                    contactButton.addEventListener('click', handleChatContactClick);
                 });
             }
+
+            // --- Request Action Buttons Logic (for the new incoming request box) ---
+            // Re-query buttons to ensure new ones are included if added dynamically
+            document.addEventListener('click', function(event) {
+                if (event.target.classList.contains('request-action-button')) {
+                    const button = event.target;
+                    const requestId = button.dataset.requestId;
+                    const action = button.classList.contains('accept') ? 'accept' : 'revoke';
+                    const requestBox = button.closest('.text-sm');
+
+                    if (action === 'accept') {
+                        console.log(`Accepted request: ${requestId}`);
+
+                        const newContactId = 'john-doe';
+                        if (!chatData[newContactId]) {
+                            chatData[newContactId] = {
+                                name: 'John Doe',
+                                image: 'https://placehold.co/40x40/007BFF/FFFFFF?text=JD',
+                                messages: [
+                                    { sender: 'You', message: 'Welcome to our network, John!', time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), type: 'outgoing', read: true },
+                                    { sender: 'John Doe', message: 'Thanks for accepting my request!', time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }), type: 'incoming', read: false }, // New incoming message, unread
+                                ]
+                            };
+
+                            renderChatContacts(); // Re-render contacts to include John Doe
+                            updateChatNotificationCount(); // Update count after new message
+                        } else {
+                            console.log('John Doe is already in your contacts.');
+                        }
+                        // Remove the request box after acceptance
+                        if (requestBox) requestBox.remove();
+
+                    } else if (action === 'revoke') {
+                        console.log(`Revoked request: ${requestId}`);
+                        // Simply remove the request box
+                        if (requestBox) requestBox.remove();
+                    }
+                }
+            });
+
+            // Initial call to set the correct notification count on page load
+            updateChatNotificationCount();
         });
     </script>
 </body>

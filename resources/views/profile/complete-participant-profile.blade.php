@@ -240,7 +240,7 @@
     {{-- Choices.js CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
     {{-- Custom CSS to better integrate Choices.js with Tailwind --}}
-    <style>
+    <!-- <style>
         /* Adjust Choices.js styling to fit Tailwind forms */
         .choices__inner {
             background-color: #ffffff; /* White background */
@@ -300,7 +300,7 @@
         .choices__item .choices__button:hover {
             opacity: 1;
         }
-    </style>
+    </style> -->
     @endpush
 
     @push('scripts')

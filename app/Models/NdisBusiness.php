@@ -18,7 +18,6 @@ class NdisBusiness extends Model
         'business_name',
         'abn',
         'services_offered',
-        'is_verified',
     ];
 
     /**
@@ -27,7 +26,7 @@ class NdisBusiness extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_verified' => 'boolean',
+        'services_offered' => 'array',
     ];
 
     /**

@@ -15,8 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('business_name');
             $table->string('abn')->unique();
-            $table->text('services_offered');
-            $table->boolean('is_verified')->default(false);
+            $table->json('services_offered')->nullable();
             $table->timestamps();
         });
     }

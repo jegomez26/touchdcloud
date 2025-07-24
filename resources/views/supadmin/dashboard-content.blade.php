@@ -1,12 +1,12 @@
 @extends('supadmin.sa-db') {{-- Corrected: Extends your main super admin layout --}}
 
 @section('content')
-<div class="bg-[#f8f1e1] shadow-md rounded-lg p-6 mb-6">
+<div class="bg-white shadow-md rounded-lg p-6 mb-6">
     <h1 class="text-3xl font-bold text-[#33595a]">Welcome, Super Admin! 👋</h1>
     <p class="mt-2 text-[#bcbabb]">This is your central dashboard for system overview and management.</p>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-    {{-- Card 1: Total Participants (Styled like the example image) --}}
+    {{-- Card 1: Total Participants --}}
     <div class="bg-white rounded-xl shadow-xl p-6 border border-[#e1e7dd] flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
         <div class="w-24 h-24 rounded-full bg-[#f8f1e1] flex items-center justify-center mb-4 shadow-inner">
             <i class="fas fa-users text-[#cc8e45] text-5xl"></i>
@@ -16,8 +16,6 @@
         <div class="w-full border-t border-[#e1e7dd] pt-4 mb-4">
             <ul class="text-left text-[#3e4732] space-y-2">
                 <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Active participants: <span class="font-semibold ml-auto">{{ $participantCount }}</span></li>
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> New this month: <span class="font-semibold ml-auto">XX</span></li> {{-- Placeholder for dynamic data --}}
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Managed cases: <span class="font-semibold ml-auto">YY</span></li> {{-- Placeholder for dynamic data --}}
             </ul>
         </div>
         <button class="w-full bg-[#cc8e45] text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 transition duration-200 shadow-md">
@@ -25,18 +23,16 @@
         </button>
     </div>
 
-    {{-- Card 2: Total Coordinators (Styled like the example image) --}}
+    {{-- Card 2: Active Support Coordinators --}}
     <div class="bg-white rounded-xl shadow-xl p-6 border border-[#e1e7dd] flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
         <div class="w-24 h-24 rounded-full bg-[#f8f1e1] flex items-center justify-center mb-4 shadow-inner">
             <i class="fas fa-handshake text-[#33595a] text-5xl"></i>
         </div>
-        <h2 class="text-2xl font-bold text-[#33595a] mb-1">Total Coordinators</h2>
-        <p class="text-[#bcbabb] text-sm mb-4">Overview of all system coordinators.</p>
+        <h2 class="text-2xl font-bold text-[#33595a] mb-1">Active Coordinators</h2>
+        <p class="text-[#bcbabb] text-sm mb-4">Overview of active system coordinators.</p>
         <div class="w-full border-t border-[#e1e7dd] pt-4 mb-4">
             <ul class="text-left text-[#3e4732] space-y-2">
                 <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Active coordinators: <span class="font-semibold ml-auto">{{ $coordinatorCount }}</span></li>
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Pending approvals: <span class="font-semibold ml-auto">XX</span></li> {{-- Placeholder for dynamic data --}}
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Support tickets: <span class="font-semibold ml-auto">YY</span></li> {{-- Placeholder for dynamic data --}}
             </ul>
         </div>
         <button class="w-full bg-[#cc8e45] text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 transition duration-200 shadow-md">
@@ -44,18 +40,16 @@
         </button>
     </div>
 
-    {{-- Card 3: Total Providers (Styled like the example image) --}}
+    {{-- Card 3: Active Providers --}}
     <div class="bg-white rounded-xl shadow-xl p-6 border border-[#e1e7dd] flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
         <div class="w-24 h-24 rounded-full bg-[#f8f1e1] flex items-center justify-center mb-4 shadow-inner">
             <i class="fas fa-hospital text-[#cc8e45] text-5xl"></i>
         </div>
-        <h2 class="text-2xl font-bold text-[#33595a] mb-1">Total Providers</h2>
-        <p class="text-[#bcbabb] text-sm mb-4">Insights into all healthcare and service providers.</p>
+        <h2 class="text-2xl font-bold text-[#33595a] mb-1">Active Providers</h2>
+        <p class="text-[#bcbabb] text-sm mb-4">Insights into active healthcare and service providers.</p>
         <div class="w-full border-t border-[#e1e7dd] pt-4 mb-4">
             <ul class="text-left text-[#3e4732] space-y-2">
                 <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Active providers: <span class="font-semibold ml-auto">{{ $providerCount }}</span></li>
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Service categories: <span class="font-semibold ml-auto">XX</span></li> {{-- Placeholder for dynamic data --}}
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Ratings average: <span class="font-semibold ml-auto">YY</span></li> {{-- Placeholder for dynamic data --}}
             </ul>
         </div>
         <button class="w-full bg-[#cc8e45] text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 transition duration-200 shadow-md">
@@ -63,7 +57,7 @@
         </button>
     </div>
 
-    {{-- Card 4: Total NDIS Businesses (Styled like the example image) --}}
+    {{-- Card 4: Total NDIS Businesses --}}
     <div class="bg-white rounded-xl shadow-xl p-6 border border-[#e1e7dd] flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
         <div class="w-24 h-24 rounded-full bg-[#f8f1e1] flex items-center justify-center mb-4 shadow-inner">
             <i class="fas fa-building text-[#33595a] text-5xl"></i>
@@ -73,8 +67,6 @@
         <div class="w-full border-t border-[#e1e7dd] pt-4 mb-4">
             <ul class="text-left text-[#3e4732] space-y-2">
                 <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Registered businesses: <span class="font-semibold ml-auto">{{ $ndisBusinessCount }}</span></li>
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Active services: <span class="font-semibold ml-auto">XX</span></li> {{-- Placeholder for dynamic data --}}
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Compliance rate: <span class="font-semibold ml-auto">YY%</span></li> {{-- Placeholder for dynamic data --}}
             </ul>
         </div>
         <button class="w-full bg-[#cc8e45] text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 transition duration-200 shadow-md">
@@ -82,7 +74,7 @@
         </button>
     </div>
 
-    {{-- Card 5: Total Super Admins (Styled like the example image) --}}
+    {{-- Card 5: Total Super Admins --}}
     <div class="bg-white rounded-xl shadow-xl p-6 border border-[#e1e7dd] flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
         <div class="w-24 h-24 rounded-full bg-[#f8f1e1] flex items-center justify-center mb-4 shadow-inner">
             <i class="fas fa-crown text-[#cc8e45] text-5xl"></i>
@@ -92,8 +84,6 @@
         <div class="w-full border-t border-[#e1e7dd] pt-4 mb-4">
             <ul class="text-left text-[#3e4732] space-y-2">
                 <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Active admins: <span class="font-semibold ml-auto">{{ $superAdminCount }}</span></li>
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Last login: <span class="font-semibold ml-auto">XX days ago</span></li> {{-- Placeholder for dynamic data --}}
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Permissions audit: <span class="font-semibold ml-auto">YY</span></li> {{-- Placeholder for dynamic data --}}
             </ul>
         </div>
         <button class="w-full bg-[#cc8e45] text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 transition duration-200 shadow-md">
@@ -101,7 +91,7 @@
         </button>
     </div>
 
-    {{-- Card 6: Inactive Users (Styled like the example image) --}}
+    {{-- Card 6: Inactive Users --}}
     <div class="bg-white rounded-xl shadow-xl p-6 border border-[#e1e7dd] flex flex-col items-center text-center transform transition-all duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer">
         <div class="w-24 h-24 rounded-full bg-[#f8f1e1] flex items-center justify-center mb-4 shadow-inner">
             <i class="fas fa-user-slash text-[#33595a] text-5xl"></i>
@@ -111,8 +101,6 @@
         <div class="w-full border-t border-[#e1e7dd] pt-4 mb-4">
             <ul class="text-left text-[#3e4732] space-y-2">
                 <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Total inactive: <span class="font-semibold ml-auto">{{ $inactiveUserCount }}</span></li>
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Last activity over 90 days: <span class="font-semibold ml-auto">XX</span></li> {{-- Placeholder for dynamic data --}}
-                <li class="flex items-center"><i class="fas fa-check-circle text-[#cc8e45] mr-2"></i> Pending deactivation: <span class="font-semibold ml-auto">YY</span></li> {{-- Placeholder for dynamic data --}}
             </ul>
         </div>
         <button class="w-full bg-[#cc8e45] text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 transition duration-200 shadow-md">
@@ -124,15 +112,15 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white rounded-lg shadow-xl p-6">
         <h2 class="text-2xl font-bold text-[#33595a] mb-4">User Roles Distribution</h2>
-        <canvas id="userRolesChart" class="w-full h-80"></canvas>
+        <canvas id="userRolesChart" class="w-full h-80" style="max-height: 400px;"></canvas>
     </div>
 
     <div class="bg-white rounded-lg shadow-xl p-6">
         <h2 class="text-2xl font-bold text-[#33595a] mb-4">Monthly Registrations</h2>
-        <canvas id="monthlyRegistrationsChart" class="w-full h-80"></canvas>
+        {{-- ADDED: max-height style here --}}
+        <canvas id="monthlyRegistrationsChart" class="w-full h-80" style="max-height: 400px;"></canvas>
     </div>
 </div>
-
 
 <div class="bg-white rounded-lg shadow-xl p-6 mt-6">
     <h2 class="text-2xl font-bold text-[#33595a] mb-4 flex items-center">
@@ -180,6 +168,8 @@
 @endsection
 
 @push('scripts')
+{{-- IMPORTANT: Ensure Chart.js is loaded BEFORE your custom script --}}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Define a consistent color palette for charts using your scheme
@@ -283,15 +273,6 @@
                                 size: 14
                             },
                             color: '#33595a' // Dark Teal for legend text
-                        }
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + new Intl.NumberFormat('en-US').format(context.parsed.y);
-                            }
                         }
                     }
                 },
