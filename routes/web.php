@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\IndividualDashboardController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SuperAdminDashboardController;
+use App\Http\Controllers\NdisBusinessController;
 use App\Http\Controllers\CompleteParticipantProfileController; // Import this if it's being used
 
 // Public Routes
@@ -62,6 +63,10 @@ Route::prefix('superadmin')->name('superadmin.')->group(function () {
     Route::post('backup/create', [SuperAdminDashboardController::class, 'createBackup'])->name('backup.create');
     Route::get('backup/download/{filename}', [SuperAdminDashboardController::class, 'downloadBackup'])->name('backup.download');
     Route::delete('backup/delete/{filename}', [SuperAdminDashboardController::class, 'deleteBackup'])->name('backup.delete');
+});
+
+Route::prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::resource('ndis-businesses', NdisBusinessController::class);
 });
 
 
