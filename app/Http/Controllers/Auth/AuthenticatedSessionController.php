@@ -48,7 +48,7 @@ class AuthenticatedSessionController extends Controller
         }
 
         if ($user->role === 'admin') {
-            return redirect()->intended(route('sa.dashboard', absolute: false));
+            return redirect()->intended(route('superadmin.dashboard', absolute: false));
         }
 
         // Fallback for other roles or if no specific dashboard route

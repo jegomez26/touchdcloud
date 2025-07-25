@@ -25,17 +25,16 @@
             </div>
         @endif
 
-        <form action="{{ route('profile.complete') }}" method="POST" class="space-y-6">
+        <form action="{{ route('profile.complete.store') }}" method="POST" class="space-y-6">
             @csrf
 
-            {{-- SECTION: Participant's Full Name (NEW / Adjusted) --}}
-            {{-- These fields are for the participant, whether the logged-in user or someone they represent --}}
+            {{-- SECTION: Participant's Full Name --}}
             <h3 class="text-xl font-semibold text-gray-800 pb-2">Participant's Full Name 👤</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                     <label for="participant_first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name <span class="text-red-500">*</span></label>
                     <input type="text" name="participant_first_name" id="participant_first_name"
-                           value="{{ old('participant_first_name', $user->first_name ?? '') }}" required
+                           value="{{ old('participant_first_name', $participant->first_name ?? '') }}" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
                            placeholder="Participant's first name">
                     @error('participant_first_name')
@@ -57,7 +56,7 @@
                 <div>
                     <label for="participant_last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name <span class="text-red-500">*</span></label>
                     <input type="text" name="participant_last_name" id="participant_last_name"
-                           value="{{ old('participant_last_name', $user->last_name ?? '') }}" required
+                           value="{{ old('participant_last_name', $participant->last_name ?? '') }}" required
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
                            placeholder="Participant's last name">
                     @error('participant_last_name')
@@ -111,7 +110,10 @@
                             ];
 
                             // Get previously selected values from old input or participant data
-                        $selectedDisabilities = old('disability_type', ($participant && $participant->disability_type) ? $participant->disability_type : []);                               @endphp
+                            $currentDisabilities = ($participant && $participant->disability_type) ? (is_string($participant->disability_type) ? json_decode($participant->disability_type, true) : $participant->disability_type) : [];
+                            $selectedDisabilities = old('disability_type', $currentDisabilities);
+                            $selectedDisabilities = is_array($selectedDisabilities) ? $selectedDisabilities : [];
+                        @endphp
                         @foreach($disabilityOptions as $option)
                             <option value="{{ $option }}" {{ in_array($option, $selectedDisabilities) ? 'selected' : '' }}>
                                 {{ $option }}
@@ -123,13 +125,13 @@
                     @enderror
                 </div>
                 <div>
-                    
                     <label for="accommodation_type" class="block text-sm font-medium text-gray-700 mb-1">Accommodation Type</label>
                     <select name="accommodation_type" id="accommodation_type"
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150">
                         <option value="" selected disabled>Select Accommodation Type</option>
                         @foreach(['Specialist Disability Accommodation (SDA)', 'Supported Independent Living (SIL)', 'Community Participation'] as $accommType)
-                            <option value="{{ $accommType }}" {{ old('accommodation_type', $participant->accommodation_type ?? '') == $accommType ? 'selected' : '' }}>                                {{ $accommType }}
+                            <option value="{{ $accommType }}" {{ old('accommodation_type', $participant->accommodation_type ?? '') == $accommType ? 'selected' : '' }}>
+                                {{ $accommType }}
                             </option>
                         @endforeach
                     </select>
@@ -142,8 +144,11 @@
             <div>
                 <label for="specific_disability" class="block text-sm font-medium text-gray-700 mb-1">Specific Disability Details</label>
                 <textarea name="specific_disability" id="specific_disability" rows="3"
-                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
-                                 placeholder="Provide specific details about the disability and any support needs.">{{ old('specific_disability', $participant->specific_disability ?? '') }}</textarea>
+                          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                          placeholder="Provide specific details about the disability and any support needs.">{{ old('specific_disability', $participant->specific_disability ?? '') }}</textarea>
+                @error('specific_disability')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             <h3 class="text-xl font-semibold text-gray-800 pt-4 pb-2 border-t mt-6">Address Details 🏠</h3>
@@ -151,8 +156,11 @@
                 <div>
                     <label for="street_address" class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
                     <input type="text" name="street_address" id="street_address" value="{{ old('street_address', $participant->street_address ?? '') }}"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
-                        placeholder="Street number and name">
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                           placeholder="Street number and name">
+                    @error('street_address')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
                 {{-- Swapped Suburb and State, now State comes first --}}
                 <div>
@@ -193,8 +201,8 @@
                 <div>
                     <label for="post_code" class="block text-sm font-medium text-gray-700 mb-1">Post Code</label>
                     <input type="text" name="post_code" id="post_code" value="{{ old('post_code', $participant->post_code ?? '') }}"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
-                        placeholder="e.g., 1234">
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                           placeholder="e.g., 1234">
                     @error('post_code')
                         <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -204,13 +212,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center pt-4 border-t mt-6">
                 <div class="flex items-center">
                     <input type="checkbox" name="is_looking_hm" id="is_looking_hm" value="1" {{ old('is_looking_hm', $participant->is_looking_hm ?? false) ? 'checked' : '' }}
-                        class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer">
+                           class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer">
                     <label for="is_looking_hm" class="ml-2 block text-sm font-medium text-gray-700 select-none">Is looking for a housemate?</label>
                 </div>
 
                 <div class="flex items-center">
                     <input type="checkbox" name="has_accommodation" id="has_accommodation" value="1" {{ old('has_accommodation', $participant->has_accommodation ?? false) ? 'checked' : '' }}
-                        class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer">
+                           class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded cursor-pointer">
                     <label for="has_accommodation" class="ml-2 block text-sm font-medium text-gray-700 select-none">Has existing accommodation?</label>
                 </div>
             </div>
@@ -218,14 +226,64 @@
             <div class="mt-6">
                 <label for="relative_name" class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact / Relative Name</label>
                 <input type="text" name="relative_name" id="relative_name"
-                       value="{{ old('relative_name', $user->is_representative ? ($user->representative_first_name . ' ' . $user->representative_last_name) : ($participant->relative_name ?? '')) }}"
+                       value="{{ old('relative_name', $participant->relative_name ?? '') }}"
                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
                        placeholder="Name of emergency contact"
                        {{ $user->is_representative ? 'readonly' : '' }}>
                 @if ($user->is_representative)
                     <p class="mt-2 text-sm text-gray-600">This field is automatically filled with your name as you are completing the profile on behalf of someone else.</p>
                 @endif
+                @error('relative_name')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
             </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label for="relationship_to_participant" class="block text-sm font-medium text-gray-700 mb-1">Relationship to Participant</label>
+                    <input type="text" name="relationship_to_participant" id="relationship_to_participant"
+                           value="{{ old('relationship_to_participant', $participant->relative_relationship ?? '') }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                           placeholder="e.g., Parent, Guardian, Sibling"
+                           {{ $user->is_representative ? 'readonly' : '' }}>
+                    @error('relationship_to_participant')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+                <div>
+                    <label for="relative_phone" class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact / Relative Phone</label>
+                    <input type="text" name="relative_phone" id="relative_phone"
+                           value="{{ old('relative_phone', $participant->relative_phone ?? '') }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                           placeholder="Emergency contact phone"
+                           {{ $user->is_representative ? 'readonly' : '' }}>
+                    @error('relative_phone')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <label for="relative_email" class="block text-sm font-medium text-gray-700 mb-1">Emergency Contact / Relative Email</label>
+                <input type="email" name="relative_email" id="relative_email"
+                       value="{{ old('relative_email', $participant->relative_email ?? '') }}"
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                       placeholder="Emergency contact email"
+                       {{ $user->is_representative ? 'readonly' : '' }}>
+                @error('relative_email')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Participant Code Name (Display Only) --}}
+            <div class="mt-6" hidden>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Participant Code Name</label>
+                <div class="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-50 p-2.5 text-gray-900 sm:text-base">
+                    {{ $user->participant_code_name ?? 'Not Available Yet' }}
+                </div>
+                <p class="mt-2 text-sm text-gray-600">This is your unique participant code name, automatically generated by the system.</p>
+            </div>
+
 
             <div class="pt-6">
                 <button type="submit"
@@ -239,78 +297,16 @@
     @push('styles')
     {{-- Choices.js CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
-    {{-- Custom CSS to better integrate Choices.js with Tailwind --}}
-    <!-- <style>
-        /* Adjust Choices.js styling to fit Tailwind forms */
-        .choices__inner {
-            background-color: #ffffff; /* White background */
-            border: 1px solid #d1d5db; /* border-gray-300 */
-            border-radius: 0.375rem; /* rounded-md */
-            padding: 0.625rem 0.75rem; /* p-2.5, roughly */
-            min-height: 42px; /* Ensure consistent height with other inputs */
-        }
-        .choices__input {
-            background-color: transparent !important; /* Prevent double background */
-            font-size: 1rem !important; /* sm:text-base */
-            color: #111827; /* text-gray-900 */
-        }
-        .choices__item {
-            background-color: #edf2f7; /* gray-200 */
-            border-color: #cbd5e0; /* gray-300 */
-            color: #2d3748; /* gray-800 */
-            font-size: 0.875rem; /* text-sm */
-            line-height: 1.25rem; /* leading-5 */
-            border-radius: 0.25rem; /* rounded */
-            padding: 0.25rem 0.5rem;
-            margin-bottom: 0.25rem;
-        }
-        .choices__item.is-highlighted {
-            background-color: #6366f1; /* indigo-500 */
-            color: #ffffff; /* text-white */
-        }
-        .choices__list--dropdown .choices__item.is-selected {
-            display: none; /* Hide selected items from dropdown list */
-        }
-        .choices__list--single {
-            padding: 0;
-        }
-        .choices__list--single .choices__item {
-            line-height: 1.5;
-        }
-        .choices__list--multiple .choices__item {
-            display: inline-flex;
-            align-items: center;
-            margin-right: 0.25rem;
-        }
-        .choices__item .choices__button {
-            margin-left: 0.5rem;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-x'%3E%3Cline x1='18' y1='6' x2='6' y2='18'%3E%3C/line%3E%3Cline x1='6' y1='6' x2='18' y2='18'%3E%3C/line%3E%3C/svg%3E");
-            background-size: 100% 100%;
-            width: 0.875rem; /* h-3.5 */
-            height: 0.875rem; /* w-3.5 */
-            margin-top: -1px; /* Adjust vertical alignment */
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.7;
-            transition: opacity 0.2s ease-in-out;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-        }
-        .choices__item .choices__button:hover {
-            opacity: 1;
-        }
-    </style> -->
     @endpush
 
     @push('scripts')
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Flatpickr initialization (keep this)
+            // Flatpickr initialization
             flatpickr(".flatpickr-input", {
                 dateFormat: "Y-m-d",
-                maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
+                maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)), // Ensures 18+ years old
             });
 
             // Choices.js Initialization for Disability Type
@@ -329,7 +325,8 @@
 
             const stateSelect = document.getElementById('state');
             const suburbSelect = document.getElementById('suburb');
-            const originalSuburbValue = suburbSelect.value; // Store the initial value if any
+            // Store the initial value if any (for existing data or old input after validation failure)
+            const initialSuburbValue = "{{ old('suburb', $participant->suburb ?? '') }}";
 
             // Function to load suburbs
             function loadSuburbs(state, selectedSuburb = null) {
@@ -341,7 +338,7 @@
                     return; // No state selected, do nothing
                 }
 
-                fetch(`/get-suburbs/${state}`) // Use a proper route
+                fetch(`/get-suburbs/${state}`) // Use your actual route
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Network response was not ok');
@@ -374,7 +371,7 @@
 
             // Initial load for suburbs if a state is already selected (e.g., from old() or existing data)
             if (stateSelect.value) {
-                loadSuburbs(stateSelect.value, originalSuburbValue);
+                loadSuburbs(stateSelect.value, initialSuburbValue);
             }
         });
     </script>
