@@ -6,9 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Participant;
-use Illuminate\Support\Facades\Log; // Required for Log::error()
-use Illuminate\Validation\Rule; // Required for validation rules (though not strictly used in current setup)
-
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule; // This is good to keep, even if not directly used for simple rules
 
 class IndividualDashboardController extends Controller
 {
@@ -18,15 +17,12 @@ class IndividualDashboardController extends Controller
      */
     public function index(Request $request)
     {
-        // The 'auth' and 'verified' middleware should already ensure these conditions.
-        // These checks are redundant if middleware is configured correctly, but safe to keep for robustness.
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
         $user = Auth::user();
 
-        // Should not happen if Auth::check() is true, but defensive programming
         if (!$user) {
             Auth::logout();
             $request->session()->invalidate();
@@ -34,16 +30,10 @@ class IndividualDashboardController extends Controller
             return redirect()->route('login')->with('error', 'Authentication error. Please log in again.');
         }
 
-        // IMPORTANT: REDIRECT TO PROFILE COMPLETION IF NOT COMPLETED
-        // This ensures the showCompleteProfileForm method is always used
-        // and that the 'profile.complete.show' route's middleware apply.
-        // Only redirect if role is 'participant' AND profile is NOT completed
         if ($user->role === 'participant' && !$user->profile_completed) {
-            return redirect()->route('profile.complete.show');
+            return redirect()->route('profile.complete.show'); // Ensure this route points to showCompleteProfileForm in THIS controller
         }
 
-        // If the profile is completed (and verified, due to middleware), show the normal dashboard content
-        // For other roles (e.g., admin), they would also proceed here directly.
         return view('indiv.main-content', ['user' => $user]);
     }
 
@@ -53,20 +43,15 @@ class IndividualDashboardController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user) { // Should not happen if 'auth' middleware is applied
+        if (!$user) {
             return redirect()->route('login')->with('error', 'Authentication required to complete profile.');
         }
 
-        // Find or create a Participant record for the current user.
-        // This ensures $participant is always an object, even if no record exists yet.
         $participant = Participant::firstOrNew(['user_id' => $user->id]);
 
-        // If the profile is already completed, redirect to the dashboard.
-        // This prevents users from re-accessing the form directly after completion.
         if ($user->profile_completed) {
             return redirect()->route('indiv.dashboard')->with('info', 'Your profile is already completed.');
         } else {
-            // If profile is not completed, show the form
             return view('profile.complete-participant-profile', [
                 'user' => $user,
                 'participant' => $participant,
@@ -82,9 +67,11 @@ class IndividualDashboardController extends Controller
      */
     public function completeProfile(Request $request)
     {
+        // Add dd() here to confirm you're hitting the correct method!
+        dd($request->all());
+
         $user = Auth::user();
 
-        // Defensive check: If user is somehow null, force logout.
         if (!$user) {
             Log::error("Auth::user() returned null during completeProfile submission. Attempting logout.");
             Auth::logout();
@@ -94,14 +81,12 @@ class IndividualDashboardController extends Controller
         }
 
         // --- 1. Define Validation Rules ---
-        // Rules are now exclusively for the Participant's details, as per the updated form.
-        // The logged-in User's name is assumed to be set elsewhere or not mutable here.
         $rules = [
             'participant_first_name' => ['required', 'string', 'max:255'],
             'participant_middle_name' => ['nullable', 'string', 'max:255'],
             'participant_last_name' => ['required', 'string', 'max:255'],
             'birthday' => ['required', 'date', 'before_or_equal:today'],
-            'disability_type' => ['nullable', 'array'], // Changed for multiple selection, can be empty
+            'disability_type' => ['nullable', 'array'],
             'disability_type.*' => ['string', 'max:255'],
             'specific_disability' => ['nullable', 'string'],
             'accommodation_type' => ['nullable', 'string', 'max:255'],
@@ -111,61 +96,81 @@ class IndividualDashboardController extends Controller
             'post_code' => ['nullable', 'string', 'max:10'],
             'is_looking_hm' => ['boolean'],
             'has_accommodation' => ['boolean'],
+
+            // *** IMPORTANT: Add validation rules for these fields! ***
+            // These keys must match the `name` attributes in your Blade form.
             'relative_name' => ['nullable', 'string', 'max:255'],
+            'relative_phone' => ['nullable', 'string', 'max:20'], // Ensure rule matches your data type
+            'relative_email' => ['nullable', 'email', 'max:255'],
+            'relationship_to_participant' => ['nullable', 'string', 'max:255'], // This is the form field name
         ];
 
-        $request->validate($rules);
+        try {
+            // Use $validatedData after validation
+            $validatedData = $request->validate($rules);
 
-        // --- 2. Update the Logged-in User's Status ---
-        // Only mark profile as completed for the User model.
-        // User's name fields are no longer updated here, as the form doesn't provide them.
-        $user->profile_completed = true;
-        $user->save();
+            // --- 2. Update the Logged-in User's Status ---
+            $user->profile_completed = true;
+            $user->save();
 
-        // --- 3. Create or Update the Participant Record ---
-        // This section will always run if the user is a 'participant' role
-        if ($user->role === 'participant') {
-            $participant = Participant::firstOrNew(['user_id' => $user->id]);
+            // --- 3. Create or Update the Participant Record ---
+            if ($user->role === 'participant') {
+                $participant = Participant::firstOrNew(['user_id' => $user->id]);
 
-            if (!$participant->exists) {
-                $participant->user_id = $user->id;
-                $participant->added_by_user_id = $user->id; // Assuming the logged-in user is adding/completing their own or a represented profile
+                if (!$participant->exists) {
+                    $participant->user_id = $user->id;
+                    $participant->added_by_user_id = $user->id;
+                }
+
+                // Participant's name always comes from the form's 'participant_' fields
+                $participant->first_name = $validatedData['participant_first_name'];
+                $participant->middle_name = $validatedData['participant_middle_name'] ?? null; // Use validatedData
+                $participant->last_name = $validatedData['participant_last_name'];
+
+                // Handle 'relative_name', 'relative_phone', 'relative_email', 'relative_relationship'
+                if ($user->is_representative) {
+                    // If the user is a representative, their own name and contact details become the relative_name.
+                    // This assumes representative_first_name and representative_last_name exist and are accurate on the User model.
+                    $participant->relative_name = $user->first_name . ' ' . $user->last_name; // Use user's own first/last name
+                    $participant->relative_phone = $user->phone_number ?? null; // Assuming user has a 'phone_number' field
+                    $participant->relative_email = $user->email;
+                    $participant->relative_relationship = $user->relationship_to_participant ?? null; // From User model
+                } else {
+                    // If a direct participant, the relative_name, phone, email, and relationship come from the form input.
+                    $participant->relative_name = $validatedData['relative_name'] ?? null;
+                    $participant->relative_phone = $validatedData['relative_phone'] ?? null;
+                    $participant->relative_email = $validatedData['relative_email'] ?? null;
+                    $participant->relative_relationship = $validatedData['relationship_to_participant'] ?? null; // Map from form name
+                }
+
+                // Fill other common participant details using fill method
+                // Note: 'disability_type' should be JSON encoded before saving if it's an array
+                $participant->fill([
+                    'birthday' => $validatedData['birthday'],
+                    'disability_type' => json_encode($validatedData['disability_type'] ?? []), // Ensure this handles null/empty correctly
+                    'specific_disability' => $validatedData['specific_disability'] ?? null,
+                    'accommodation_type' => $validatedData['accommodation_type'] ?? null,
+                    'street_address' => $validatedData['street_address'] ?? null,
+                    'suburb' => $validatedData['suburb'] ?? null,
+                    'state' => $validatedData['state'] ?? null,
+                    'post_code' => $validatedData['post_code'] ?? null,
+                    // Relative fields are handled above separately due to conditional logic
+                ]);
+
+                // Handle boolean checkboxes explicitly (using validatedData)
+                $participant->is_looking_hm = $validatedData['is_looking_hm'] ?? false;
+                $participant->has_accommodation = $validatedData['has_accommodation'] ?? false;
+
+                $participant->save();
             }
 
-            // Participant's name always comes from the form's 'participant_' fields
-            $participant->first_name = $request->input('participant_first_name');
-            $participant->middle_name = $request->input('participant_middle_name');
-            $participant->last_name = $request->input('participant_last_name');
+            return redirect()->route('indiv.dashboard')->with('success', 'Profile completed successfully!');
 
-            // Handle 'relative_name' based on 'is_representative' flag
-            if ($user->is_representative) {
-                // If the user is a representative, their own name (from User model, stored as representative_name) becomes the relative_name.
-                $participant->relative_name = $user->representative_first_name . ' ' . $user->representative_last_name;
-            } else {
-                // If a direct participant, the relative_name comes from the form input.
-                $participant->relative_name = $request->input('relative_name');
-            }
-
-            // Fill other common participant details
-            $participant->fill($request->only([
-                'birthday',
-                'disability_type',
-                'specific_disability',
-                'accommodation_type',
-                'street_address',
-                'suburb',
-                'state',
-                'post_code',
-                // 'relative_name' is handled separately above
-            ]));
-
-            // Handle boolean checkboxes explicitly
-            $participant->is_looking_hm = $request->boolean('is_looking_hm');
-            $participant->has_accommodation = $request->boolean('has_accommodation');
-
-            $participant->save();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            Log::error('Profile completion error: ' . $e->getMessage(), ['exception' => $e, 'user_id' => $user->id]);
+            return back()->with('error', 'An unexpected error occurred. Please try again.')->withInput();
         }
-
-        return redirect()->route('indiv.dashboard')->with('success', 'Profile completed successfully!');
     }
 }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\NDISBusiness; // Keep NDISBusiness if used elsewhere, but not for SupportCoordinator registration now
+use App\Models\SupportCoordinator;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -12,19 +14,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Display the default registration view (for individuals/participants).
      */
     public function create(): View
-    {
-        // This method would render your 'register-individual' Blade view
-        return view('auth.register-individual');
-    }
-
-    public function createIndividual(): View
     {
         return view('auth.register-individual');
     }
@@ -34,7 +31,9 @@ class RegisteredUserController extends Controller
      */
     public function createCoordinator(): View
     {
-        return view('auth.register-coordinator'); // You'll create this file
+        // Removed: $ndisBusinesses = NDISBusiness::all(['id', 'business_name', 'abn']);
+        // Removed: compact('ndisBusinesses')
+        return view('auth.register-coordinator');
     }
 
     /**
@@ -42,92 +41,60 @@ class RegisteredUserController extends Controller
      */
     public function createProvider(): View
     {
-        return view('auth.register-provider'); // You'll create this file
+        return view('auth.register-provider');
     }
 
     /**
-     * Handle an incoming registration request.
+     * Handle an incoming registration request for Participants (Individual or Representative).
      *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
-        // Define base rules for all registrations through this form
         $rules = [
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => [
                 'required',
-                'confirmed', // Checks password_confirmation for match
-                'min:8',     // Minimum 8 characters
-                Rules\Password::min(8) // Laravel 9+ recommended for stronger rules
-                    ->mixedCase()      // Requires both uppercase and lowercase
-                    ->letters()        // Requires at least one letter
-                    ->numbers()        // Requires at least one digit
-                    ->symbols(),       // Requires at least one symbol (special character)
-                // You can add a custom regex for specific special characters if Rules\Password::symbols() is too broad
-                // 'regex:/[!@#$%^&*()_+\-=\[\]{};\':`~\\|,.<>\/?]/'
+                'confirmed',
+                Rules\Password::min(8)->mixedCase()->numbers()->symbols(),
             ],
-            'role' => ['required', 'string', Rule::in(['participant'])], // Fixed to 'participant' from hidden input
-            'registration_type' => ['required', 'string', Rule::in(['participant', 'representative'])], // From radio buttons
+            'role' => ['required', 'string', Rule::in(['participant'])],
+            'registration_type' => ['required', 'string', Rule::in(['participant', 'representative'])],
+            'terms_and_privacy' => ['accepted'],
         ];
 
-        // Conditional validation based on registration_type
         if ($request->input('registration_type') === 'representative') {
-            // If registering as a representative, the primary 'first_name' and 'last_name'
-            // are for the *representative*.
-            $rules['first_name'] = ['required', 'string', 'max:255']; // Representative's first name
-            $rules['last_name'] = ['required', 'string', 'max:255'];  // Representative's last name
-
-            // The 'representative_first_name' and 'representative_last_name' from the form
-            // are for the *participant*. However, your migration defines these on the User table.
-            // This is a potential source of confusion based on your variable names.
-            // Let's assume you intended 'representative_first_name' and 'representative_last_name'
-            // to be the *participant's* names when a representative registers.
-            // And 'first_name'/'last_name' are for the representative.
-            // This is the interpretation of your Blade, so we'll stick to it.
-            $rules['representative_first_name'] = ['required', 'string', 'max:255']; // Participant's first name
-            $rules['representative_last_name'] = ['required', 'string', 'max:255'];  // Participant's last name
-
+            $rules['first_name'] = ['required', 'string', 'max:255'];
+            $rules['last_name'] = ['required', 'string', 'max:255'];
+            $rules['representative_first_name'] = ['required', 'string', 'max:255'];
+            $rules['representative_last_name'] = ['required', 'string', 'max:255'];
             $rules['relationship_to_participant'] = ['required', 'string', 'max:255'];
-        } else { // 'participant' (self) registration
-            // If registering as the participant themselves, 'first_name' and 'last_name'
-            // are for the participant (who is also the user account holder).
-            $rules['first_name'] = ['required', 'string', 'max:255']; // Participant's (and user's) first name
-            $rules['last_name'] = ['required', 'string', 'max:255'];  // Participant's (and user's) last name
+        } else {
+            $rules['first_name'] = ['required', 'string', 'max:255'];
+            $rules['last_name'] = ['required', 'string', 'max:255'];
         }
 
         $request->validate($rules);
 
-        // Determine the value for 'is_representative' column
         $isRepresentativeAccount = ($request->input('registration_type') === 'representative');
 
         $userData = [
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'participant', // Always 'participant' from the hidden input
+            'role' => 'participant',
             'profile_completed' => false,
-            'is_representative' => $isRepresentativeAccount, // Set based on the registration_type
+            'is_representative' => $isRepresentativeAccount,
         ];
 
         if ($isRepresentativeAccount) {
-            // If this account is a representative's account:
-            // 'first_name' and 'last_name' columns of the User model store the Representative's name.
             $userData['first_name'] = $request->first_name;
             $userData['last_name'] = $request->last_name;
-            // 'relationship_to_participant' stores the relationship.
             $userData['relationship_to_participant'] = $request->relationship_to_participant;
-            // 'representative_first_name' and 'representative_last_name' store the Participant's name.
             $userData['representative_first_name'] = $request->representative_first_name;
             $userData['representative_last_name'] = $request->representative_last_name;
         } else {
-            // If this account is the participant's own account:
-            // 'first_name' and 'last_name' columns of the User model store the Participant's own name.
             $userData['first_name'] = $request->first_name;
             $userData['last_name'] = $request->last_name;
-            // Set representative-specific fields to null if not applicable to avoid errors
-            $userData['relationship_to_participant'] = null;
-            $userData['representative_first_name'] = null;
-            $userData['representative_last_name'] = null;
         }
 
         $user = User::create($userData);
@@ -136,9 +103,104 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        // Redirect after successful registration.
-        // The VerificationController's `verified` method should be configured
-        // to redirect to `profile.complete.show` with a flash message after email verification.
         return redirect(route('dashboard', absolute: false));
+    }
+
+    /**
+     * Handle an incoming registration request for Support Coordinators.
+     */
+    public function storeCoordinator(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'company_name' => ['required', 'string', 'max:255'],
+            'abn' => ['required', 'string', 'digits:11'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'password' => [
+                'required',
+                'confirmed',
+                Rules\Password::min(8)->mixedCase()->numbers()->symbols(),
+            ],
+            'role' => ['required', 'string', Rule::in(['coordinator'])],
+            'terms_and_privacy' => ['accepted'],
+        ]);
+
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'role' => 'coordinator',
+            'password' => Hash::make($request->password),
+            'profile_completed' => false,
+            'is_representative' => false,
+        ]);
+
+        $supCoorCodeName = 'SC' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
+
+        SupportCoordinator::create([
+            'user_id' => $user->id,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'company_name' => $request->company_name,
+            'abn' => $request->abn,
+            'sup_coor_code_name' => $supCoorCodeName,
+            'status' => 'pending_verification', // Initial status
+        ]);
+
+        event(new Registered($user));
+
+        // Redirect to Laravel's default email verification notice page
+        return redirect(route('verification.notice'));
+    }
+
+    /**
+     * Handle an incoming registration request for Providers.
+     */
+    public function storeProvider(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'business_name' => ['required', 'string', 'max:255'],
+            'abn' => ['required', 'string', 'digits:11', 'unique:ndis_businesses,abn'],
+            'contact_person_first_name' => ['required', 'string', 'max:255'],
+            'contact_person_last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'password' => [
+                'required',
+                'confirmed',
+                Rules\Password::min(8)->mixedCase()->numbers()->symbols(),
+            ],
+            'role' => ['required', 'string', Rule::in(['provider'])],
+            'terms_and_privacy' => ['accepted'],
+        ]);
+
+        $user = User::create([
+            'first_name' => $request->contact_person_first_name,
+            'last_name' => $request->contact_person_last_name,
+            'email' => $request->email,
+            'role' => 'provider',
+            'password' => Hash::make($request->password),
+            'profile_completed' => false,
+            'is_representative' => false,
+        ]);
+
+        // Assuming 'provider_code_name' is a column on your `users` table
+        // If it's on `ndis_businesses` table, move this assignment to NDISBusiness::create
+        $user->provider_code_name = 'PR' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
+        $user->save(); // This save might not be necessary if provider_code_name is only on NDISBusiness
+
+        NDISBusiness::create([
+            'user_id' => $user->id,
+            'business_name' => $request->business_name,
+            'abn' => $request->abn,
+            'contact_person_first_name' => $request->contact_person_first_name,
+            'contact_person_last_name' => $request->contact_person_last_name,
+            'provider_code_name' => $user->provider_code_name, // If moved, generate here directly
+            'status' => 'pending_verification',
+        ]);
+
+        event(new Registered($user));
+
+        return redirect(route('provider.account.pending'));
     }
 }

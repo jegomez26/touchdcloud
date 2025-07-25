@@ -31,7 +31,6 @@
                     <a href="{{ route('home') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">Home</a>
                     <a href="{{ route('about') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">About Us</a>
                     <a href="{{ route('listings') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">Listings</a>
-                    <a href="{{ route('company-dashboard') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">Company</a>
                     <a href="{{ route('sc-dashboard') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">Support Coordinator</a>
 
                     {{-- AUTHENTICATION LINKS --}}
@@ -93,7 +92,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
                         {{-- NDIS Participant --}}
                         {{-- Now linking directly to the registration route --}}
-                        <a href="{{ route('register.individual.create') }}"
+                        <a href="{{ route('register.participant.create') }}"
                            class="flex flex-col items-center p-6 border border-custom-light-grey-green rounded-lg shadow-lg bg-custom-light-cream hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                             <div class="text-custom-dark-teal mb-4">
                                 <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
@@ -144,7 +143,7 @@
         {{-- END: Registration Role Selection Modal --}}
 
 
-        {{-- START: Complete Profile Modal (Shown on First Login) --}}
+        <!-- {{-- START: Complete Profile Modal (Shown on First Login) --}}
         @if (Auth::check() && !Auth::user()->profile_completed)
         <div class="relative z-40">
             <div x-show="showCompleteProfileModal"
@@ -170,13 +169,16 @@
                     <h2 class="text-3xl font-bold text-custom-black text-center mb-6">
                         Complete Your Profile
                     </h2>
-                    @include('profile.complete-participant-profile')
+                    @include('profile.complete-participant-profile', [
+                        'user' => Auth::user(),
+                        'participant' => Auth::user()->participant // Assuming the participant relationship exists
+                    ])
 
                 </div>
             </div>
         </div>
         @endif
-        {{-- END: Complete Profile Modal --}}
+        {{-- END: Complete Profile Modal --}} -->
 
 
         {{-- Footer - using a dark color from the palette --}}

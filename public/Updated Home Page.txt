@@ -5,11 +5,11 @@
     <section class="relative h-screen flex items-center justify-center text-white overflow-hidden bg-cover bg-center"
         style="margin-top:-100px;">
         {{-- Parallax Layers --}}
-        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/Sunset.png'); background-size: 100vw auto" data-parallax-speed="0.3"></div>
+        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/Sunset.png'); background-size: 100vw auto" data-parallax-speed="1"></div>
         <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/Greens.png'); background-size: 100vw auto" data-parallax-speed="-1.3"></div>
         <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/BackHouse.png'); background-size: 100vw auto" data-parallax-speed="-1"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/FrontHouse.png'); background-size: 100vw auto" data-parallax-speed="-0.2"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/Boy_Girl.png'); background-size: 30vw auto; transform: translateY(350px);" data-parallax-speed="0"></div>
+        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/FrontHouse.png'); background-size: 100vw auto" data-parallax-speed="-0.5"></div>
+        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/Boy_Girl.png'); background-size: 100vw auto" data-parallax-speed="0"></div>
 
         {{-- Subtle gradient overlay for aesthetic depth and text readability using the new palette --}}
         <div class="absolute inset-0 bg-gradient-to-br from-[#33595a] via-[#3e4732] to-black opacity-0 z-10"></div>
@@ -91,12 +91,10 @@
 
                 {{-- Package 1: Community Access Plan --}}
                 <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col justify-between
-                            transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-left">
+                            transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-left" style="margin-top: 300px; margin-bottom: 350px">
                     <div class="mb-8">
                         {{-- Placeholder for Illustration 1 --}}
-                        <img src="https://static.vecteezy.com/system/resources/thumbnails/011/356/176/small_2x/doctors-and-health-workers-3d-character-illustration-png.png"
-                             alt="Community Access Illustration" class="mx-auto mb-6 rounded-lg shadow-md">
-                        <h3 class="text-3xl font-extrabold text-[#33595a] mb-4">Community Access Plan</h3>
+                        <img src="images/Group01.png" class="absolute -top-10 left-1/2 -translate-x-1/2 -translate-y-1/2"> <h3 class="text-5xl font-extrabold text-[#33595a] mb-4" style="margin-top: 30px">Community Access Plan</h3>
                         <p class="text-lg text-[#bcbabb] mb-6">Small operations, easy start</p>
                         <hr class="border-t-2 border-[#f8f1e1] my-6">
                         <ul class="text-left text-lg text-[#3e4732] space-y-3">
@@ -114,12 +112,10 @@
 
                 {{-- Package 2: Inclusive Living Plan --}}
                 <div class="bg-[#33595a] rounded-3xl shadow-2xl p-8 flex flex-col justify-between border-8 border-[#cc8e45]
-                            transform hover:scale-[1.05] transition-all duration-500 animate-fade-in-up delay-200">
+                            transform hover:scale-[1.05] transition-all duration-500 animate-fade-in-up delay-200" style="margin-top: 250px; margin-bottom: 350px">
                     <div class="mb-8">
                         {{-- Placeholder for Illustration 2 --}}
-                        <img src="https://static.vecteezy.com/system/resources/thumbnails/011/356/176/small_2x/doctors-and-health-workers-3d-character-illustration-png.png"
-                             alt="Inclusive Living Illustration" class="mx-auto mb-6 rounded-lg shadow-md">
-                        <h3 class="text-3xl font-extrabold text-[#ffffff] mb-4">Inclusive Living Plan</h3>
+                        <img src="images/Happy.png" class="absolute -top-10 left-1/2 -translate-x-1/2 -translate-y-1/2"> <h3 class="text-5xl font-extrabold text-[#ffffff] mb-4" style="margin-top: 120px">Inclusive Living Plan</h3>
                         <p class="text-lg text-[#f8f1e1] mb-6">Medium-sized provider support</p>
                         <hr class="border-t-2 border-[#f8f1e1] my-6">
                         <ul class="text-left text-lg text-[#f8f1e1] space-y-3">
@@ -138,12 +134,10 @@
 
                 {{-- Package 3: Full Support Plan --}}
                 <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col justify-between
-                            transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-right">
+                            transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-right" style="margin-top: 300px; margin-bottom: 350px">
                     <div class="mb-8">
                         {{-- Placeholder for Illustration 3 --}}
-                        <img src="https://static.vecteezy.com/system/resources/thumbnails/011/356/176/small_2x/doctors-and-health-workers-3d-character-illustration-png.png"
-                             alt="Full Support Illustration" class="mx-auto mb-6 rounded-lg shadow-md">
-                        <h3 class="text-3xl font-extrabold text-[#33595a] mb-4">Full Support Plan</h3>
+                        <img src="images/Manny.png" class="absolute top-10px left-1/2 -translate-x-1/2 -translate-y-1/2" style="margin-top: -130px"> <h3 class="text-5xl font-extrabold text-[#33595a] mb-4" style="margin-top: 30px">Full Support Plan</h3>
                         <p class="text-lg text-[#bcbabb] mb-6">Advanced matching for large provider</p>
                         <hr class="border-t-2 border-[#f8f1e1] my-6">
                         <ul class="text-left text-lg text-[#3e4732] space-y-3">

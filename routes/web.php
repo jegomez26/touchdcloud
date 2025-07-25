@@ -8,104 +8,146 @@ use App\Http\Controllers\IndividualDashboardController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\NdisBusinessController;
-use App\Http\Controllers\CompleteParticipantProfileController; // Import this if it's being used
+use App\Http\Controllers\CompleteParticipantProfileController;
+use App\Http\Controllers\SupportCoordinatorDashboardController; // Assuming you'll have this eventually
 
-// Public Routes
-Route::get('/get-suburbs/{state}', [LocationController::class, 'getSuburbs'])->name('get.suburbs');
+// --- Public Routes ---
+// These routes are accessible to anyone, regardless of authentication or profile completion.
 Route::get('/', function () {
-    return view('home');
+    return view('home'); // Your public landing page
 })->name('home');
+
 Route::get('/about-us', function () {
     return view('about');
 })->name('about');
+
 Route::get('/listings', function () {
     return view('listings');
 })->name('listings');
+
 Route::get('/terms-of-service', function () {
     return view('terms');
 })->name('terms.show');
+
 Route::get('/privacy-policy', function () {
     return view('policy');
 })->name('policy.show');
 
-    Route::get('/company-dashboard', function () {
-        return view('company/company-dashboard');
-    })->name('company-dashboard');
+Route::get('/get-suburbs/{state}', [LocationController::class, 'getSuburbs'])->name('get.suburbs');
 
-// Guest Middleware Group (Only for users who are NOT logged in)
+
+// --- Guest-Only Routes ---
+// These routes are only accessible to users who are NOT logged in.
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
-    Route::get('register/participant', [RegisteredUserController::class, 'createIndividual'])->name('register.individual.create');
-    Route::post('register/participant', [RegisteredUserController::class, 'storeIndividual'])->name('register.individual.store');
+    // Participant Registration Routes
+    Route::get('register/participant', [RegisteredUserController::class, 'create'])->name('register.participant.create');
+    Route::post('register/participant', [RegisteredUserController::class, 'store'])->name('register.participant.store');
 
+    // Support Coordinator Registration Routes
     Route::get('register/coordinator', [RegisteredUserController::class, 'createCoordinator'])->name('register.coordinator.create');
     Route::post('register/coordinator', [RegisteredUserController::class, 'storeCoordinator'])->name('register.coordinator.store');
 
+    // Provider Registration Routes
     Route::get('register/provider', [RegisteredUserController::class, 'createProvider'])->name('register.provider.create');
     Route::post('register/provider', [RegisteredUserController::class, 'storeProvider'])->name('register.provider.store');
 
-    Route::post('/register', [RegisteredUserController::class, 'store'])->name('register');
-});
-
-// REMOVED old /sc-dashboard and /company-dashboard public routes as they seem to be for authenticated users later
-
-// Super Admin Dashboard Routes (Authorization handled within SuperAdminDashboardController)
-Route::prefix('superadmin')->name('superadmin.')->group(function () {
-    Route::get('/', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('users', [SuperAdminDashboardController::class, 'manageUsers'])->name('users.index');
-    Route::put('users/{user}/activate', [SuperAdminDashboardController::class, 'activateUser'])->name('users.activate');
-    Route::put('users/{user}/deactivate', [SuperAdminDashboardController::class, 'deactivateUser'])->name('users.deactivate');
-    Route::get('logs', [SuperAdminDashboardController::class, 'viewLogs'])->name('logs.index');
-    Route::get('logs/download', [SuperAdminDashboardController::class, 'downloadLogs'])->name('logs.download');
-    Route::get('backup', [SuperAdminDashboardController::class, 'backupDataIndex'])->name('backup.index');
-    Route::post('backup/create', [SuperAdminDashboardController::class, 'createBackup'])->name('backup.create');
-    Route::get('backup/download/{filename}', [SuperAdminDashboardController::class, 'downloadBackup'])->name('backup.download');
-    Route::delete('backup/delete/{filename}', [SuperAdminDashboardController::class, 'deleteBackup'])->name('backup.delete');
-});
-
-Route::prefix('superadmin')->name('superadmin.')->group(function () {
-    Route::resource('ndis-businesses', NdisBusinessController::class);
+    // REMOVED: Route for "Account Not Active / Pending Admin Approval" page for coordinators
+    // This route should be protected by 'auth' and 'verified' middleware, so it cannot be in the 'guest' group.
 });
 
 
-// Authenticated Middleware Group (Only for users who ARE logged in)
-Route::middleware('auth')->group(function () {
+// --- Authenticated & Verified Routes ---
+// These routes require the user to be logged in AND have their email verified.
+Route::middleware(['auth', 'verified'])->group(function () {
+
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
+    // --- Profile Completion Routes ---
+    Route::get('/profile/complete', [CompleteParticipantProfileController::class, 'create'])->name('profile.complete.show');
+    Route::post('/profile/complete', [CompleteParticipantProfileController::class, 'store'])->name('profile.complete.store');
+
+    // --- Super Admin Panel Routes ---
+    Route::prefix('superadmin')->middleware('role:admin')->name('superadmin.')->group(function () {
+        Route::get('/', [SuperAdminDashboardController::class, 'index'])->name('dashboard');
+        Route::get('users', [SuperAdminDashboardController::class, 'manageUsers'])->name('users.index');
+        Route::put('users/{user}/activate', [SuperAdminDashboardController::class, 'activateUser'])->name('users.activate');
+        Route::put('users/{user}/deactivate', [SuperAdminDashboardController::class, 'deactivateUser'])->name('users.deactivate');
+        Route::get('logs', [SuperAdminDashboardController::class, 'viewLogs'])->name('logs.index');
+        Route::get('logs/download', [SuperAdminDashboardController::class, 'downloadLogs'])->name('logs.download');
+        Route::get('backup', [SuperAdminDashboardController::class, 'backupDataIndex'])->name('backup.index');
+        Route::post('backup/create', [SuperAdminDashboardController::class, 'createBackup'])->name('backup.create');
+        Route::get('backup/download/{filename}', [SuperAdminDashboardController::class, 'downloadBackup'])->name('backup.download');
+        Route::delete('backup/delete/{filename}', [SuperAdminDashboardController::class, 'deleteBackup'])->name('backup.delete');
+
+        Route::resource('ndis-businesses', NdisBusinessController::class);
+
+        Route::get('support-coordinators', [SuperAdminDashboardController::class, 'manageSupportCoordinators'])->name('support-coordinators.index');
+        Route::put('support-coordinators/{coordinator}/approve', [SuperAdminDashboardController::class, 'approveSupportCoordinator'])->name('support-coordinators.approve');
+        Route::put('support-coordinators/{coordinator}/reject', [SuperAdminDashboardController::class, 'rejectSupportCoordinator'])->name('support-coordinators.reject');
+    });
+
+    // --- General Dashboard & Role-Based Redirection ---
     Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->middleware('verified')->name('dashboard');
+        $user = Auth::user();
 
-    Route::get('/indiv-dashboard', [IndividualDashboardController::class, 'index'])
-        ->middleware('verified')
-        ->name('indiv.dashboard');
+        if ($user->role === 'admin') {
+            return redirect()->route('superadmin.dashboard');
+        } elseif ($user->role === 'coordinator') {
+            // Eager load supportCoordinator to prevent N+1 queries if not already loaded
+            $user->loadMissing('supportCoordinator');
+            if ($user->supportCoordinator && $user->supportCoordinator->status === 'verified') {
+                return redirect()->route('sc-dashboard'); // Redirect to coordinator dashboard
+            } else {
+                // Redirect to the new pending approval page if email verified but not admin approved
+                return redirect()->route('coordinator.account.pending-approval');
+            }
+        } elseif ($user->role === 'participant') {
+            if ($user->profile_completed) {
+                return redirect()->route('indiv.dashboard');
+            } else {
+                return redirect()->route('profile.complete.show');
+            }
+        }
+        // Fallback for any other roles or unexpected scenarios
+        return view('dashboard'); // A generic dashboard if none match or for initial setup
+    })->name('dashboard');
 
-    // Super Admin Dashboard specific direct route (if you still want /sa-dashboard for direct access)
-    // The role check is handled internally by SuperAdminDashboardController
-    Route::get('/sa-dashboard', [SuperAdminDashboardController::class, 'index'])
-        ->middleware('verified') // Keep verified if you want to enforce email verification
-        ->name('sa.dashboard');
 
-    // Custom Dashboards for other roles (example if they use simple views and no specific middleware)
+    // --- Participant Panel Routes (Require Profile Completion) ---
+    Route::middleware('profile.complete.check')->group(function () {
+        // Individual Participant Dashboard
+        Route::get('/indiv-dashboard', [IndividualDashboardController::class, 'index'])
+            ->middleware('role:participant')
+            ->name('indiv.dashboard');
+
+        // User Profile Management (Breeze default profile routes)
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+        // Add any other participant-specific routes that require a complete profile here.
+    });
+
+    // --- Support Coordinator Routes (Require Admin Approval) ---
+    // Route for the "Waiting for Admin Approval" page for coordinators
+    Route::get('/coordinator/account/pending-approval', function () {
+        return view('auth.coordinator-pending-approval');
+    })->name('coordinator.account.pending-approval');
+
+    // Support Coordinator Dashboard and other specific routes
+    // ONLY accessible if email is verified AND admin approved.
     Route::get('/sc-dashboard', function () {
-        return view('supcoor/sc-dashboard');
-    })->name('sc-dashboard');
+        // You might want a dedicated controller for this eventually
+        return view('supcoor.sc-dashboard');
+    })->middleware('role:coordinator', 'coordinator.approved')->name('sc-dashboard');
 
-    // Participant Profile Completion
-    Route::get('/profile/complete', [CompleteParticipantProfileController::class, 'create'])
-        ->middleware('verified')
-        ->name('profile.complete.show');
-    Route::post('/profile/complete', [CompleteParticipantProfileController::class, 'store'])
-        ->middleware('verified')
-        ->name('profile.complete');
 
-    // User Profile Management (Breeze default profile routes)
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    // Removed the direct '/sa-dashboard' route as it's handled by the general '/dashboard' redirection now.
 });
 
 // Include all standard authentication routes from Breeze.
+// This is crucial for verification.notice, verification.verify, etc.
 require __DIR__.'/auth.php';

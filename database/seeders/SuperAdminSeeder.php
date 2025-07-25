@@ -59,7 +59,7 @@ class SuperAdminSeeder extends Seeder
                 'last_name' => 'Owen',
                 'email' => 'indiv@silmatch.org',
                 'password' => Hash::make('sil-indiv25'), // Always hash passwords!
-                'role' => 'coordinator', // Ensure this matches your 'admin' enum value
+                'role' => 'participant', // Ensure this matches your 'admin' enum value
                 'email_verified_at' => Carbon::now(), // Mark as verified
                 'profile_completed' => false, 
                 'is_representative' => false,

@@ -13,13 +13,10 @@ class Relative extends Model
         'participant_id',
         'name',
         'relationship_to_participant',
-        'phone',
-        'email',
+        'phone', // Ensure this is fillable
+        'email', // Ensure this is fillable
     ];
 
-    /**
-     * Get the participant that this relative is associated with.
-     */
     public function participant()
     {
         return $this->belongsTo(Participant::class);

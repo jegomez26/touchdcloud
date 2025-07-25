@@ -2,204 +2,175 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 use App\Models\Participant;
 use App\Models\SupportCoordinator;
-use App\Models\Provider;
-use App\Models\User;
-use App\Models\Relative; // Make sure this is imported if you're creating Relative in this flow
-use App\Models\NdisBusiness; // If you plan to create NDIS Business in this flow
-use Illuminate\Validation\ValidationException;
-use Illuminate\Routing\Controller; // Required for $this->middleware()
-use Illuminate\Support\Facades\Log; // Required for Log::error()
+use App\Models\Provider; // Ensure this is imported if used
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule; // Ensure this is imported if you use Rule::in
 
 class ProfileCompletionController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(['auth', 'verified']);
-    }
+    // ... (showCompleteProfileForm method) ...
 
     public function complete(Request $request)
     {
         $user = Auth::user();
 
-        if ($user->profile_completed) {
-            return redirect()->route('dashboard')->with('status', 'Your profile is already complete!');
+        // Initialize variables for different profiles
+        $participant = null;
+        $coordinator = null;
+        $provider = null;
+
+        // Fetch existing profile data if available
+        if ($user->role === 'participant') {
+            $participant = $user->participant()->first();
+        } elseif ($user->role === 'coordinator') {
+            $coordinator = $user->supportCoordinator()->first();
+        } elseif ($user->role === 'provider') {
+            $provider = $user->provider()->first();
         }
 
-        $rules = [];
-        $data = $request->all(); // Consider only specific fields from request
+        // Define validation rules based on user role
+        $rules = [
+            // Common rules, if any
+        ];
 
         switch ($user->role) {
             case 'participant':
                 $rules = [
-                    'first_name' => ['required', 'string', 'max:255'],
-                    'middle_name' => ['nullable', 'string', 'max:255'],
-                    'last_name' => ['required', 'string', 'max:255'],
-                    'birthday' => ['required', 'date'],
-                    'disability_type' => ['required', 'string', 'max:255'],
-                    'specific_disability' => ['nullable', 'string'],
+                    'participant_first_name' => ['required', 'string', 'max:255'],
+                    'participant_middle_name' => ['nullable', 'string', 'max:255'],
+                    'participant_last_name' => ['required', 'string', 'max:255'],
+                    'birthday' => ['required', 'date', 'before_or_equal:' . now()->subYears(18)->format('Y-m-d')], // Must be 18+
+                    'disability_type' => ['required', 'array'], // Expects an array
+                    'disability_type.*' => ['string', 'max:255'], // Each item in the array
+                    'specific_disability' => ['nullable', 'string', 'max:2000'],
                     'accommodation_type' => ['required', 'string', 'max:255'],
                     'street_address' => ['nullable', 'string', 'max:255'],
                     'suburb' => ['nullable', 'string', 'max:255'],
                     'state' => ['nullable', 'string', 'max:255'],
                     'post_code' => ['nullable', 'string', 'max:20'],
-                    'is_looking_hm' => ['required', 'boolean'],
-                    'has_accommodation' => ['required', 'boolean'],
-                    // For Relative: If you're saving it via the participant form
-                    'relative_name' => ['nullable', 'string', 'max:255'],
-                    'relationship_to_participant' => ['nullable', 'string', 'max:255'],
-                    'relative_phone' => ['nullable', 'string', 'max:20'],
-                    'relative_email' => ['nullable', 'email', 'max:255'],
-                    // Support Coordinator ID: if this is selected during profile completion
+                    'is_looking_hm' => ['boolean'],
+                    'has_accommodation' => ['boolean'],
                     'support_coordinator_id' => ['nullable', 'exists:support_coordinators,id'],
-                    'participant_code_name' => ['required', 'string', 'unique:participants,participant_code_name'],
+
+                    // *** VALIDATION RULES for Relative Fields - Ensure these match your form's 'name' attributes ***
+                    'relative_name' => ['nullable', 'string', 'max:255'],
+                    'relative_phone' => ['nullable', 'string', 'max:20'], // Assuming phone number can be string
+                    'relative_email' => ['nullable', 'email', 'max:255'],
+                    // The form field is 'relationship_to_participant'
+                    'relationship_to_participant' => ['nullable', 'string', 'max:255'],
                 ];
                 break;
 
             case 'coordinator':
                 $rules = [
-                    'first_name' => ['required', 'string', 'max:255'],
-                    'middle_name' => ['nullable', 'string', 'max:255'],
-                    'last_name' => ['required', 'string', 'max:255'],
-                    'ndis_business_id' => ['required', 'exists:ndis_businesses,id'],
-                    'sup_coor_code_name' => ['required', 'string', 'unique:support_coordinators,sup_coor_code_name'],
-                    'sup_coor_image' => ['nullable', 'image', 'max:2048'], // For image upload
-                    // Status and verification_notes are usually set by admin, not user
+                    'company_name' => ['required', 'string', 'max:255'],
+                    'abn' => ['required', 'string', 'max:11'], // ABN is 11 digits
+                    'website' => ['nullable', 'url', 'max:255'],
+                    'phone_number' => ['nullable', 'string', 'max:20'],
+                    'email' => ['required', 'email', 'max:255'],
+                    // 'first_name', 'last_name' are for the User model, not SupportCoordinator
                 ];
                 break;
 
             case 'provider':
                 $rules = [
                     'company_name' => ['required', 'string', 'max:255'],
-                    'abn' => ['required', 'string', 'digits:11', 'unique:providers,abn'],
-                    'plan' => ['required', 'string', 'in:basic,standard,advanced'], // Example plans
-                    'provider_code_name' => ['required', 'string', 'unique:providers,provider_code_name'],
-                    'provider_logo' => ['nullable', 'image', 'max:2048'], // For logo upload
-                    'contact_email' => ['required', 'email', 'max:255'],
-                    'contact_phone' => ['nullable', 'string', 'max:20'],
-                    'address' => ['nullable', 'string', 'max:255'],
-                    'suburb' => ['nullable', 'string', 'max:255'],
-                    'state' => ['nullable', 'string', 'max:255'],
-                    'post_code' => ['nullable', 'string', 'max:20'],
+                    'abn' => ['required', 'string', 'max:11'],
+                    'website' => ['nullable', 'url', 'max:255'],
+                    'phone_number' => ['nullable', 'string', 'max:20'],
+                    'email' => ['required', 'email', 'max:255'],
+                    'service_type' => ['required', 'string', Rule::in(['SDA', 'SIL', 'Both'])],
+                    'has_vacancies' => ['boolean'],
+                    'description' => ['nullable', 'string', 'max:2000'],
                 ];
-                break;
-
-            default:
-                // Minimal validation for unexpected roles
                 break;
         }
 
-        $request->validate($rules);
-
         try {
+            $validatedData = $request->validate($rules);
+
+            // Update User model (first_name, last_name only for coordinator/provider)
+            if ($user->role === 'coordinator' || $user->role === 'provider') {
+                $user->update([
+                    'first_name' => $validatedData['first_name'], // Assuming these come from your coordinator/provider forms
+                    'last_name' => $validatedData['last_name'],
+                ]);
+            }
+
+            // Update specific profile based on role
             switch ($user->role) {
                 case 'participant':
+                    // If a representative is completing the profile for a participant,
+                    // the participant's `representative_user_id` should be the representative's user ID.
+                    // The `added_by_user_id` should also be the representative's user ID.
+                    // If the participant is self-registering, `representative_user_id` is null,
+                    // and `added_by_user_id` is the participant's user ID.
+
                     $participantData = [
-                        'first_name' => $request->first_name,
-                        'middle_name' => $request->middle_name,
-                        'last_name' => $request->last_name,
-                        'birthday' => $request->birthday,
-                        'disability_type' => $request->disability_type,
-                        'specific_disability' => $request->specific_disability,
-                        'accommodation_type' => $request->accommodation_type,
-                        'street_address' => $request->street_address,
-                        'suburb' => $request->suburb,
-                        'state' => $request->state,
-                        'post_code' => $request->post_code,
-                        'is_looking_hm' => $request->boolean('is_looking_hm'), // Cast boolean from request
-                        'has_accommodation' => $request->boolean('has_accommodation'), // Cast boolean from request
-                        'support_coordinator_id' => $request->support_coordinator_id,
-                        'participant_code_name' => $request->participant_code_name,
-                        'added_by_user_id' => $user->id, // The user completing the profile is the one who "added" it
+                        'first_name' => $validatedData['participant_first_name'],
+                        'middle_name' => $validatedData['participant_middle_name'] ?? null,
+                        'last_name' => $validatedData['participant_last_name'],
+                        'birthday' => $validatedData['birthday'],
+                        'disability_type' => json_encode($validatedData['disability_type']), // Ensure this is cast as 'array' in Participant model
+                        'specific_disability' => $validatedData['specific_disability'] ?? null,
+                        'accommodation_type' => $validatedData['accommodation_type'],
+                        'street_address' => $validatedData['street_address'] ?? null,
+                        'suburb' => $validatedData['suburb'] ?? null,
+                        'state' => $validatedData['state'] ?? null,
+                        'post_code' => $validatedData['post_code'] ?? null,
+                        'is_looking_hm' => $validatedData['is_looking_hm'] ?? false,
+                        'has_accommodation' => $validatedData['has_accommodation'] ?? false,
+                        'support_coordinator_id' => $validatedData['support_coordinator_id'] ?? null,
+                        'added_by_user_id' => $user->id, // The user who is logged in and adding/completing the profile
+
+                        // Determine representative_user_id:
+                        // If the current user is a representative, they are the representative for this participant.
+                        // If the current user is NOT a representative, then the participant *is* the user, so no separate representative.
+                        'representative_user_id' => $user->is_representative ? $user->id : null,
+
+                        // *** These are the crucial lines! ***
+                        // Ensure keys here match your Participant model's $fillable attributes
+                        // and their values are taken from $validatedData using the form's 'name' attributes.
+                        'relative_name' => $validatedData['relative_name'] ?? null,
+                        'relative_phone' => $validatedData['relative_phone'] ?? null,
+                        'relative_email' => $validatedData['relative_email'] ?? null,
+                        // Map the form's 'relationship_to_participant' to the DB column 'relative_relationship'
+                        'relative_relationship' => $validatedData['relationship_to_participant'] ?? null,
                     ];
 
-                    $participant = Participant::updateOrCreate(
-                        ['user_id' => $user->id],
+                    
+                    Participant::updateOrCreate(
+                        ['user_id' => $user->id], // Use the current user's ID to find/create the participant record
                         $participantData
                     );
-
-                    // If you're using a dedicated Relative model and want to create/update it here
-                    if ($request->filled('relative_name')) {
-                        Relative::updateOrCreate(
-                            ['participant_id' => $participant->id],
-                            [
-                                'name' => $request->relative_name,
-                                'relationship_to_participant' => $request->relationship_to_participant,
-                                'phone' => $request->relative_phone,
-                                'email' => $request->relative_email,
-                            ]
-                        );
-                    }
                     break;
 
                 case 'coordinator':
-                    $coordinatorData = [
-                        'first_name' => $request->first_name,
-                        'middle_name' => $request->middle_name,
-                        'last_name' => $request->last_name,
-                        'ndis_business_id' => $request->ndis_business_id,
-                        'sup_coor_code_name' => $request->sup_coor_code_name,
-                        // status and verification_notes are usually managed by admin after submission
-                        // For image upload, you'd add logic here
-                    ];
-
-                    // Handle sup_coor_image upload
-                    if ($request->hasFile('sup_coor_image')) {
-                        $imagePath = $request->file('sup_coor_image')->store('coordinator_images', 'public');
-                        $coordinatorData['sup_coor_image'] = $imagePath;
-                    }
-
-                    SupportCoordinator::updateOrCreate(
-                        ['user_id' => $user->id],
-                        $coordinatorData
-                    );
+                    // ... (Coordinator update logic) ...
                     break;
 
                 case 'provider':
-                    $providerData = [
-                        'company_name' => $request->company_name,
-                        'abn' => $request->abn,
-                        'plan' => $request->plan,
-                        'provider_code_name' => $request->provider_code_name,
-                        'contact_email' => $request->contact_email,
-                        'contact_phone' => $request->contact_phone,
-                        'address' => $request->address,
-                        'suburb' => $request->suburb,
-                        'state' => $request->state,
-                        'post_code' => $request->post_code,
-                    ];
-
-                    // Handle provider_logo upload
-                    if ($request->hasFile('provider_logo')) {
-                        $logoPath = $request->file('provider_logo')->store('provider_logos', 'public');
-                        $providerData['provider_logo'] = $logoPath;
-                    }
-
-                    Provider::updateOrCreate(
-                        ['user_id' => $user->id],
-                        $providerData
-                    );
+                    // ... (Provider update logic) ...
                     break;
             }
 
-            // Mark user profile as completed
+            // Mark profile as completed for the current user
             $user->profile_completed = true;
-            dd($user);
-            $user->save(); // This is the save() method you mentioned. It should work fine on the User model.
+            $user->save();
 
-            return redirect()->route('dashboard')->with('status', 'Profile completed successfully!');
+            return redirect()->route('dashboard')->with('success', 'Profile completed successfully!');
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
-            Log::error('Profile completion failed for user ' . $user->id . ': ' . $e->getMessage());
-            // You might want to also log the stack trace for more detailed debugging
-            // Log::error('Stack trace: ' . $e->getTraceAsString());
-
-            throw ValidationException::withMessages([
-                'profile_completion_error' => ['There was an issue completing your profile. Please try again.'],
-            ])->redirectTo(route('dashboard'));
+            \Log::error('Profile completion error: ' . $e->getMessage(), ['exception' => $e]);
+            return back()->with('error', 'An unexpected error occurred. Please try again.')->withInput();
         }
     }
 }
