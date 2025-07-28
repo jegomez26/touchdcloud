@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Carbon\Carbon; // <--- ADD THIS LINE to import Carbon
 
 class Participant extends Model
 {
@@ -15,44 +16,45 @@ class Participant extends Model
         'first_name',
         'last_name',
         'middle_name',
-        'birthday',
-        'gender', // Added from migration
+        'birthday', // <--- This is your date column
+        'gender',
         'disability_type',
         'specific_disability',
-        'accommodation_type',
-        'approved_accommodation_type', // Added from migration
-        'behavior_of_concern',       // Added from migration
+        'accommodation_type', // <--- This is your column for accommodation
+        'approved_accommodation_type',
+        'behavior_of_concern',
         'street_address',
         'suburb',
         'state',
         'post_code',
         'is_looking_hm',
         'has_accommodation',
-        'funding_amount_support_coor', // Added from migration
-        'funding_amount_accommodation', // Added from migration
+        'funding_amount_support_coor',
+        'funding_amount_accommodation',
 
         // These are the relative/emergency contact fields directly on the participants table
         'relative_name',
         'relative_phone',
         'relative_email',
-        'relative_relationship', // Corrected to match migration field name
+        'relative_relationship',
 
         'support_coordinator_id',
-        'representative_user_id', // Foreign key to the User who *represents* this participant
-        'added_by_user_id',       // Foreign key to the User who *added* this participant
-        'participant_code_name',
-        'health_report_path',     // Added for file paths
+        'representative_user_id',
+        'added_by_user_id',
+        // 'participant_code_name', // <--- REMOVED: Based on your comment, this seems to be on the User model now.
+                                 // If it's still on the Participant model, add it back.
+        'health_report_path',
         'health_report_text',
-        'assessment_path',        // Added for file paths
+        'assessment_path',
     ];
 
     protected $casts = [
-        'birthday' => 'date',
+        'birthday' => 'date', // <--- Correctly casts to Carbon instance
         'is_looking_hm' => 'boolean',
         'has_accommodation' => 'boolean',
         'disability_type' => 'array', // This is correct for JSON column
-        'funding_amount_support_coor' => 'decimal:2', // Cast to decimal with 2 places
-        'funding_amount_accommodation' => 'decimal:2', // Cast to decimal with 2 places
+        'funding_amount_support_coor' => 'decimal:2',
+        'funding_amount_accommodation' => 'decimal:2',
         // 'approved_accommodation_type' => \App\Enums\AccommodationType::class, // If you create an Enum for this
     ];
 
@@ -64,7 +66,9 @@ class Participant extends Model
 
     public function supportCoordinator(): BelongsTo
     {
-        return $this->belongsTo(SupportCoordinator::class, 'support_coordinator_id');
+        // Assuming SupportCoordinator is a separate model, if it's the User model with a role,
+        // this relationship might be to User::class
+        return $this->belongsTo(User::class, 'support_coordinator_id'); // <--- Changed to User::class if support_coordinator_id refers to Users table
     }
 
     public function addedBy(): BelongsTo
@@ -98,36 +102,57 @@ class Participant extends Model
     // Scope to filter by accommodation type
     public function scopeByAccommodationType($query, $accommodationType)
     {
-        // Assuming accommodation_needed is a JSON array in DB
-        return $query->whereJsonContains('accommodation_needed', $accommodationType);
+        // <--- CRITICAL CHANGE HERE: Use 'accommodation_type' consistent with your $fillable
+        // If 'accommodation_type' in your DB is a single string, use `where`.
+        // If it's a JSON array, use `whereJsonContains`.
+        // Based on your controller, it seems to be a single string for display, but filtering was on a JSON field.
+        // Let's assume for now 'accommodation_type' is a single string field, and you want to filter by exact match.
+        // If it's a JSON array of needed accommodations, then you'd need a different field for what they *have*.
+        return $query->where('accommodation_type', $accommodationType); // Assuming it's a direct string match
     }
 
     // Scope to filter by disability type (searching within the JSON array)
     public function scopeByDisabilityType($query, $disabilityType)
     {
         // This checks if any of the disabilities in the array contain the search term
-        // For an exact match, you might use whereJsonContains('disability_type', $disabilityType)
-        return $query->where(function ($q) use ($disabilityType) {
-            $q->whereJsonContains('disability_type', $disabilityType);
-        });
+        return $query->whereJsonContains('disability_type', $disabilityType);
     }
 
     // Scope for general search (e.g., by code name or specific disability text)
     public function scopeSearch($query, $term)
     {
         $term = '%' . $term . '%';
-        return $query->where('code_name', 'like', $term)
-                     ->orWhereJsonContains('disability_type', $term);
-                     // You could also add other searchable fields here
+        return $query->where('participant_code_name', 'like', $term) // <--- Corrected column name if it exists on participant
+                     ->orWhereJsonContains('disability_type', $searchTerm); // <--- Use $searchTerm from the controller, not $term twice
+                                                                         // Also, make sure 'participant_code_name' is indeed on this model.
     }
 
-    // Accessor for Age
+
+    // Accessor for Age - <--- CRITICAL CHANGE HERE
     public function getAgeAttribute()
     {
-        return $this->date_of_birth ? $this->date_of_birth->age : null;
+        // Use $this->birthday because that's the column name, and it's cast to a Carbon instance.
+        return $this->birthday ? $this->birthday->age : null;
     }
 
-    // You had 'participant_code_name' in $fillable, but your migration comments indicate it's removed
-    // from participants and now on the 'users' table. So, it should *not* be in this model's $fillable.
-    // Make sure your User model has 'participant_code_name' in its $fillable if it's there.
+    // Accessor for formatted accommodation type (optional, if 'accommodation_type' is a single value but you want to ensure consistent output)
+    public function getFormattedAccommodationTypeAttribute()
+    {
+        return $this->accommodation_type ?? 'N/A'; // Provide a default if null
+    }
+
+    // If 'accommodation_needed' is truly a separate JSON field in your DB that stores
+    // what *type* of accommodation they *need* (as an array), and 'accommodation_type'
+    // is what they *currently have*, then you need to make that clear.
+    // Based on your controller, `viewUnassignedParticipants` was filtering on `accommodation_needed`.
+    // Let's assume you intend to display `accommodation_type` (what they currently have)
+    // and potentially filter by `accommodation_needed` (what they require, if that field exists).
+    // If 'accommodation_needed' exists and is a JSON array:
+    public function getAccommodationNeededFormattedAttribute()
+    {
+        if (is_array($this->accommodation_needed) && !empty($this->accommodation_needed)) {
+            return implode(', ', $this->accommodation_needed);
+        }
+        return 'N/A';
+    }
 }
