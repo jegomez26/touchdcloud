@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Participant extends Model
 {
@@ -41,6 +42,7 @@ class Participant extends Model
         'added_by_user_id',       // Foreign key to the User who *added* this participant
         'participant_code_name',
         'health_report_path',     // Added for file paths
+        'health_report_text',
         'assessment_path',        // Added for file paths
     ];
 
@@ -55,24 +57,74 @@ class Participant extends Model
     ];
 
     // Relationships
-    public function user()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function supportCoordinator()
+    public function supportCoordinator(): BelongsTo
     {
-        return $this->belongsTo(SupportCoordinator::class);
+        return $this->belongsTo(SupportCoordinator::class, 'support_coordinator_id');
     }
 
-    public function addedBy()
+    public function addedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'added_by_user_id');
     }
 
-    public function representativeUser()
+    public function representativeUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'representative_user_id');
+    }
+
+    // Scope to filter participants without a support coordinator
+    public function scopeWithoutSupportCoordinator($query)
+    {
+        return $query->whereNull('support_coordinator_id');
+    }
+
+    // Scope to filter by state
+    public function scopeByState($query, $state)
+    {
+        return $query->where('state', $state);
+    }
+
+    // Scope to filter by suburb
+    public function scopeBySuburb($query, $suburb)
+    {
+        return $query->where('suburb', 'like', '%' . $suburb . '%');
+    }
+
+    // Scope to filter by accommodation type
+    public function scopeByAccommodationType($query, $accommodationType)
+    {
+        // Assuming accommodation_needed is a JSON array in DB
+        return $query->whereJsonContains('accommodation_needed', $accommodationType);
+    }
+
+    // Scope to filter by disability type (searching within the JSON array)
+    public function scopeByDisabilityType($query, $disabilityType)
+    {
+        // This checks if any of the disabilities in the array contain the search term
+        // For an exact match, you might use whereJsonContains('disability_type', $disabilityType)
+        return $query->where(function ($q) use ($disabilityType) {
+            $q->whereJsonContains('disability_type', $disabilityType);
+        });
+    }
+
+    // Scope for general search (e.g., by code name or specific disability text)
+    public function scopeSearch($query, $term)
+    {
+        $term = '%' . $term . '%';
+        return $query->where('code_name', 'like', $term)
+                     ->orWhereJsonContains('disability_type', $term);
+                     // You could also add other searchable fields here
+    }
+
+    // Accessor for Age
+    public function getAgeAttribute()
+    {
+        return $this->date_of_birth ? $this->date_of_birth->age : null;
     }
 
     // You had 'participant_code_name' in $fillable, but your migration comments indicate it's removed

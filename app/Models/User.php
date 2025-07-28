@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait; // Correct alias, but often not needed if implementing the interface directly
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class User extends Authenticatable implements MustVerifyEmail // Implement the interface
 {
@@ -91,36 +93,41 @@ class User extends Authenticatable implements MustVerifyEmail // Implement the i
     /**
      * Get the participant associated with the user.
      */
-    public function participant()
+    public function participant(): HasOne
     {
-        return $this->hasOne(Participant::class);
+        return $this->hasOne(Participant::class, 'user_id');
     }
 
     /**
      * Get the participants that this user (as a representative) represents.
      * Assuming 'representative_user_id' is the foreign key on the 'participants' table.
      */
-    public function participantsRepresented()
+    public function participantsRepresented(): HasMany
     {
         return $this->hasMany(Participant::class, 'representative_user_id');
+    }
+
+    public function participantManaged(): HasMany
+    {
+        return $this->hasMany(Participant::class, 'support_coordinator_id');
     }
 
     /**
      * Get the support coordinator record associated with the user.
      */
-    public function supportCoordinator()
+    public function supportCoordinator(): HasOne
     {
-        return $this->hasOne(SupportCoordinator::class);
+        return $this->hasOne(SupportCoordinator::class, 'user_id');
     }
 
     /**
      * Get the provider record associated with the user.
      */
-    public function provider()
+    public function provider(): HasOne
     {
         // Assuming you have a Provider model for this relationship
         // If 'Provider' maps directly to 'NDISBusiness', you might want to rename this method.
-        return $this->hasOne(Provider::class); // Make sure this Provider model exists or is imported
+        return $this->hasOne(Provider::class, 'user_id'); // Make sure this Provider model exists or is imported
     }
 
     /**

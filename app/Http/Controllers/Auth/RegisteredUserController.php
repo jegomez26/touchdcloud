@@ -148,6 +148,8 @@ class RegisteredUserController extends Controller
             'status' => 'pending_verification', // Initial status
         ]);
 
+        Auth::login($user);
+
         event(new Registered($user));
 
         // Redirect to Laravel's default email verification notice page
