@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\IndividualDashboardController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\CoordinatorMessageController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\NdisBusinessController;
 use App\Http\Controllers\CompleteParticipantProfileController;
@@ -160,8 +161,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('providers/{ndisBusiness}', [SupportCoordinatorDashboardController::class, 'showProvider'])->name('providers.show');
 
         Route::get('/unassigned-participants', [SupportCoordinatorDashboardController::class, 'viewUnassignedParticipants'])->name('supcoor.unassigned_participants');
-    Route::post('/send-message/{participant}', [SupportCoordinatorDashboardController::class, 'sendMessage'])->name('supcoor.send_message');
+        // Route::post('/send-message/{participant}', [SupportCoordinatorDashboardController::class, 'sendMessage'])->name('supcoor.send_message');
 
+        Route::post('/send-message/{participantId}', [CoordinatorMessageController::class, 'sendMessageToParticipant'])
+         ->name('send_message_to_participant');
         // Other SC-specific features can be added here
         // Route::get('appointments', [SupportCoordinatorAppointmentController::class, 'index'])->name('appointments.index');
         // Route::get('reports', [SupportCoordinatorReportController::class, 'index'])->name('reports.index');
