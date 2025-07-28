@@ -92,21 +92,9 @@
                             class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150 choices-js-select">
                         @php
                             $disabilityOptions = [
-                                'Intellectual disability',
-                                'Autism Spectrum Disorder',
-                                'Cerebral palsy',
-                                'Genetic/chromosomal syndromes (Angelman, Rett, etc.)',
-                                'Spinal cord/brain injuries (paraplegia, quadriplegia, tetraplegia, hemiplegia)',
-                                'Permanent blindness',
-                                'Hearing impairment',
-                                'Deaf-blindness',
-                                'Physical disabilities (MS, muscular dystrophy, etc.)',
-                                'Neurological conditions (stroke, brain injury)',
-                                'Psychosocial (mental health) disabilities',
-                                'Developmental delays (children)',
-                                'Communication disorders',
-                                'Specific learning disorders & ADHD',
-                                'Other sensory disabilities',
+                                'Physical Disability', 'Intellectual Disability', 'Sensory Disability',
+            'Psychosocial Disability', 'Autism Spectrum Disorder', 'Neurological Disability',
+            'Other'
                             ];
 
                             // Get previously selected values from old input or participant data
@@ -125,20 +113,43 @@
                     @enderror
                 </div>
                 <div>
-                    <label for="accommodation_type" class="block text-sm font-medium text-gray-700 mb-1">Accommodation Type</label>
-                    <select name="accommodation_type" id="accommodation_type"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150">
-                        <option value="" selected disabled>Select Accommodation Type</option>
-                        @foreach(['Specialist Disability Accommodation (SDA)', 'Supported Independent Living (SIL)', 'Community Participation'] as $accommType)
-                            <option value="{{ $accommType }}" {{ old('accommodation_type', $participant->accommodation_type ?? '') == $accommType ? 'selected' : '' }}>
-                                {{ $accommType }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('accommodation_type')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+    <label for="accommodation_type" class="block text-sm font-medium text-gray-700 mb-1">Accommodation Type</label>
+    <select name="accommodation_type" id="accommodation_type"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150">
+        <option value="" disabled {{ old('accommodation_type', $participant->accommodation_type ?? '') == '' ? 'selected' : '' }}>Select Accommodation Type</option>
+
+        {{-- Supported Independent Living (SIL) --}}
+        <option value="Supported Independent Living (SIL)"
+            {{ old('accommodation_type', $participant->accommodation_type ?? '') == 'Supported Independent Living (SIL)' ? 'selected' : '' }}>
+            Supported Independent Living (SIL)
+        </option>
+
+        {{-- Specialist Disability Accommodation (SDA) Optgroup --}}
+        <optgroup label="Specialist Disability Accommodation (SDA)">
+            <option value="Improved Livability"
+                {{ old('accommodation_type', $participant->accommodation_type ?? '') == 'Improved Livability' ? 'selected' : '' }}>
+                Improved Livability
+            </option>
+            <option value="Fully Accessible"
+                {{ old('accommodation_type', $participant->accommodation_type ?? '') == 'Fully Accessible' ? 'selected' : '' }}>
+                Fully Accessible
+            </option>
+            <option value="High Physical Support"
+                {{ old('accommodation_type', $participant->accommodation_type ?? '') == 'High Physical Support' ? 'selected' : '' }}>
+                High Physical Support
+            </option>
+            <option value="Robust"
+                {{ old('accommodation_type', $participant->accommodation_type ?? '') == 'Robust' ? 'selected' : '' }}>
+                Robust
+            </option>
+        </optgroup>
+
+
+    </select>
+    @error('accommodation_type')
+        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+    @enderror
+</div>
             </div>
 
             <div>

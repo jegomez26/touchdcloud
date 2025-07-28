@@ -31,7 +31,6 @@
                     <a href="{{ route('home') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">Home</a>
                     <a href="{{ route('about') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">About Us</a>
                     <a href="{{ route('listings') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">Listings</a>
-                    <a href="{{ route('sc-dashboard') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300">Support Coordinator</a>
 
                     {{-- AUTHENTICATION LINKS --}}
                     @auth

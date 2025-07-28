@@ -9,7 +9,7 @@ use App\Http\Controllers\LocationController;
 use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\NdisBusinessController;
 use App\Http\Controllers\CompleteParticipantProfileController;
-use App\Http\Controllers\SupportCoordinatorDashboardController; // Assuming you'll have this eventually
+use App\Http\Controllers\SupportCoordinatorDashboardController; // Make sure this is imported
 
 // --- Public Routes ---
 // These routes are accessible to anyone, regardless of authentication or profile completion.
@@ -33,6 +33,10 @@ Route::get('/privacy-policy', function () {
     return view('policy');
 })->name('policy.show');
 
+Route::get('/sc-db', function () {
+    return view('supcoor/sc-dashboard');
+})->name('sc-db');
+
 Route::get('/get-suburbs/{state}', [LocationController::class, 'getSuburbs'])->name('get.suburbs');
 
 
@@ -53,9 +57,6 @@ Route::middleware('guest')->group(function () {
     // Provider Registration Routes
     Route::get('register/provider', [RegisteredUserController::class, 'createProvider'])->name('register.provider.create');
     Route::post('register/provider', [RegisteredUserController::class, 'storeProvider'])->name('register.provider.store');
-
-    // REMOVED: Route for "Account Not Active / Pending Admin Approval" page for coordinators
-    // This route should be protected by 'auth' and 'verified' middleware, so it cannot be in the 'guest' group.
 });
 
 
@@ -99,7 +100,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             // Eager load supportCoordinator to prevent N+1 queries if not already loaded
             $user->loadMissing('supportCoordinator');
             if ($user->supportCoordinator && $user->supportCoordinator->status === 'verified') {
-                return redirect()->route('sc-dashboard'); // Redirect to coordinator dashboard
+                return redirect()->route('sc.dashboard'); // Changed name for consistency
             } else {
                 // Redirect to the new pending approval page if email verified but not admin approved
                 return redirect()->route('coordinator.account.pending-approval');
@@ -112,7 +113,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             }
         }
         // Fallback for any other roles or unexpected scenarios
-        return view('dashboard'); // A generic dashboard if none match or for initial setup
+        return view('home'); // A generic dashboard if none match or for initial setup
     })->name('dashboard');
 
 
@@ -139,11 +140,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Support Coordinator Dashboard and other specific routes
     // ONLY accessible if email is verified AND admin approved.
-    Route::get('/sc-dashboard', function () {
-        // You might want a dedicated controller for this eventually
-        return view('supcoor.sc-dashboard');
-    })->middleware('role:coordinator', 'coordinator.approved')->name('sc-dashboard');
+    Route::prefix('sc')->middleware(['role:coordinator', 'coordinator.approved'])->name('sc.')->group(function () {
+        Route::get('/', [SupportCoordinatorDashboardController::class, 'index'])->name('dashboard');
 
+        // Participants management by Support Coordinator
+        Route::get('participants', [SupportCoordinatorDashboardController::class, 'listParticipants'])->name('participants.list');
+        Route::get('participants/create', [SupportCoordinatorDashboardController::class, 'createParticipant'])->name('participants.create');
+        Route::post('participants', [SupportCoordinatorDashboardController::class, 'storeParticipant'])->name('participants.store');
+        Route::get('participants/{participant}', [SupportCoordinatorDashboardController::class, 'showParticipant'])->name('participants.show');
+        Route::get('participants/{participant}/edit', [SupportCoordinatorDashboardController::class, 'editParticipant'])->name('participants.edit');
+        Route::put('participants/{participant}', [SupportCoordinatorDashboardController::class, 'updateParticipant'])->name('participants.update');
+        Route::delete('participants/{participant}', [SupportCoordinatorDashboardController::class, 'destroyParticipant'])->name('participants.destroy');
+
+        // Or you could use a resource controller for participants if appropriate
+        // Route::resource('participants', SupportCoordinatorParticipantController::class);
+
+        // NDIS Business/Provider Listing viewing for Support Coordinators
+        Route::get('providers', [SupportCoordinatorDashboardController::class, 'viewProviders'])->name('providers.index');
+        Route::get('providers/{ndisBusiness}', [SupportCoordinatorDashboardController::class, 'showProvider'])->name('providers.show');
+
+        Route::get('/unassigned-participants', [SupportCoordinatorDashboardController::class, 'viewUnassignedParticipants'])->name('supcoor.unassigned_participants');
+    Route::post('/send-message/{participant}', [SupportCoordinatorDashboardController::class, 'sendMessage'])->name('supcoor.send_message');
+
+        // Other SC-specific features can be added here
+        // Route::get('appointments', [SupportCoordinatorAppointmentController::class, 'index'])->name('appointments.index');
+        // Route::get('reports', [SupportCoordinatorReportController::class, 'index'])->name('reports.index');
+    });
 
     // Removed the direct '/sa-dashboard' route as it's handled by the general '/dashboard' redirection now.
 });

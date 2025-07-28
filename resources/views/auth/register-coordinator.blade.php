@@ -13,7 +13,7 @@
              minus the padding.
              **UPDATED:** `md:max-h-[85vh]` reduces the max height of the entire card on larger screens.
              `overflow-hidden` ensures nothing escapes this boundary and causes unwanted page scroll. --}}
-        <div class="relative w-full md:flex rounded-lg shadow-xl md:h-full **md:max-h-[85vh]** overflow-hidden" style="max-width: 1200px;">
+        <div class="relative w-full md:flex rounded-lg shadow-xl md:h-full md:max-h-[85vh] overflow-hidden" style="max-width: 1200px;">
 
             {{-- Left Column: Image/Illustration and Text --}}
             {{-- Hidden on small screens, flex column on medium and up.
@@ -111,48 +111,50 @@
                     {{-- Support Coordinator Details --}}
                     <h3 class="text-lg sm:text-xl font-extrabold text-custom-dark-teal border-b border-custom-light-grey-green pb-2 sm:pb-3 mb-3 sm:mb-4">Your Details (Support Coordinator)</h3>
 
-                    {{-- First Name --}}
-                    <div>
-                        <x-input-label for="first_name" :value="__('First Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                        <x-text-input type="text" name="first_name" id="first_name"
-                                    class="block w-full px-3 py-2 rounded-md shadow-sm
-                                            text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                            {{ $errors->has('first_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                    :value="old('first_name')" required autocomplete="given-name" />
-                        <x-input-error :messages="$errors->get('first_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
+                    {{-- First Name & Last Name (On one line) --}}
+                    <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+                        <div class="flex-1">
+                            <x-input-label for="first_name" :value="__('First Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                            <x-text-input type="text" name="first_name" id="first_name"
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                {{ $errors->has('first_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('first_name')" required autocomplete="given-name" />
+                            <x-input-error :messages="$errors->get('first_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
+                        </div>
+
+                        <div class="flex-1">
+                            <x-input-label for="last_name" :value="__('Last Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                            <x-text-input type="text" name="last_name" id="last_name"
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                {{ $errors->has('last_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('last_name')" required autocomplete="family-name" />
+                            <x-input-error :messages="$errors->get('last_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
+                        </div>
                     </div>
 
-                    {{-- Last Name --}}
-                    <div>
-                        <x-input-label for="last_name" :value="__('Last Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                        <x-text-input type="text" name="last_name" id="last_name"
-                                    class="block w-full px-3 py-2 rounded-md shadow-sm
-                                            text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                            {{ $errors->has('last_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                    :value="old('last_name')" required autocomplete="family-name" />
-                        <x-input-error :messages="$errors->get('last_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
-                    </div>
+                    {{-- Affiliated Company Name & ABN (On one line) --}}
+                    <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
+                        <div class="flex-1">
+                            <x-input-label for="company_name" :value="__('Affiliated Company Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                            <x-text-input type="text" name="company_name" id="company_name"
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                {{ $errors->has('company_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('company_name')" required />
+                            <x-input-error :messages="$errors->get('company_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
+                        </div>
 
-                    {{--- NEW: Affiliated Company Name (Text Field) ---}}
-                    <div>
-                        <x-input-label for="company_name" :value="__('Affiliated Company Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                        <x-text-input type="text" name="company_name" id="company_name"
-                                    class="block w-full px-3 py-2 rounded-md shadow-sm
-                                            text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                            {{ $errors->has('company_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                    :value="old('company_name')" required />
-                        <x-input-error :messages="$errors->get('company_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
-                    </div>
-
-                    {{--- NEW: ABN (Text Field) ---}}
-                    <div>
-                        <x-input-label for="abn" :value="__('ABN (Australian Business Number)')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                        <x-text-input type="text" name="abn" id="abn"
-                                    class="block w-full px-3 py-2 rounded-md shadow-sm
-                                            text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                            {{ $errors->has('abn') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                    :value="old('abn')" required />
-                        <x-input-error :messages="$errors->get('abn')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
+                        <div class="flex-1">
+                            <x-input-label for="abn" :value="__('ABN (Australian Business Number)')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                            <x-text-input type="text" name="abn" id="abn"
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                {{ $errors->has('abn') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('abn')" required />
+                            <x-input-error :messages="$errors->get('abn')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
+                        </div>
                     </div>
 
                     {{-- Email Address --}}
