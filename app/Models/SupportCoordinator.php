@@ -54,4 +54,9 @@ class SupportCoordinator extends Model
     {
         return $this->hasMany(Participant::class, 'support_coordinator_id');
     }
+
+    public function conversations()
+    {
+        return $this->hasMany(Conversation::class);
+    }
 }

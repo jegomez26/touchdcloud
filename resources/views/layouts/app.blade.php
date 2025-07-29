@@ -23,8 +23,7 @@
         <nav class="p-4 sticky top-5 z-50 rounded-full max-w-35 border border-solid shadow-lg" style="backdrop-filter: blur(5px); padding:10px; margin-left:50px; margin-right:50px; background-color: rgba(255, 255, 255, 0.2); border-color: rgba(206, 206, 206, 0.5);">
             <div class="container mx-auto flex justify-between items-center opacity-100">
                 <a href="{{ route('home') }}" class="text-3xl font-extrabold text-custom-dark-teal hover:text-custom-dark-olive transition duration-300">
-                    <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-10 inline-block align-middle mr-3">
-                    {{ config('app.name', 'TouchdCloud') }}
+                    <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SILMatch') }} Logo" class="h-10 inline-block align-middle mr-3">
                 </a>
 
                 <div class="flex items-center space-x-10">

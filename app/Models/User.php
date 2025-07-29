@@ -149,6 +149,16 @@ class User extends Authenticatable implements MustVerifyEmail // Implement the i
         }
     }
 
+        /**
+     * Get the user's full name.
+     *
+     * @return string
+     */
+    public function getNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Potential Redundancies / Clarifications
