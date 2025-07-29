@@ -5,10 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Touch D Cloud - Participant Dashboard</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {{-- Flatpickr CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script>
+        window.currentRouteName = "{{ Route::currentRouteName() }}";
+    </script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -255,7 +260,7 @@
         <div class="hidden md:flex items-center justify-between w-full">
             <a href="{{ route('home') }}" class="text-3xl font-extrabold text-[#33595a] hover:text-[#3e4732] transition duration-300">
                 <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }}" class="h-10 inline-block align-middle mr-3">
-                {{ config('app.name', 'TouchdCloud') }}
+                
             </a>
             <div class="flex items-center space-x-4 relative">
                 <div class="relative hidden lg:block">
@@ -329,15 +334,21 @@
             {{-- Navigation menu: this itself should not scroll --}}
             <nav class="space-y-1 overflow-y-auto pr-2" id="sidebar-nav-container"> {{-- Added overflow-y-auto and pr-2 here for explicit sidebar nav scrolling if needed --}}
                 <p class="text-xs font-semibold text-[#bcbabb] uppercase mb-2 px-4">Menu</p>
-                <button data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{ route('indiv.dashboard') }}" 
+                    data-active-route="indiv.dashboard"
+                    data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
-                </button>
-                <button data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                </a>
+                <a href="#" 
+                    data-active-route="#"
+                    data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
-                </button>
-                <button data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
-                </button>
+                </a>
+                <a href="{{ route('indiv.messages.inbox') }}" 
+                    data-active-route="indiv.messages.inbox"
+                    data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                </a>
                 
             </nav>
         </aside>
@@ -352,15 +363,15 @@
             </div>
             <nav class="space-y-1 overflow-y-auto pr-2" id="mobile-sidebar-nav-container">
                 <p class="text-xs font-semibold text-[#bcbabb] uppercase mb-2 px-4">Menu</p>
-                <button data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{ route('indiv.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
-                </button>
-                <button data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                </a>
+                <a href="#" data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
-                </button>
-                <button data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
-                </button>
+                </a>
+                <a href="{{ route('indiv.messages.inbox') }}" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                </a>
                 
             </nav>
         </aside>
@@ -427,7 +438,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Using a single variable for the mobile sidebar for clarity
             const mobileSidebar = document.getElementById('mobile-sidebar');
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const closeSidebarButton = document.getElementById('close-sidebar-button');
@@ -451,7 +461,6 @@
                     }
                 });
             }
-
 
             // Profile dropdown toggle
             if (profileMenuButton) {
@@ -480,9 +489,11 @@
                     profileDropdown.classList.add('hidden');
 
                     if (action === 'profile') {
-                        window.location.href = '{{ route('indiv.dashboard') }}';
+                        // This should ideally go to the main profile edit page, not the dashboard
+                        window.location.href = '{{ route('indiv.profile.edit') }}'; // Changed this line
                     } else if (action === 'settings') {
                         console.log('Navigating to settings...');
+                        // You'll need a route for settings if it's a separate page
                     } else if (action === 'logout') {
                         document.getElementById('logout-form').submit();
                     }
@@ -491,10 +502,18 @@
 
             // Event listeners for sidebar links
             sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    const sectionId = this.dataset.section;
-                    console.log(`Navigating to section: ${sectionId}`);
+                link.addEventListener('click', function(e) {
+                    // Prevent default anchor behavior only if not an actual href (e.g., if using data-section for AJAX)
+                    // For static pages, let the default href navigation occur
+                    // If you intend to load content via AJAX, keep e.preventDefault()
+                    // e.preventDefault(); // Uncomment if you use AJAX for content loading
 
+                    const targetHref = this.getAttribute('href');
+                    if (targetHref && targetHref !== '#') {
+                        window.location.href = targetHref; // Navigate to the specified URL
+                    }
+
+                    // Update active class immediately for visual feedback
                     sidebarLinks.forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
 
@@ -505,18 +524,41 @@
                 });
             });
 
-            const initialActiveSection = 'dashboard';
-            const initialLink = document.querySelector(`.sidebar-link[data-section="${initialActiveSection}"]`);
-            if (initialLink) {
-                initialLink.classList.add('active');
+            const currentRouteName = window.currentRouteName; // Get the current route name from the global variable
+
+            sidebarLinks.forEach(link => {
+                const activeRoutesData = link.getAttribute('data-active-route');
+                link.classList.remove('active'); // Always remove active class first
+
+                if (activeRoutesData) {
+                    const activeRoutes = activeRoutesData.split(','); // Split by comma if multiple routes
+                    if (activeRoutes.includes(currentRouteName)) {
+                        link.classList.add('active');
+                    }
+                    // Special handling for dashboard if it's the 'root' and other routes are children
+                    // This is less needed with data-active-route, but good for a 'default'
+                    else if (currentRouteName && currentRouteName.startsWith('indiv.dashboard') && link.getAttribute('data-section') === 'dashboard') {
+                        // For cases where 'indiv.dashboard.analytics' might activate 'dashboard' link
+                        link.classList.add('active');
+                    }
+                }
+            });
+
+            // The default active state for dashboard if no specific link matched
+            // This check is now less critical if data-active-route is comprehensive
+            // but can serve as a fallback.
+            if (!document.querySelector('.sidebar-link.active')) {
+                const dashboardLink = document.querySelector('.sidebar-link[data-section="dashboard"]');
+                if (dashboardLink) {
+                    dashboardLink.classList.add('active');
+                }
             }
 
+
             // --- Flatpickr Initialization ---
-            // Initialize all inputs with the 'flatpickr-input' class
-            flatpickr(".flatpickr-input", { // Changed selector to class
+            flatpickr(".flatpickr-input", {
                 dateFormat: "Y-m-d",
                 maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
-                // defaultDate is now automatically handled by the input's 'value' attribute
             });
             // --- End Flatpickr Initialization ---
 
@@ -526,36 +568,48 @@
             function showOverlay(overlayElement) {
                 if (overlayElement) {
                     overlayElement.classList.remove('opacity-0', 'pointer-events-none');
-                    overlayElement.querySelector('div').classList.remove('-translate-y-4', 'scale-95'); // Bring modal into view
+                    overlayElement.querySelector('div').classList.remove('-translate-y-4', 'scale-95');
                 }
             }
 
             function hideOverlay(overlayElement) {
                 if (overlayElement) {
                     overlayElement.classList.add('opacity-0', 'pointer-events-none');
-                    overlayElement.querySelector('div').classList.add('-translate-y-4', 'scale-95'); // Move modal out of view
+                    overlayElement.querySelector('div').classList.add('-translate-y-4', 'scale-95');
                 }
             }
 
-            // Show success overlay if present
-            if (successOverlay) {
+            // Show overlays if messages exist
+            if (successOverlay && '{{ session('success') }}') {
                 showOverlay(successOverlay);
-                setTimeout(() => hideOverlay(successOverlay), 3000); // Auto-close after 3 seconds
             }
-
-            // Show error overlay if present
-            if (errorOverlay) {
+            if (errorOverlay && '{{ session('error') }}') {
                 showOverlay(errorOverlay);
-                setTimeout(() => hideOverlay(errorOverlay), 5000); // Errors might need a bit longer to read (5 seconds)
             }
 
-            // Add event listeners for close buttons
+            // Close overlays
             document.querySelectorAll('.close-overlay').forEach(button => {
                 button.addEventListener('click', function() {
-                    const overlayToClose = this.closest('.fixed');
-                    hideOverlay(overlayToClose);
+                    const overlay = this.closest('[id$="-overlay"]');
+                    hideOverlay(overlay);
                 });
             });
+
+            // Close by clicking outside overlay content
+            if (successOverlay) {
+                successOverlay.addEventListener('click', function(event) {
+                    if (event.target === successOverlay) {
+                        hideOverlay(successOverlay);
+                    }
+                });
+            }
+            if (errorOverlay) {
+                errorOverlay.addEventListener('click', function(event) {
+                    if (event.target === errorOverlay) {
+                        hideOverlay(errorOverlay);
+                    }
+                });
+            }
         });
     </script>
 </body>

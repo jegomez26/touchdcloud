@@ -5,28 +5,29 @@
     <section class="relative h-screen flex items-center justify-center text-white overflow-hidden bg-cover bg-center"
         style="margin-top:-100px;">
         {{-- Parallax Layers --}}
-        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/Sunset.png'); background-size: 100vw auto" data-parallax-speed="1"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/Greens.png'); background-size: 100vw auto" data-parallax-speed="-1.3"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/BackHouse.png'); background-size: 100vw auto" data-parallax-speed="-1"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/FrontHouse.png'); background-size: 100vw auto" data-parallax-speed="-0.5"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-repeat: no-repeat; background-image: url('images/Boy_Girl.png'); background-size: 100vw auto" data-parallax-speed="0"></div>
+        {{-- Added custom classes for responsive background sizes --}}
+        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/Sunset.png');" data-parallax-speed="1"></div>
+        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/Greens.png');" data-parallax-speed="-1.3"></div>
+        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/BackHouse.png');" data-parallax-speed="-1"></div>
+        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/FrontHouse.png');" data-parallax-speed="-0.5"></div>
+        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/Boy_Girl.png');" data-parallax-speed="0"></div>
 
         {{-- Subtle gradient overlay for aesthetic depth and text readability using the new palette --}}
         <div class="absolute inset-0 bg-gradient-to-br from-[#33595a] via-[#3e4732] to-black opacity-0 z-10"></div>
 
         <div class="container mx-auto px-6 relative z-20 text-center">
             <h1 class="text-4xl sm:text-6xl lg:text-8xl font-extrabold leading-tight mb-6
-                        animate-fade-in-up drop-shadow-2xl tracking-tight">
+                         animate-fade-in-up drop-shadow-2xl tracking-tight">
                 Your <span class="block mt-4 text-[#cc8e45] transform hover:scale-105 transition-transform duration-300 ease-out">Journey to Independence</span> Starts Here
             </h1>
             <p class="text-lg sm:text-2xl text-[#f8f1e1] mb-12 max-w-5xl mx-auto
-                        animate-fade-in-up delay-200 drop-shadow-lg leading-relaxed">
+                         animate-fade-in-up delay-200 drop-shadow-lg leading-relaxed">
                 Touch D Cloud is your trusted partner for NDIS participant accommodation and support coordination. We empower you to live independently and comfortably, <span class="text-[#cc8e45] transition-transform duration-300 ease-out">every step of the way</span>.
             </p>
             <a href="{{ route('listings') }}"
                class="inline-block bg-[#cc8e45] text-white hover:bg-[#a67137] font-extrabold py-4 px-10 rounded-full text-xl sm:text-2xl shadow-2xl
-                      transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
-                      animate-fade-in-up delay-400 border-2 border-[#cc8e45] focus:outline-none focus:ring-4 focus:ring-[#cc8e45]">
+                           transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
+                           animate-fade-in-up delay-400 border-2 border-[#cc8e45] focus:outline-none focus:ring-4 focus:ring-[#cc8e45]">
                 Find Your Perfect Home <span class="ml-2">→</span>
             </a>
         </div>
@@ -39,8 +40,8 @@
             </h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 <div class="bg-white p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
-                            transform hover:-translate-y-4 border-b-8 border-[#cc8e45]
-                            group flex flex-col items-center animate-fade-in-left">
+                             transform hover:-translate-y-4 border-b-8 border-[#cc8e45]
+                             group flex flex-col items-center animate-fade-in-left">
                     <div class="bg-[#e1e7dd] rounded-full p-6 mb-8 group-hover:bg-[#bcbabb] transition-colors duration-300">
                         <img src="https://img.icons8.com/ios-filled/120/2563EB/home-page.png" alt="Home Icon"
                              class="w-28 h-28 object-contain filter drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300">
@@ -51,8 +52,8 @@
                     </p>
                 </div>
                 <div class="bg-white p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
-                            transform hover:-translate-y-4 border-b-8 border-[#33595a]
-                            group flex flex-col items-center animate-fade-in-up delay-200">
+                             transform hover:-translate-y-4 border-b-8 border-[#33595a]
+                             group flex flex-col items-center animate-fade-in-up delay-200">
                     <div class="bg-[#e1e7dd] rounded-full p-6 mb-8 group-hover:bg-[#bcbabb] transition-colors duration-300">
                         <img src="https://img.icons8.com/ios-filled/120/4F46E5/customer-support.png" alt="Support Icon"
                              class="w-28 h-28 object-contain filter drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300">
@@ -63,8 +64,8 @@
                     </p>
                 </div>
                 <div class="bg-white p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
-                            transform hover:-translate-y-4 border-b-8 border-[#3e4732]
-                            group flex flex-col items-center animate-fade-in-right delay-400">
+                             transform hover:-translate-y-4 border-b-8 border-[#3e4732]
+                             group flex flex-col items-center animate-fade-in-right delay-400">
                     <div class="bg-[#e1e7dd] rounded-full p-6 mb-8 group-hover:bg-[#bcbabb] transition-colors duration-300">
                         <img src="https://img.icons8.com/ios-filled/120/9333EA/medal.png" alt="Independence Icon"
                              class="w-28 h-28 object-contain filter drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300">
@@ -74,7 +75,7 @@
                         We empower NDIS participants to live fulfilling, independent lives by providing the right environment and comprehensive assistance.
                     </p>
                 </div>
-            </div>
+            </div> {{-- End grid --}}
         </div>
     </section>
 
@@ -91,10 +92,10 @@
 
                 {{-- Package 1: Community Access Plan --}}
                 <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col justify-between
-                            transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-left" style="margin-top: 300px; margin-bottom: 350px">
+                             transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-left relative" style="margin-top: 120px; margin-bottom: 440px">
                     <div class="mb-8">
                         {{-- Placeholder for Illustration 1 --}}
-                        <img src="images/Group01.png" class="absolute -top-10 left-1/2 -translate-x-1/2 -translate-y-1/2"> <h3 class="text-5xl font-extrabold text-[#33595a] mb-4" style="margin-top: 30px">Community Access Plan</h3>
+                        <img src="images/Group01.png" class="absolute -top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-50"> <h3 class="text-4xl font-extrabold text-[#33595a] mb-4" style="margin-top: -5px">Community Access Plan</h3>
                         <p class="text-lg text-[#bcbabb] mb-6">Small operations, easy start</p>
                         <hr class="border-t-2 border-[#f8f1e1] my-6">
                         <ul class="text-left text-lg text-[#3e4732] space-y-3">
@@ -104,18 +105,18 @@
                         </ul>
                     </div>
                     <a href="#" class="block w-full text-center bg-[#33595a] text-white font-bold py-4 px-6 rounded-full
-                                         hover:bg-[#3e4732] transition duration-300 ease-in-out shadow-lg
-                                         focus:outline-none focus:ring-4 focus:ring-[#bcbabb]">
+                                             hover:bg-[#3e4732] transition duration-300 ease-in-out shadow-lg
+                                             focus:outline-none focus:ring-4 focus:ring-[#bcbabb]">
                         Get Started
                     </a>
                 </div>
 
                 {{-- Package 2: Inclusive Living Plan --}}
                 <div class="bg-[#33595a] rounded-3xl shadow-2xl p-8 flex flex-col justify-between border-8 border-[#cc8e45]
-                            transform hover:scale-[1.05] transition-all duration-500 animate-fade-in-up delay-200" style="margin-top: 250px; margin-bottom: 350px">
+                             transform hover:scale-[1.05] transition-all duration-500 animate-fade-in-up delay-200 relative" style="margin-top: 80px; margin-bottom: 400px">
                     <div class="mb-8">
                         {{-- Placeholder for Illustration 2 --}}
-                        <img src="images/Happy.png" class="absolute -top-10 left-1/2 -translate-x-1/2 -translate-y-1/2"> <h3 class="text-5xl font-extrabold text-[#ffffff] mb-4" style="margin-top: 120px">Inclusive Living Plan</h3>
+                        <img src="images/Happy.png" class="absolute -top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-50"> <h3 class="text-4xl font-extrabold text-[#ffffff] mb-4" style="margin-top: 25px">Inclusive Living Plan</h3>
                         <p class="text-lg text-[#f8f1e1] mb-6">Medium-sized provider support</p>
                         <hr class="border-t-2 border-[#f8f1e1] my-6">
                         <ul class="text-left text-lg text-[#f8f1e1] space-y-3">
@@ -126,18 +127,18 @@
                         </ul>
                     </div>
                     <a href="#" class="block w-full text-center bg-[#cc8e45] text-white font-bold py-4 px-6 rounded-full
-                                         hover:bg-[#a67137] transition duration-300 ease-in-out shadow-lg
-                                         focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]">
+                                             hover:bg-[#a67137] transition duration-300 ease-in-out shadow-lg
+                                             focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]">
                         Get Started
                     </a>
                 </div>
 
                 {{-- Package 3: Full Support Plan --}}
                 <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col justify-between
-                            transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-right" style="margin-top: 300px; margin-bottom: 350px">
+                             transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-right relative" style="margin-top: 120px; margin-bottom: 430px">
                     <div class="mb-8">
                         {{-- Placeholder for Illustration 3 --}}
-                        <img src="images/Manny.png" class="absolute top-10px left-1/2 -translate-x-1/2 -translate-y-1/2" style="margin-top: -130px"> <h3 class="text-5xl font-extrabold text-[#33595a] mb-4" style="margin-top: 30px">Full Support Plan</h3>
+                        <img src="images/Manny.png" class="absolute -top-15px left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-50" style="margin-top: -120px"> <h3 class="text-4xl font-extrabold text-[#33595a] mb-4" style="margin-top: -5px">Full Support Plan</h3>
                         <p class="text-lg text-[#bcbabb] mb-6">Advanced matching for large provider</p>
                         <hr class="border-t-2 border-[#f8f1e1] my-6">
                         <ul class="text-left text-lg text-[#3e4732] space-y-3">
@@ -149,8 +150,8 @@
                         </ul>
                     </div>
                     <a href="#" class="block w-full text-center bg-[#33595a] text-white font-bold py-4 px-6 rounded-full
-                                         hover:bg-[#3e4732] transition duration-300 ease-in-out shadow-lg
-                                         focus:outline-none focus:ring-4 focus:ring-[#bcbabb]">
+                                             hover:bg-[#3e4732] transition duration-300 ease-in-out shadow-lg
+                                             focus:outline-none focus:ring-4 focus:ring-[#bcbabb]">
                         Get Started
                     </a>
                 </div>
@@ -181,8 +182,8 @@
                 </p>
                 <a href="{{ route('about') }}"
                    class="inline-block bg-[#cc8e45] hover:bg-[#a67137] text-white font-bold py-4 px-8 rounded-full shadow-lg
-                           transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl
-                           focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]"> {{-- Updated button colors --}}
+                             transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl
+                             focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]"> {{-- Updated button colors --}}
                     Discover Our Vision <span class="ml-2">→</span>
                 </a>
             </div>
@@ -196,7 +197,7 @@
             </h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div class="bg-[#f8f1e1] p-10 rounded-2xl shadow-xl flex flex-col items-center hover:shadow-2xl {{-- Updated background color --}}
-                            transition-all duration-500 transform hover:scale-[1.02] animate-fade-in-left">
+                             transition-all duration-500 transform hover:scale-[1.02] animate-fade-in-left">
                     <p class="text-xl text-[#3e4732] mb-8 italic leading-relaxed font-serif"> {{-- Updated text color --}}
                         "Touch D Cloud was a game-changer for me. Finding suitable NDIS accommodation felt overwhelming, but their platform made it incredibly simple and reassuring. The support truly made a difference!"
                     </p>
@@ -210,7 +211,7 @@
                     </div>
                 </div>
                 <div class="bg-[#f8f1e1] p-10 rounded-2xl shadow-xl flex flex-col items-center hover:shadow-2xl {{-- Updated background color --}}
-                            transition-all duration-500 transform hover:scale-[1.02] animate-fade-in-right delay-200">
+                             transition-all duration-500 transform hover:scale-[1.02] animate-fade-in-right delay-200">
                     <p class="text-xl text-[#3e4732] mb-8 italic leading-relaxed font-serif"> {{-- Updated text color --}}
                         "As a support coordinator, I rely on Touch D Cloud daily. It's an indispensable resource that significantly streamlines the process of connecting participants with the ideal housing and support they need. Highly efficient and reliable!"
                     </p>
@@ -237,8 +238,8 @@
             </p>
             <a href="{{ route('register') }}"
                class="inline-block bg-[#cc8e45] text-white hover:bg-[#a67137] font-extrabold py-5 px-12 rounded-full text-xl sm:text-2xl shadow-2xl
-                       transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
-                       focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]"> {{-- Updated button colors --}}
+                         transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
+                         focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]"> {{-- Updated button colors --}}
                 Register Your Account Today! <span class="ml-2">→</span>
             </a>
         </div>
@@ -247,47 +248,75 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const parallaxLayers = document.querySelectorAll('.parallax-layer');
-            const heroSection = document.querySelector('section.relative.h-screen'); // Select the main hero section
+            const heroSection = document.querySelector('section.relative.h-screen');
+
+            // Define the breakpoint for disabling parallax (e.g., 768px for Tailwind's 'md')
+            const disableParallaxBreakpoint = 768;
 
             if (parallaxLayers.length > 0 && heroSection) {
-                window.addEventListener('scroll', function() {
-                    const scrollTop = window.pageYOffset;
-                    // Get the top offset of the hero section relative to the viewport
-                    const heroSectionTop = heroSection.getBoundingClientRect().top + scrollTop;
+                // Function to update parallax on scroll
+                const updateParallax = () => {
+                    // Only apply parallax if the screen width is greater than or equal to the breakpoint
+                    if (window.innerWidth >= disableParallaxBreakpoint) {
+                        const scrollTop = window.pageYOffset;
+                        const heroSectionTop = heroSection.getBoundingClientRect().top + scrollTop;
 
+                        parallaxLayers.forEach(layer => {
+                            const speed = parseFloat(layer.dataset.parallaxSpeed);
+                            const yPos = -((scrollTop - heroSectionTop) * speed);
+                            layer.style.backgroundPositionY = yPos + 'px';
+                        });
+                    } else {
+                        // If parallax is disabled, reset background-position-y for static effect
+                        parallaxLayers.forEach(layer => {
+                            layer.style.backgroundPositionY = 'center'; // Or '0px', depending on desired initial position
+                        });
+                    }
+                };
+
+                // Function to set initial background sizes based on screen width
+                const setInitialBackgroundSize = () => {
                     parallaxLayers.forEach(layer => {
-                        const speed = parseFloat(layer.dataset.parallaxSpeed);
-                        // Calculate yPos based on scroll relative to the hero section's start
-                        // We negate it to make the images scroll up (positive y moves background down)
-                        const yPos = -((scrollTop - heroSectionTop) * speed);
-                        layer.style.backgroundPositionY = yPos + 'px';
+                        // On larger screens or when parallax is active, use 'cover' or '100vw auto'
+                        if (window.innerWidth >= disableParallaxBreakpoint) {
+                            layer.style.backgroundSize = 'cover';
+                        } else {
+                            // On smaller screens where parallax is disabled, ensure it still covers the section
+                            layer.style.backgroundSize = 'cover'; // Keep 'cover' to fill the section
+                        }
                     });
-                });
+                };
 
-                // Set initial background positions to prevent jump on load for all layers
-                parallaxLayers.forEach(layer => {
-                    layer.style.backgroundPositionY = '0px';
+                // Initial setup
+                setInitialBackgroundSize();
+                updateParallax(); // Apply initial parallax or static position
+
+                // Event listeners
+                window.addEventListener('scroll', updateParallax); // Always listen, but function checks breakpoint
+                window.addEventListener('resize', () => {
+                    setInitialBackgroundSize();
+                    updateParallax(); // Recalculate parallax/static on resize
                 });
             }
 
-            // Simple Scroll Reveal for sections (using Intersection Observer)
+            // Simple Scroll Reveal (rest of your existing script)
             const observerOptions = {
                 root: null,
                 rootMargin: '0px',
-                threshold: 0.1 // Trigger when 10% of the element is visible
+                threshold: 0.1
             };
 
             const observer = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-active'); // Add a class to trigger CSS animation
-                        observer.unobserve(entry.target); // Stop observing once animated
+                        entry.target.classList.add('animate-active');
+                        observer.unobserve(entry.target);
                     }
                 });
             }, observerOptions);
 
             document.querySelectorAll('.animate-fade-in-down, .animate-fade-in-left, .animate-fade-in-right, .animate-fade-in-up').forEach(element => {
-                element.classList.add('opacity-0'); // Hide initially
+                element.classList.add('opacity-0');
                 observer.observe(element);
             });
         });
@@ -295,12 +324,32 @@
 
     <style>
         .parallax-layer {
-            background-size: cover; /* Ensures the image covers the entire element */
-            background-repeat: no-repeat; /* Prevents image repetition */
-            background-position: center; /* Centers the background image initially */
+            background-repeat: no-repeat;
+            background-position: center; /* Ensures it's centered initially */
+            background-attachment: scroll; /* Default to scroll for smaller screens, overridden for larger */
+            transition: background-size 0.3s ease-out; /* Smooth transition for background-size changes */
+            height: 100%;
+            width: 100%;
         }
 
-        /* Tailwind Animations (You should ideally configure these in tailwind.config.js for production) */
+        /* Styles for larger screens (where parallax is active) */
+        @media (min-width: 768px) { /* Apply these styles for medium screens and up */
+            .parallax-layer {
+                background-size: cover; /* Ensure it covers on larger screens */
+                background-attachment: fixed; /* This is key for the parallax feel */
+            }
+        }
+
+        /* Styles for smaller screens (where parallax is disabled) */
+        @media (max-width: 767px) {
+            .parallax-layer {
+                background-size: cover; /* Keep 'cover' to fill the section height on small screens */
+                background-attachment: scroll; /* Ensure it scrolls normally with the page */
+                background-position: center; /* Center the image without parallax movement */
+            }
+        }
+
+        /* Tailwind Animations (rest of your existing styles) */
         @keyframes fadeInDown {
             from {
                 opacity: 0;

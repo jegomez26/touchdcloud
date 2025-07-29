@@ -17,7 +17,7 @@ class Conversation extends Model
         'participant_id',         // Foreign key to participants table
         'provider_id',            // Foreign key to providers table
         'last_message_at',
-        'subject', // <-- Add this if you want to store the subject here
+        // 'subject', // <-- Add this if you want to store the subject here
     ];
 
     protected $casts = [
@@ -42,5 +42,14 @@ class Conversation extends Model
     public function provider(): BelongsTo
     {
         return $this->belongsTo(Provider::class);
+    }
+    public function scopeForSupportCoordinator($query, $supportCoordinatorId)
+    {
+        return $query->where('support_coordinator_id', $supportCoordinatorId);
+    }
+
+    public function scopeForParticipant($query, $participantId)
+    {
+        return $query->where('participant_id', $participantId);
     }
 }

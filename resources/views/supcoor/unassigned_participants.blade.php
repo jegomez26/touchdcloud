@@ -2,7 +2,7 @@
 
 @section('main-content') {{-- Start the main-content section --}}
     <h2 class="font-semibold text-2xl md:text-3xl text-[#33595a] leading-tight mb-6 md:mb-8">
-        {{ __('Unassigned Participants') }}
+        {{ __('View Participants Looking for SC') }}
     </h2>
 
     <div class="bg-white shadow-lg rounded-xl p-4 sm:p-6 lg:p-8" x-data="participantModal()"> {{-- Responsive padding: smaller on mobile, larger on desktop --}}
@@ -240,14 +240,14 @@
 
         {{-- Message Modal (within the main x-data scope) --}}
         <div x-show="open"
-             x-transition:enter="ease-out duration-300"
-             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-             x-transition:leave="ease-in duration-200"
-             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-             class="fixed inset-0 z-50 overflow-y-auto"
-             style="display: none;">
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            class="fixed inset-0 z-50 overflow-y-auto"
+            style="display: none;">
 
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                 {{-- Background overlay --}}
@@ -259,7 +259,7 @@
 
                 {{-- Modal panel --}}
                 <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-                     role="dialog" aria-modal="true" aria-labelledby="modal-headline">
+                    role="dialog" aria-modal="true" aria-labelledby="modal-headline">
                     <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div class="sm:flex sm:items-start">
                             <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-[#d0dbcc] sm:mx-0 sm:h-10 sm:w-10">
@@ -274,11 +274,14 @@
                                 </h3>
                                 <div class="mt-4">
                                     <form @submit.prevent="sendMessage">
+                                        {{-- REMOVE THIS BLOCK (Subject Field) --}}
+                                        {{--
                                         <div class="mb-4">
                                             <label for="message_subject" class="block text-sm font-medium text-gray-700">Subject</label>
                                             <input type="text" x-model="messageSubject" id="message_subject" required
                                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] sm:text-sm p-2.5">
                                         </div>
+                                        --}}
                                         <div class="mb-4">
                                             <label for="message_body" class="block text-sm font-medium text-gray-700">Message</label>
                                             <textarea x-model="messageBody" id="message_body" rows="5" required
@@ -318,16 +321,16 @@
         return {
             open: false,
             participantId: null,
-            participantCodeName: '', // This will hold the "Participant" generic name
-            messageSubject: '',
+            participantCodeName: '',
+            // messageSubject: '', // REMOVE THIS LINE
             messageBody: '',
             errorMessage: '',
             successMessage: '',
 
             openModal(id, name) {
                 this.participantId = id;
-                this.participantCodeName = name; // Will be 'Participant' as passed
-                this.messageSubject = '';
+                this.participantCodeName = name;
+                // this.messageSubject = ''; // REMOVE THIS LINE
                 this.messageBody = '';
                 this.errorMessage = '';
                 this.successMessage = '';
@@ -337,7 +340,7 @@
                 this.open = false;
                 this.participantId = null;
                 this.participantCodeName = '';
-                this.messageSubject = '';
+                // this.messageSubject = ''; // REMOVE THIS LINE
                 this.messageBody = '';
                 this.errorMessage = '';
                 this.successMessage = '';
@@ -346,14 +349,14 @@
                 this.errorMessage = '';
                 this.successMessage = '';
 
-                fetch('/coordinator/send-message/' + this.participantId, {
+                fetch('/sc/send-message-to-participant/' + this.participantId, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({
-                        message_subject: this.messageSubject,
+                        // message_subject: this.messageSubject, // REMOVE THIS LINE
                         message_body: this.messageBody
                     })
                 })
@@ -365,11 +368,11 @@
                 })
                 .then(data => {
                     this.successMessage = data.message || 'Message sent successfully!';
-                    this.messageSubject = '';
+                    // this.messageSubject = ''; // REMOVE THIS LINE
                     this.messageBody = '';
                     setTimeout(() => {
                         this.closeModal();
-                    }, 1500);
+                    }, 1500); // Close after 1.5 seconds
                 })
                 .catch(error => {
                     console.error('Error sending message:', error);

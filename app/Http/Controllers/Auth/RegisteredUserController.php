@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\NDISBusiness; // Keep NDISBusiness if used elsewhere, but not for SupportCoordinator registration now
 use App\Models\SupportCoordinator;
+use App\Models\Provider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -162,10 +163,14 @@ class RegisteredUserController extends Controller
     public function storeProvider(Request $request): RedirectResponse
     {
         $request->validate([
-            'business_name' => ['required', 'string', 'max:255'],
-            'abn' => ['required', 'string', 'digits:11', 'unique:ndis_businesses,abn'],
-            'contact_person_first_name' => ['required', 'string', 'max:255'],
-            'contact_person_last_name' => ['required', 'string', 'max:255'],
+            'company_name' => ['required', 'string', 'max:255'],
+            'abn' => ['required', 'string', 'digits:11', 'unique:providers,abn'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'suburb' => ['nullable', 'string', 'max:255'],
+            'state' => ['nullable', 'string', 'max:255'],
+            'post_code' => ['nullable', 'string', 'max:10'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => [
                 'required',
@@ -177,32 +182,35 @@ class RegisteredUserController extends Controller
         ]);
 
         $user = User::create([
-            'first_name' => $request->contact_person_first_name,
-            'last_name' => $request->contact_person_last_name,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             'role' => 'provider',
             'password' => Hash::make($request->password),
-            'profile_completed' => false,
+            'profile_completed' => true, // Providers are considered "profile_completed" upon registration
             'is_representative' => false,
         ]);
 
-        // Assuming 'provider_code_name' is a column on your `users` table
-        // If it's on `ndis_businesses` table, move this assignment to NDISBusiness::create
-        $user->provider_code_name = 'PR' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
-        $user->save(); // This save might not be necessary if provider_code_name is only on NDISBusiness
+        $providerCodeName = 'PR' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
 
-        NDISBusiness::create([
+        Provider::create([
             'user_id' => $user->id,
-            'business_name' => $request->business_name,
+            'company_name' => $request->company_name,
             'abn' => $request->abn,
-            'contact_person_first_name' => $request->contact_person_first_name,
-            'contact_person_last_name' => $request->contact_person_last_name,
-            'provider_code_name' => $user->provider_code_name, // If moved, generate here directly
-            'status' => 'pending_verification',
+            'contact_person_first_name' => $request->first_name,
+            'contact_person_last_name' => $request->last_name,
+            'address' => $request->address,
+            'suburb' => $request->suburb,
+            'state' => $request->state,
+            'post_code' => $request->post_code,
+            'provider_code_name' => $providerCodeName,
+            // 'status' => 'pending_verification', // REMOVED - No admin approval for providers
         ]);
 
         event(new Registered($user));
 
-        return redirect(route('provider.account.pending'));
+        Auth::login($user);
+
+        return redirect(route('verification.notice'));
     }
 }

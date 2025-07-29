@@ -257,7 +257,7 @@
         <div class="hidden md:flex items-center justify-between w-full">
             <a href="{{ route('home') }}" class="text-3xl font-extrabold text-[#33595a] hover:text-[#3e4732] transition duration-300">
                 <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }}" class="h-10 inline-block align-middle mr-3">
-                {{ config('app.name', 'TouchdCloud') }}
+                
             </a>
             <div class="flex items-center space-x-4 relative">
                 <div class="relative hidden lg:block">
@@ -340,7 +340,7 @@
                 <a href="{{route('sc.supcoor.unassigned_participants')}}" data-section="other-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Connect to more Participants
                 </a>
-                <a href="#" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{route('sc.messages.index')}}" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
                 </a>
                 
@@ -366,7 +366,7 @@
                 <a href="{{route('sc.supcoor.unassigned_participants')}}" data-section="other-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Connect to more Participants
                 </a>
-                <a href="#" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{route('sc.messages.index')}}" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
                 </a>
                 
@@ -394,7 +394,7 @@
             const mobileSidebar = document.getElementById('mobile-sidebar');
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const closeSidebarButton = document.getElementById('close-sidebar-button');
-            const sidebarLinks = document.querySelectorAll('.sidebar-link'); // Keep this for active class toggling
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
 
             const profileMenuButton = document.getElementById('profile-menu-button');
             const profileDropdown = document.getElementById('profile-dropdown');
@@ -414,7 +414,6 @@
                     }
                 });
             }
-
 
             // Profile dropdown toggle
             if (profileMenuButton) {
@@ -453,10 +452,50 @@
                 });
             });
 
-            // Event listeners for sidebar links (using 'a' tags now)
+            // Function to set the active sidebar link
+            function setActiveSidebarLink() {
+                sidebarLinks.forEach(item => item.classList.remove('active')); // Remove active from all first
+                const currentPath = window.location.pathname;
+
+                // Loop through links to find a match
+                sidebarLinks.forEach(link => {
+                    const linkHref = new URL(link.href).pathname; // Get pathname from href to ignore host/query params
+
+                    if (currentPath === linkHref) {
+                        link.classList.add('active');
+                    } else if (linkHref === '{{ route('sc.participants.list', [], false) }}' && currentPath.startsWith('{{ route('sc.participants.list', [], false) }}')) {
+                        // Special handling for /participants routes (e.g., /participants/123)
+                        link.classList.add('active');
+                    } else if (linkHref === '{{ route('sc.dashboard', [], false) }}' && currentPath.includes('/dashboard')) {
+                        link.classList.add('active');
+                    } else if (linkHref === '{{ route('sc.supcoor.unassigned_participants', [], false) }}' && currentPath.includes('/unassigned-participants')) {
+                        link.classList.add('active');
+                    } else if (linkHref === '{{ route('sc.messages.index', [], false) }}' && currentPath.includes('/messages')) {
+                        link.classList.add('active');
+                    }
+                });
+
+                // If no specific link matches, default to dashboard if on the root of sc path
+                if (!document.querySelector('.sidebar-link.active') && (currentPath === '/supcoor' || currentPath === '{{ route('sc.dashboard', [], false) }}')) {
+                    const dashboardLink = document.querySelector('.sidebar-link[data-section="dashboard"]');
+                    if (dashboardLink) {
+                        dashboardLink.classList.add('active');
+                    }
+                }
+            }
+
+            // Call the function on DOMContentLoaded to set the initial active link
+            setActiveSidebarLink();
+
+            // Add event listeners for clicks on sidebar links (optional, for immediate visual feedback before full page load)
+            // Note: Full page reload will re-run setActiveSidebarLink anyway.
             sidebarLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    // This logic is mostly for styling, the 'href' handles navigation
+                link.addEventListener('click', function(event) {
+                    // Prevent default only if you were doing a SPA-like behavior.
+                    // Since you're doing full page reloads with href, let the default behavior happen.
+                    // This listener is mostly for the mobile sidebar closing and immediate active state toggle.
+                    
+                    // Immediately apply active class for visual feedback
                     sidebarLinks.forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
 
@@ -466,29 +505,6 @@
                     }
                 });
             });
-
-            // Set active class based on the current URL
-            const currentPath = window.location.pathname;
-            if (currentPath.includes('/participants')) {
-                const participantLink = document.querySelector('.sidebar-link[data-section="support-coordinator"]');
-                if (participantLink) {
-                    sidebarLinks.forEach(item => item.classList.remove('active'));
-                    participantLink.classList.add('active');
-                }
-            } else if (currentPath.includes('/dashboard') || currentPath.endsWith('/supcoor')) {
-                const dashboardLink = document.querySelector('.sidebar-link[data-section="dashboard"]');
-                if (dashboardLink) {
-                    sidebarLinks.forEach(item => item.classList.remove('active'));
-                    dashboardLink.classList.add('active');
-                }
-            } else {
-                // Default to dashboard if no specific section is matched
-                const dashboardLink = document.querySelector('.sidebar-link[data-section="dashboard"]');
-                if (dashboardLink) {
-                    sidebarLinks.forEach(item => item.classList.remove('active'));
-                    dashboardLink.classList.add('active');
-                }
-            }
 
 
             // --- Flatpickr Initialization ---
