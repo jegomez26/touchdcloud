@@ -172,6 +172,7 @@ class RegisteredUserController extends Controller
             'state' => ['nullable', 'string', 'max:255'],
             'post_code' => ['nullable', 'string', 'max:10'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'contact_phone' => ['nullable', 'string', 'max:20'],
             'password' => [
                 'required',
                 'confirmed',
@@ -193,19 +194,25 @@ class RegisteredUserController extends Controller
 
         $providerCodeName = 'PR' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
 
-        Provider::create([
-            'user_id' => $user->id,
-            'company_name' => $request->company_name,
-            'abn' => $request->abn,
-            'contact_person_first_name' => $request->first_name,
-            'contact_person_last_name' => $request->last_name,
-            'address' => $request->address,
-            'suburb' => $request->suburb,
-            'state' => $request->state,
-            'post_code' => $request->post_code,
-            'provider_code_name' => $providerCodeName,
-            // 'status' => 'pending_verification', // REMOVED - No admin approval for providers
-        ]);
+        try {
+            Provider::create([
+                'user_id' => $user->id,
+                'company_name' => $request->company_name,
+                'abn' => $request->abn,
+                'address' => $request->address,
+                'suburb' => $request->suburb,
+                'state' => $request->state,
+                'post_code' => $request->post_code,
+                'provider_code_name' => $providerCodeName,
+                'contact_phone' => $request->contact_name,
+                'contact_email' => $request->email,
+                'plan' => 'free',
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Error creating provider: " . $e->getMessage());
+            // Optionally, return back with an error message for development
+            return back()->withErrors(['db_error' => 'Could not create provider. Please try again.']);
+        }
 
         event(new Registered($user));
 

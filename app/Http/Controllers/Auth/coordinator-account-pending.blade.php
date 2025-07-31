@@ -1,16 +1,16 @@
-@section('title', 'Account Pending Approval - ' . config('app.name', 'TouchdCloud'))
+@section('title', 'Account Pending Approval - ' . config('app.name', 'SIL Match'))
 
 <x-guest-layout>
     <div class="w-full max-w-md bg-custom-white rounded-lg shadow-xl p-8 sm:p-10 border border-custom-light-grey-green text-center">
         <div class="flex flex-col items-center justify-center mb-6">
-            <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-20 w-auto mb-4">
+            <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }} Logo" class="h-20 w-auto mb-4">
             <h2 class="text-2xl font-extrabold text-custom-dark-teal">
                 Account Pending Approval
             </h2>
         </div>
 
         <p class="mt-4 text-custom-dark-olive leading-relaxed">
-            Thank you for registering as a Support Coordinator with TouchdCloud!
+            Thank you for registering as a Support Coordinator with SIL Match!
         </p>
         <p class="mt-2 text-custom-dark-olive leading-relaxed">
             Your account has been successfully created, and a verification email has been sent to your inbox. Please verify your email address.

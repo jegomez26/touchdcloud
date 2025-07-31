@@ -1,40 +1,61 @@
-{{-- resources/views/supadmin/sa-db.blade.php --}}
+{{-- resources/views/company/provider-db.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{-- Updated title to reflect Super Admin --}}
-    <title>Touch D Cloud - Super Admin Dashboard</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>SIL Match - Provider Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {{-- Flatpickr CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #f8f1e1; /* Light cream background */
+            background-color: #F9FAFB;
+            color: #374151;
         }
         /* Custom styles for active sidebar link */
         .sidebar-link.active {
-            background-color: #e1e7dd; /* Light green-gray background */
-            color: #3e4732; /* Darker green-gray text */
-            font-weight: 600; /* Semi-bold */
-            box-shadow: none; /* Remove shadow for cleaner look */
-            transform: none; /* Remove transform */
+            background-color: #2C494A; /* primary-dark */
+            color: #ffffff; /* custom-white */
+            font-weight: 600;
+            
+            /* New: Extend active color to the right edge */
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            padding-right: 1.5rem; /* Remove right padding for active state */
+            /* Crucial change: Negative right margin to fill the parent's padding */
+            margin-right: 0; 
         }
         .sidebar-link {
-            transition: all 0.2s ease-in-out;
-            padding-left: 1.5rem; /* Consistent padding */
+            transition: all 0.25s ease-in-out;
+            padding-left: 2rem; /* Consistent padding */
             padding-right: 1.5rem;
+            border-radius: 0.75rem; /* More rounded */
+            display: flex; /* Make it a flex container to align icon and text */
+            align-items: center;
+            position: relative; /* For potential future hover effects like underlines */
+            overflow: hidden;
         }
         .sidebar-link:not(.active):hover {
-            background-color: #f2f7ed; /* Lighter hover for non-active */
-            color: #3e4732; /* Darker green-gray on hover */
+            background-color: #E5E7EB; /* border-light */
+            color: #374151; /* text-dark */
+            transform: translateY(-1px); /* Subtle lift on hover */
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+        }
+
+        .sidebar-link svg {
+            color: inherit;
+            transition: color 0.25s ease-in-out, transform 0.25s ease-in-out; /* Add transform transition */
+        }
+
+        .sidebar-link:hover svg {
+            transform: translateX(3px); /* Subtle icon slide on hover */
         }
 
         /* Adjust scrollbar for main content */
@@ -242,24 +263,52 @@
         .flatpickr-calendar .flatpickr-current-month .numInput {
             font-family: 'Inter', sans-serif;
         }
+
+        .sidebar-link {
+            /* Existing styles */
+            display: flex; /* Ensure the anchor tag takes full width */
+            align-items: center; /* Vertically align icon and text */
+            width: 100%; /* Important for full row selection */
+            padding-top: 0.75rem; /* Adjust padding as needed for the entire clickable area */
+            padding-bottom: 0.75rem;
+            padding-left: 2rem; /* Consistent left padding */
+            padding-right: 1.5rem; /* Default right padding */
+        }
+        .sidebar-link.active {
+            padding-right: 1.5rem; /* Remove right padding for active state */
+            /* Ensure the background extends by adjusting width to fill space */
+            position: relative;
+            z-index: 10; /* Make sure it's above other elements if necessary */
+            /* Updated for the right edge fix */
+            margin-right: 0; /* THIS IS THE KEY CHANGE */
+            
+        }
+        .sidebar-link span {
+            /* If you have text inside a span, ensure it doesn't break the layout */
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        #sidebar {
+            padding-left: 1.5rem;
+            padding-right: 0;
+        }
     </style>
     @stack('styles')
 </head>
 <body class="min-h-screen bg-[#f8f1e1] text-[#000000] flex flex-col">
 
-    <header class="bg-[#ffffff] shadow-md p-4 flex items-center justify-between z-30 sticky top-0 w-full h-16"> {{-- Added h-16 (64px) for header height --}}
+    <header class="bg-[#ffffff] shadow-md p-4 flex items-center justify-between z-30 sticky top-0 w-full h-16">
         <div class="flex items-center md:hidden w-full justify-between">
-            {{-- Updated header for mobile --}}
-            <h1 class="text-xl font-bold text-[#3e4732]">Super Admin Dashboard</h1>
+            <h1 class="text-xl font-bold text-[#3e4732]">Provider Dashboard</h1>
             <button id="mobile-menu-button" class="text-[#bcbabb] focus:outline-none p-2 rounded-md hover:bg-[#f8f1e1]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
             </button>
         </div>
 
         <div class="hidden md:flex items-center justify-between w-full">
-            <a href="{{ route('superadmin.dashboard') }}" class="text-3xl font-extrabold text-[#33595a] hover:text-[#3e4732] transition duration-300">
+            <a href="{{ route('home') }}" class="text-3xl font-extrabold text-[#33595a] hover:text-[#3e4732] transition duration-300">
                 <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }}" class="h-10 inline-block align-middle mr-3">
-                {{ config('app.name', 'SIL Match') }}
             </a>
             <div class="flex items-center space-x-4 relative">
                 <div class="relative hidden lg:block">
@@ -304,7 +353,13 @@
                     </button>
 
                     <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-[#ffffff] rounded-lg shadow-xl py-1 ring-1 ring-black ring-opacity-5 hidden z-30">
-                        
+                        <button data-action="profile" class="block px-4 py-2 text-sm text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a] w-full text-left transition-colors duration-150 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user inline-block mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
+                        </button>
+                        <button data-action="settings" class="block px-4 py-2 text-sm text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a] w-full text-left transition-colors duration-150 rounded-md">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings inline-block mr-2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
+                        </button>
+                        <hr class="my-1 border-[#bcbabb]">
                         <button data-action="logout" class="block px-4 py-2 text-sm text-[#cc8e45] hover:bg-[#f8f1e1] w-full text-left transition-colors duration-150 rounded-md" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out inline-block mr-2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="17 16 22 12 17 8"/><line x1="22" x2="11" y1="12" y2="12"/></svg> Log out
                         </button>
@@ -320,32 +375,27 @@
     {{-- Main content wrapper. This will now contain both sidebar and main content --}}
     <div class="flex flex-1">
         {{-- Fixed Sidebar for Desktop --}}
-        <aside id="sidebar" class="hidden md:flex flex-col fixed top-16 left-0 h-[calc(100vh-64px)] w-60 bg-[#ffffff] text-[#000000] p-6 space-y-6 border-r border-[#e1e7dd] z-20">
+        <aside id="sidebar" class="hidden md:flex flex-col fixed top-16 left-0 h-[calc(100vh-64px)] w-72 bg-[#ffffff] text-[#000000] p-6 space-y-6 border-r border-[#e1e7dd] z-20">
             <div class="flex items-center justify-center mb-8">
                 {{-- No close button needed for desktop fixed sidebar --}}
             </div>
             {{-- Navigation menu: this itself should not scroll --}}
-            <nav class="space-y-1 overflow-y-auto pr-2" id="sidebar-nav-container"> {{-- Added overflow-y-auto and pr-2 here for explicit sidebar nav scrolling if needed --}}
+            <nav class="space-y-1 overflow-y-auto pr-2" id="sidebar-nav-container">
                 <p class="text-xs font-semibold text-[#bcbabb] uppercase mb-2 px-4">Menu</p>
-                {{-- Dashboard link --}}
-                <a href="{{ route('superadmin.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{ route('provider.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
                 </a>
-                {{-- Participants link --}}
-                <a href="" data-section="participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Participants
+                <a href="#" data-section="my-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> My Participants
                 </a>
-                {{-- Support Coordinators link --}}
-                <a href="{{ route('superadmin.support-coordinators.index') }}" data-section="support-coordinators" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake mr-3"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.5.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.3-.6h4.4c1.1 0 2.1-.4 2.8-1.2L21 11"/><path d="M19 12v6a2 2 0 0 1-2 2h-4"/></svg> Support Coordinators
+                <a href="{{ route('provider.accommodations.list') }}" data-section="my-accommodations" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home mr-3"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> My Accommodations
                 </a>
-                {{-- Providers link --}}
-                <a href="" data-section="providers" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck mr-3"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M10 18H7"/><path d="M19 18h-6"/><path d="M17 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M7 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M14 6h7l-3 5H6"/></svg> Providers
+                <a href="#" data-section="match-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-pull-request-draft"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v6"/><path d="M12 15V9"/><path d="M6 9v4"/><path d="M12 6h-.01"/><path d="M18 6h-.01"/></svg> Match Participants
                 </a>
-                {{-- Messages link --}}
-                <a href="" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                <a href="#" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
                 </a>
             </nav>
         </aside>
@@ -360,80 +410,27 @@
             </div>
             <nav class="space-y-1 overflow-y-auto pr-2" id="mobile-sidebar-nav-container">
                 <p class="text-xs font-semibold text-[#bcbabb] uppercase mb-2 px-4">Menu</p>
-                {{-- Dashboard link for mobile --}}
-                <a href="{{ route('superadmin.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{ route('provider.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
                 </a>
-                {{-- Participants link for mobile --}}
-                <a href="" data-section="participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Participants
+                <a href="#" data-section="my-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> My Participants
                 </a>
-                {{-- Support Coordinators link for mobile --}}
-                <a href="" data-section="support-coordinators" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handshake mr-3"><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.5.6L3 17"/><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.3-.6h4.4c1.1 0 2.1-.4 2.8-1.2L21 11"/><path d="M19 12v6a2 2 0 0 1-2 2h-4"/></svg> Support Coordinators
+                <a href="{{ route('provider.accommodations.list') }}" data-section="my-accommodations" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home mr-3"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> My Accommodations
                 </a>
-                {{-- Providers link for mobile --}}
-                <a href="" data-section="providers" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-truck mr-3"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M10 18H7"/><path d="M19 18h-6"/><path d="M17 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M7 21a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="M14 6h7l-3 5H6"/></svg> Providers
+                <a href="#" data-section="match-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-pull-request-draft"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v6"/><path d="M12 15V9"/><path d="M6 9v4"/><path d="M12 6h-.01"/><path d="M18 6h-.01"/></svg> Match Participants
                 </a>
-                {{-- Messages link for mobile --}}
-                <a href="" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                <a href="#" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
                 </a>
             </nav>
         </aside>
 
-        {{-- ... existing layout elements like navbars, sidebars etc. ... --}}
-
-    @if (session('success'))
-        <div id="success-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-out opacity-0 pointer-events-none">
-            <div class="bg-white rounded-lg shadow-2xl p-8 max-w-sm w-full relative transform -translate-y-4 scale-95 transition-all duration-300 ease-out">
-                <button type="button" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none close-overlay">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                <div class="text-center">
-                    <div class="flex items-center justify-center text-green-500 mb-4">
-                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Success!</h3>
-                    <p class="text-gray-700 text-sm">{{ session('success') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div id="error-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-out opacity-0 pointer-events-none">
-            <div class="bg-white rounded-lg shadow-2xl p-8 max-w-sm w-full relative transform -translate-y-4 scale-95 transition-all duration-300 ease-out">
-                <button type="button" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 focus:outline-none close-overlay">
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                <div class="text-center">
-                    <div class="flex items-center justify-center text-red-500 mb-4">
-                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 14l2-2m0 0l2-2m-2 2L8 6m0 0l-2 2m2 2l-2 2m8-8l2 2m0 0l2 2m-2-2l-2 2m2-2l2-2m-2 2L6 8M6 8l2-2m0 0l2 2M6 8l-2 2" />
-                            <circle cx="12" cy="12" r="10" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">Oops!</h3>
-                    <p class="text-gray-700 text-sm">{{ session('error') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
-
-
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto md:ml-60 pt-20 md:pt-8"> {{-- Adjusted padding-top for header clearance --}}
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto md:ml-72 pt-20 md:pt-8">
             <div class="max-w-full mx-auto">
-                {{-- This is where the dynamic content will be injected --}}
-                @yield('content')
-
+                @yield('main-content')
             </div>
         </main>
     </div>
@@ -445,6 +442,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Using a single variable for the mobile sidebar for clarity
             const mobileSidebar = document.getElementById('mobile-sidebar');
             const mobileMenuButton = document.getElementById('mobile-menu-button');
             const closeSidebarButton = document.getElementById('close-sidebar-button');
@@ -469,22 +467,6 @@
                 });
             }
 
-            // Function to set the active sidebar link
-            function setActiveSidebarLink() {
-                const path = window.location.pathname;
-                sidebarLinks.forEach(link => {
-                    link.classList.remove('active');
-                    const section = link.getAttribute('data-section');
-                    // Simple check: if the path contains the section name
-                    if (section && path.includes(section)) {
-                        link.classList.add('active');
-                    }
-                });
-            }
-
-            // Call on load
-            setActiveSidebarLink();
-
             // Profile dropdown toggle
             if (profileMenuButton) {
                 profileMenuButton.addEventListener('click', function() {
@@ -492,62 +474,84 @@
                 });
             }
 
-            // Close profile dropdown if clicked outside
-            window.addEventListener('click', function(event) {
-                if (profileMenuButton && !profileMenuButton.contains(event.target) && profileDropdown && !profileDropdown.contains(event.target)) {
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(event) {
+                if (profileMenuButton && profileDropdown && !profileMenuButton.contains(event.target) && !profileDropdown.contains(event.target)) {
                     profileDropdown.classList.add('hidden');
                 }
             });
 
-            // Handle session messages (success/error overlays)
-            const successOverlay = document.getElementById('success-overlay');
-            const errorOverlay = document.getElementById('error-overlay');
+            document.querySelectorAll('[data-action="logout"]').forEach(button => {
+                button.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    document.getElementById('logout-form').submit();
+                });
+            });
 
-            if (successOverlay) {
-                // Show with transition
-                setTimeout(() => {
-                    successOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                    successOverlay.querySelector('div').classList.remove('-translate-y-4', 'scale-95');
-                }, 100); // Small delay to ensure CSS transition applies
+            // Update profile dropdown actions to use the new dashboard route
+            profileDropdownActions.forEach(button => {
+                button.addEventListener('click', function() {
+                    const action = this.dataset.action;
+                    profileDropdown.classList.add('hidden');
 
-                // Hide on close button click
-                successOverlay.querySelectorAll('.close-overlay').forEach(button => {
-                    button.addEventListener('click', () => {
-                        successOverlay.classList.add('opacity-0', 'pointer-events-none');
-                        successOverlay.querySelector('div').classList.add('-translate-y-4', 'scale-95');
-                    });
+                    if (action === 'profile') {
+                        window.location.href = '{{ route('provider.dashboard') }}'; // Direct to provider dashboard for profile
+                    } else if (action === 'settings') {
+                        console.log('Navigating to settings...'); // You can change this to a proper route later
+                    } else if (action === 'logout') {
+                        document.getElementById('logout-form').submit();
+                    }
+                });
+            });
+
+            // Function to set the active sidebar link
+            function setActiveSidebarLink() {
+                sidebarLinks.forEach(item => item.classList.remove('active')); // Remove active from all first
+                const currentPath = window.location.pathname;
+
+                // Loop through links to find a match
+                sidebarLinks.forEach(link => {
+                    const linkHref = new URL(link.href).pathname; // Get pathname from href to ignore host/query params
+
+                    
                 });
 
-                // Hide after 5 seconds
-                setTimeout(() => {
-                    successOverlay.classList.add('opacity-0', 'pointer-events-none');
-                    successOverlay.querySelector('div').classList.add('-translate-y-4', 'scale-95');
-                }, 5000);
+                // If no specific link matches, default to dashboard if on the root of provider path
+                if (!document.querySelector('.sidebar-link.active') && (currentPath === '/provider' || currentPath === '{{ route('provider.dashboard', [], false) }}')) {
+                    const dashboardLink = document.querySelector('.sidebar-link[data-section="dashboard"]');
+                    if (dashboardLink) {
+                        dashboardLink.classList.add('active');
+                    }
+                }
             }
 
-            if (errorOverlay) {
-                // Show with transition
-                setTimeout(() => {
-                    errorOverlay.classList.remove('opacity-0', 'pointer-events-none');
-                    errorOverlay.querySelector('div').classList.remove('-translate-y-4', 'scale-95');
-                }, 100); // Small delay to ensure CSS transition applies
+            // Call the function on DOMContentLoaded to set the initial active link
+            setActiveSidebarLink();
 
-                // Hide on close button click
-                errorOverlay.querySelectorAll('.close-overlay').forEach(button => {
-                    button.addEventListener('click', () => {
-                        errorOverlay.classList.add('opacity-0', 'pointer-events-none');
-                        errorOverlay.querySelector('div').classList.add('-translate-y-4', 'scale-95');
-                    });
+            // Add event listeners for clicks on sidebar links (optional, for immediate visual feedback before full page load)
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    // Immediately apply active class for visual feedback
+                    sidebarLinks.forEach(item => item.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // If on mobile, close sidebar after clicking a link
+                    if (window.innerWidth < 768 && mobileSidebar) { // 768px is md breakpoint
+                        mobileSidebar.classList.add('-translate-x-full');
+                    }
                 });
+            });
 
-                // Hide after 5 seconds
-                setTimeout(() => {
-                    errorOverlay.classList.add('opacity-0', 'pointer-events-none');
-                    errorOverlay.querySelector('div').classList.add('-translate-y-4', 'scale-95');
-                }, 5000);
-            }
+
+            // --- Flatpickr Initialization ---
+            // Initialize all inputs with the 'flatpickr-input' class
+            flatpickr(".flatpickr-input", { // Changed selector to class
+                dateFormat: "Y-m-d",
+                maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
+                // defaultDate is now automatically handled by the input's 'value' attribute
+            });
+            // --- End Flatpickr Initialization ---
         });
     </script>
 </body>
 </html>
-```

@@ -2,7 +2,7 @@
 
 @section('main-content') {{-- Start the main-content section --}}
     <h2 class="font-semibold text-2xl md:text-3xl text-[#33595a] leading-tight mb-6 md:mb-8">
-        {{ __('Your Participants') }}
+        {{ __('My Participants') }}
     </h2>
 
     <div class="bg-white shadow-lg rounded-xl p-4 sm:p-6 lg:p-8"> {{-- Responsive padding: smaller on mobile, larger on desktop --}}

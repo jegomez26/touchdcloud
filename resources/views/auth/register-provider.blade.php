@@ -1,4 +1,4 @@
-@section('title', 'Register as Provider - ' . config('app.name', 'TouchdCloud'))
+@section('title', 'Register as Provider - ' . config('app.name', 'SIL Match'))
 
 <x-guest-layout>
     {{-- Main container for the full-screen layout.
@@ -18,7 +18,7 @@
             {{-- Left Column: Image/Illustration and Text --}}
             {{-- Hidden on small screens, flex column on medium and up.
                 `h-full` is crucial here to make it expand to the height of its parent (the card container). --}}
-            <div class="hidden md:flex flex-col w-full md:w-1/2 bg-[#2D4A80] p-6 lg:p-10 items-center justify-center text-white text-center h-full">
+            <div class="hidden md:flex flex-col w-full md:w-1/2 bg-custom-dark-teal p-6 lg:p-10 items-center justify-center text-white text-center h-full">
                 {{-- Dynamic background image for the scene --}}
                 <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{ asset('images/provider_illustration_background.jpg') }}');"> {{-- Replace with a relevant image for providers --}}
                     {{-- Overlay to darken the image slightly and ensure text readability --}}
@@ -48,7 +48,7 @@
                 <div class="flex flex-col items-center mb-6 sm:mb-8">
                     {{-- Logo --}}
                     <a href="{{ route('home') }}">
-                        <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-20 sm:h-24 w-auto mb-3 sm:mb-4">
+                        <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }} Logo" class="h-20 sm:h-24 w-auto mb-3 sm:mb-4">
                     </a>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-custom-dark-teal text-center">
                         Register as a Provider
@@ -58,7 +58,7 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route('register.provider.create') }}"
+                <form method="POST" action="{{ route('register.provider.store') }}"
                     x-ref="form"
                     @submit.prevent="
                         passwordConfirmationTouched = true;
@@ -109,26 +109,26 @@
                     <input type="hidden" name="role" value="provider">
 
                     {{-- User's Personal Details (for the account owner) --}}
-                    <h3 class="text-lg sm:text-xl font-extrabold text-custom-dark-teal border-b border-custom-light-grey-green pb-2 sm:pb-3 mb-3 sm:mb-4">Your Details (Account Owner)</h3>
+                    <h3 class="text-lg sm:text-xl font-extrabold text-custom-dark-teal border-b border-custom-light-grey-green pb-2 sm:pb-3 mb-3 sm:mb-4">Company Representative Details (Account Owner)</h3>
 
                     {{-- First Name & Last Name --}}
                     <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                         <div class="flex-1">
-                            <x-input-label for="first_name" :value="__('Your First Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                            <x-input-label for="first_name" :value="__('First Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                             <x-text-input type="text" name="first_name" id="first_name"
                                 class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                        {{ $errors->has('first_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                {{ $errors->has('first_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
                                 :value="old('first_name')" required autocomplete="given-name" />
                             <x-input-error :messages="$errors->get('first_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                         </div>
 
                         <div class="flex-1">
-                            <x-input-label for="last_name" :value="__('Your Last Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                            <x-input-label for="last_name" :value="__('Last Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                             <x-text-input type="text" name="last_name" id="last_name"
                                 class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                        {{ $errors->has('last_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                {{ $errors->has('last_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
                                 :value="old('last_name')" required autocomplete="family-name" />
                             <x-input-error :messages="$errors->get('last_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                         </div>
@@ -141,8 +141,8 @@
                         <x-input-label for="company_name" :value="__('Company Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                         <x-text-input type="text" name="company_name" id="company_name"
                             class="block w-full px-3 py-2 rounded-md shadow-sm
-                                    text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                    {{ $errors->has('company_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                        {{ $errors->has('company_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
                             :value="old('company_name')" required autocomplete="organization" />
                         <x-input-error :messages="$errors->get('company_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                     </div>
@@ -151,55 +151,75 @@
                         <x-input-label for="abn" :value="__('ABN (Australian Business Number)')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                         <x-text-input type="text" name="abn" id="abn"
                             class="block w-full px-3 py-2 rounded-md shadow-sm
-                                    text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                    {{ $errors->has('abn') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                        {{ $errors->has('abn') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
                             :value="old('abn')" required autocomplete="off" />
                         <x-input-error :messages="$errors->get('abn')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                     </div>
 
                     {{-- Address Details --}}
-                    <h3 class="text-lg sm:text-xl font-extrabold text-custom-dark-teal border-b border-custom-light-grey-green pb-2 sm:pb-3 mb-3 sm:mb-4">Company Address (Optional)</h3>
-
-                    <div>
-                        <x-input-label for="address" :value="__('Street Address')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                        <x-text-input type="text" name="address" id="address"
-                            class="block w-full px-3 py-2 rounded-md shadow-sm
-                                    text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                    {{ $errors->has('address') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                            :value="old('address')" autocomplete="street-address" />
-                        <x-input-error :messages="$errors->get('address')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-                        <div class="flex-1">
-                            <x-input-label for="suburb" :value="__('Suburb')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                            <x-text-input type="text" name="suburb" id="suburb"
-                                class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                        {{ $errors->has('suburb') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                :value="old('suburb')" autocomplete="address-level2" />
-                            <x-input-error :messages="$errors->get('suburb')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
+                    <h3 class="text-xl font-semibold text-gray-800 pt-4 pb-2 border-t mt-6">Address Details 🏠</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+                            <input type="text" name="address" id="address" value="{{ old('address') }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                                placeholder="Street number and name">
+                            @error('address')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
-                        <div class="flex-1">
-                            <x-input-label for="state" :value="__('State')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                            <x-text-input type="text" name="state" id="state"
-                                class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                        {{ $errors->has('state') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                :value="old('state')" autocomplete="address-level1" />
-                            <x-input-error :messages="$errors->get('state')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
-                        </div>
-                        <div class="flex-1">
-                            <x-input-label for="post_code" :value="__('Post Code')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                            <x-text-input type="text" name="post_code" id="post_code"
-                                class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                        {{ $errors->has('post_code') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                :value="old('post_code')" autocomplete="postal-code" />
-                            <x-input-error :messages="$errors->get('post_code')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
+                        {{-- State comes first --}}
+                        <div>
+                            <label for="state" class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                            <select name="state" id="state"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150">
+                                <option value="" selected disabled>Select State</option>
+                                @foreach(['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'] as $stateAbbr)
+                                    <option value="{{ $stateAbbr }}" {{ old('state') == $stateAbbr ? 'selected' : '' }}>
+                                        {{ $stateAbbr }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('state')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
                     </div>
 
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="suburb" class="block text-sm font-medium text-gray-700 mb-1">Suburb</label>
+                            <select name="suburb" id="suburb"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150">
+                                <option value="" selected disabled>Select Suburb</option>
+                                {{-- Suburbs will be populated via JavaScript --}}
+                                {{-- Removed old('suburb') here as per the prompt --}}
+                            </select>
+                            @error('suburb')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="post_code" class="block text-sm font-medium text-gray-700 mb-1">Post Code</label>
+                            <input type="text" name="post_code" id="post_code" value="{{ old('post_code') }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                                placeholder="e.g., 1234">
+                            @error('post_code')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        {{-- NEW: Contact Number Field --}}
+                        <div>
+                            <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-1">Contact Number</label>
+                            <input type="text" name="contact_phone" id="contact_phone" value="{{ old('contact_phone') }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                                placeholder="e.g., 0412345678">
+                            @error('contact_number')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
                     {{-- Account Credentials --}}
                     <h3 class="text-lg sm:text-xl font-extrabold text-custom-dark-teal border-b border-custom-light-grey-green pb-2 sm:pb-3 mb-3 sm:mb-4">Account Credentials</h3>
 
@@ -207,8 +227,8 @@
                         <x-input-label for="email" :value="__('Email Address')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                         <x-text-input id="email"
                                 class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                        {{ $errors->has('email') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                {{ $errors->has('email') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
                                 type="email"
                                 name="email"
                                 :value="old('email')"
@@ -230,16 +250,16 @@
                                 required
                                 autocomplete="new-password"
                                 class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10
-                                        border"
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10
+                                                border"
                                 :class="{
                                     'border-green-500 ring-green-300': allPasswordCriteriaMet && password.length > 0,
                                     'border-custom-ochre ring-custom-ochre': password.length > 0 && !allPasswordCriteriaMet && passwordConfirmationTouched
                                 }"
                             />
                             <button type="button"
-                                    @click="passwordFieldType = (passwordFieldType === 'password' ? 'text' : 'password')"
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-custom-dark-teal focus:outline-none">
+                                            @click="passwordFieldType = (passwordFieldType === 'password' ? 'text' : 'password')"
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-custom-dark-teal focus:outline-none">
                                 <svg x-show="passwordFieldType === 'password'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.025m3.758-1.332A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.268 4.706M9.543 12.5a2.5 2.5 0 115 0 2.5 2.5 0 01-5 0z" />
                                 </svg>
@@ -286,7 +306,7 @@
                                 @input="passwordsMatch"
                                 @blur="handlePasswordConfirmationBlur()"
                                 class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10 border"
+                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10 border"
                                 :class="{
                                     'border-green-500 ring-green-300': passwordsMatch && passwordConfirmation.length > 0,
                                     'border-custom-ochre ring-custom-ochre': passwordConfirmationTouched && !passwordsMatch
@@ -295,8 +315,8 @@
 
                             {{-- Eye Icon Toggle Button for Confirm Password --}}
                             <button type="button"
-                                    @click="confirmPasswordFieldType = (confirmPasswordFieldType === 'password' ? 'text' : 'password')"
-                                    class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-custom-dark-teal focus:outline-none">
+                                            @click="confirmPasswordFieldType = (confirmPasswordFieldType === 'password' ? 'text' : 'password')"
+                                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-custom-dark-teal focus:outline-none">
                                 <svg x-show="confirmPasswordFieldType === 'password'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.025m3.758-1.332A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.268 4.706M9.543 12.5a2.5 2.5 0 115 0 2.5 2.5 0 01-5 0z" />
                                 </svg>
@@ -319,7 +339,7 @@
                         <label for="terms_and_privacy" class="inline-flex items-center text-custom-dark-olive cursor-pointer">
                             <input id="terms_and_privacy" type="checkbox"
                                 class="rounded border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre
-                                        {{ $errors->has('terms_and_privacy') ? 'border-custom-ochre' : '' }}"
+                                                {{ $errors->has('terms_and_privacy') ? 'border-custom-ochre' : '' }}"
                                 name="terms_and_privacy" {{ old('terms_and_privacy') ? 'checked' : '' }} required>
                             <span class="ml-2 text-xs sm:text-sm">
                                 I agree to the <a href="{{ route('terms.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Terms of Service</a> and <a href="{{ route('policy.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Privacy Policy</a>.
@@ -334,9 +354,9 @@
                         </a>
 
                         <x-primary-button class="ms-3 sm:ms-4 py-1.5 px-4 sm:py-2 sm:px-6 rounded-md text-white
-                                                bg-custom-ochre hover:bg-custom-ochre-darker
-                                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-ochre
-                                                font-semibold text-sm sm:text-base transition ease-in-out duration-150">
+                                                 bg-custom-ochre hover:bg-custom-ochre-darker
+                                                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-ochre
+                                                 font-semibold text-sm sm:text-base transition ease-in-out duration-150">
                             {{ __('Register') }}
                         </x-primary-button>
                     </div>
@@ -344,4 +364,54 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stateSelect = document.getElementById('state');
+            const suburbSelect = document.getElementById('suburb');
+
+            function loadSuburbs(state) {
+                // Clear existing options, but keep "Select Suburb"
+                suburbSelect.innerHTML = '<option value="">Select Suburb</option>';
+                suburbSelect.disabled = true; // Disable until loaded
+
+                if (!state) {
+                    return; // No state selected, do nothing
+                }
+
+                // Make an API call to fetch suburbs for the selected state
+                fetch(`/get-suburbs/${state}`) // Use your actual route
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(suburbs => {
+                        suburbs.forEach(suburb => {
+                            const option = document.createElement('option');
+                            option.value = suburb;
+                            option.textContent = suburb;
+                            suburbSelect.appendChild(option);
+                        });
+                        suburbSelect.disabled = false; // Re-enable after loading
+                    })
+                    .catch(error => {
+                        console.error('Error fetching suburbs:', error);
+                        suburbSelect.disabled = false; // Ensure it's re-enabled even on error
+                        alert('Could not load suburbs for the selected state. Please try again.');
+                    });
+            }
+
+            // Event listener for state change
+            stateSelect.addEventListener('change', function() {
+                loadSuburbs(this.value); // Load suburbs for the newly selected state
+            });
+
+            // No initial load needed for `old('suburb')` since this is a new registration form.
+            // The suburb dropdown will only be populated once a state is selected.
+        });
+    </script>
+    @endpush
 </x-guest-layout>

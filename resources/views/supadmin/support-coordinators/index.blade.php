@@ -1,6 +1,6 @@
 @extends('supadmin.sa-db') {{-- Assuming your superadmin layout is at resources/views/superadmin/sa-db.blade.php --}}
 
-@section('title', 'Manage Support Coordinators - TouchdCloud Admin')
+@section('title', 'Manage Support Coordinators - SIL Match Admin')
 
 @section('content')
 <div class="container mx-auto px-4 py-8 font-sans"> {{-- Added font-sans for general typography --}}

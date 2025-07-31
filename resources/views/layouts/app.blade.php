@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'TouchdCloud') }}</title>
+    <title>{{ config('app.name', 'SIL Match') }}</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 
@@ -182,7 +182,7 @@
         {{-- Footer - using a dark color from the palette --}}
         <footer class="bg-custom-dark-olive text-white p-6">
             <div class="container mx-auto text-center text-sm">
-                &copy; {{ date('Y') }} {{ config('app.name', 'TouchdCloud') }}. All rights reserved.
+                &copy; {{ date('Y') }} {{ config('app.name', 'SIL Match') }}. All rights reserved.
             </div>
         </footer>
     </div> {{-- Closing div for main x-data --}}

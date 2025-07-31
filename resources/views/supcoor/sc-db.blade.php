@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Touch D Cloud - Support Coordinator Dashboard</title>
+    <title>SIL Match - Support Coordinator Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     {{-- Flatpickr CSS --}}
@@ -16,24 +16,46 @@
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #f8f1e1; /* Light cream background */
+            background-color: #F9FAFB;
+            color: #374151;
         }
         /* Custom styles for active sidebar link */
         .sidebar-link.active {
-            background-color: #e1e7dd; /* Light green-gray background */
-            color: #3e4732; /* Darker green-gray text */
-            font-weight: 600; /* Semi-bold */
-            box-shadow: none; /* Remove shadow for cleaner look */
-            transform: none; /* Remove transform */
+            background-color: #2C494A; /* primary-dark */
+            color: #ffffff; /* custom-white */
+            font-weight: 600;
+            
+            /* New: Extend active color to the right edge */
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            padding-right: 1.5rem; /* Remove right padding for active state */
+            /* Crucial change: Negative right margin to fill the parent's padding */
+            margin-right: 0; 
         }
         .sidebar-link {
-            transition: all 0.2s ease-in-out;
-            padding-left: 1.5rem; /* Consistent padding */
+            transition: all 0.25s ease-in-out;
+            padding-left: 2rem; /* Consistent padding */
             padding-right: 1.5rem;
+            border-radius: 0.75rem; /* More rounded */
+            display: flex; /* Make it a flex container to align icon and text */
+            align-items: center;
+            position: relative; /* For potential future hover effects like underlines */
+            overflow: hidden;
         }
         .sidebar-link:not(.active):hover {
-            background-color: #f2f7ed; /* Lighter hover for non-active */
-            color: #3e4732; /* Darker green-gray on hover */
+            background-color: #E5E7EB; /* border-light */
+            color: #374151; /* text-dark */
+            transform: translateY(-1px); /* Subtle lift on hover */
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+        }
+
+        .sidebar-link svg {
+            color: inherit;
+            transition: color 0.25s ease-in-out, transform 0.25s ease-in-out; /* Add transform transition */
+        }
+
+        .sidebar-link:hover svg {
+            transform: translateX(3px); /* Subtle icon slide on hover */
         }
 
         /* Adjust scrollbar for main content */
@@ -241,12 +263,42 @@
         .flatpickr-calendar .flatpickr-current-month .numInput {
              font-family: 'Inter', sans-serif;
         }
+
+        .sidebar-link {
+            /* Existing styles */
+            display: flex; /* Ensure the anchor tag takes full width */
+            align-items: center; /* Vertically align icon and text */
+            width: 100%; /* Important for full row selection */
+            padding-top: 0.75rem; /* Adjust padding as needed for the entire clickable area */
+            padding-bottom: 0.75rem;
+            padding-left: 2rem; /* Consistent left padding */
+            padding-right: 1.5rem; /* Default right padding */
+        }
+        .sidebar-link.active {
+            padding-right: 1.5rem; /* Remove right padding for active state */
+            /* Ensure the background extends by adjusting width to fill space */
+            position: relative;
+            z-index: 10; /* Make sure it's above other elements if necessary */
+            /* Updated for the right edge fix */
+            margin-right: 0; /* THIS IS THE KEY CHANGE */
+            
+        }
+        .sidebar-link span {
+            /* If you have text inside a span, ensure it doesn't break the layout */
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        #sidebar {
+            padding-left: 1.5rem;
+            padding-right: 0;
+        }
     </style>
     @stack('styles')
 </head>
 <body class="min-h-screen bg-[#f8f1e1] text-[#000000] flex flex-col">
 
-    <header class="bg-[#ffffff] shadow-md p-4 flex items-center justify-between z-30 sticky top-0 w-full h-16"> {{-- Added h-16 (64px) for header height --}}
+    <header class="bg-[#ffffff] shadow-md p-4 flex items-center justify-between z-30 sticky top-0 w-full h-16">
         <div class="flex items-center md:hidden w-full justify-between">
             <h1 class="text-xl font-bold text-[#3e4732]">Support Coordinator Dashboard</h1>
             <button id="mobile-menu-button" class="text-[#bcbabb] focus:outline-none p-2 rounded-md hover:bg-[#f8f1e1]">
@@ -256,8 +308,7 @@
 
         <div class="hidden md:flex items-center justify-between w-full">
             <a href="{{ route('home') }}" class="text-3xl font-extrabold text-[#33595a] hover:text-[#3e4732] transition duration-300">
-                <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }}" class="h-10 inline-block align-middle mr-3">
-                
+                <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }}" class="h-10 inline-block align-middle mr-3">
             </a>
             <div class="flex items-center space-x-4 relative">
                 <div class="relative hidden lg:block">
@@ -324,12 +375,12 @@
     {{-- Main content wrapper. This will now contain both sidebar and main content --}}
     <div class="flex flex-1">
         {{-- Fixed Sidebar for Desktop --}}
-        <aside id="sidebar" class="hidden md:flex flex-col fixed top-16 left-0 h-[calc(100vh-64px)] w-60 bg-[#ffffff] text-[#000000] p-6 space-y-6 border-r border-[#e1e7dd] z-20">
+        <aside id="sidebar" class="hidden md:flex flex-col fixed top-16 left-0 h-[calc(100vh-64px)] w-72 bg-[#ffffff] text-[#000000] p-6 space-y-6 border-r border-[#e1e7dd] z-20">
             <div class="flex items-center justify-center mb-8">
                 {{-- No close button needed for desktop fixed sidebar --}}
             </div>
             {{-- Navigation menu: this itself should not scroll --}}
-            <nav class="space-y-1 overflow-y-auto pr-2" id="sidebar-nav-container"> {{-- Added overflow-y-auto and pr-2 here for explicit sidebar nav scrolling if needed --}}
+            <nav class="space-y-1 overflow-y-auto pr-2" id="sidebar-nav-container">
                 <p class="text-xs font-semibold text-[#bcbabb] uppercase mb-2 px-4">Menu</p>
                 <a href="{{ route('sc.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
@@ -337,13 +388,12 @@
                 <a href="{{ route('sc.participants.list') }}" data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Participants
                 </a>
-                <a href="{{route('sc.supcoor.unassigned_participants')}}" data-section="other-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{route('sc.unassigned_participants')}}" data-section="other-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Connect to more Participants
                 </a>
                 <a href="{{route('sc.messages.index')}}" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
                 </a>
-                
             </nav>
         </aside>
 
@@ -363,22 +413,18 @@
                 <a href="{{ route('sc.participants.list') }}" data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Participants
                 </a>
-                <a href="{{route('sc.supcoor.unassigned_participants')}}" data-section="other-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{route('sc.unassigned_participants')}}" data-section="other-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Connect to more Participants
                 </a>
                 <a href="{{route('sc.messages.index')}}" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
                 </a>
-                
             </nav>
         </aside>
 
-
-        <main class="flex-1 p-4 md:p-8 overflow-y-auto md:ml-60 pt-20 md:pt-8"> {{-- Adjusted padding-top for header clearance --}}
+        <main class="flex-1 p-4 md:p-8 overflow-y-auto md:ml-72 pt-20 md:pt-8">
             <div class="max-w-full mx-auto">
-                {{-- This is where the dynamic content will be injected --}}
                 @yield('main-content')
-
             </div>
         </main>
     </div>
@@ -468,7 +514,7 @@
                         link.classList.add('active');
                     } else if (linkHref === '{{ route('sc.dashboard', [], false) }}' && currentPath.includes('/dashboard')) {
                         link.classList.add('active');
-                    } else if (linkHref === '{{ route('sc.supcoor.unassigned_participants', [], false) }}' && currentPath.includes('/unassigned-participants')) {
+                    } else if (linkHref === '{{ route('sc.unassigned_participants', [], false) }}' && currentPath.includes('/unassigned-participants')) {
                         link.classList.add('active');
                     } else if (linkHref === '{{ route('sc.messages.index', [], false) }}' && currentPath.includes('/messages')) {
                         link.classList.add('active');

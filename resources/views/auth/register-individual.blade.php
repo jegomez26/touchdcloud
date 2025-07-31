@@ -1,4 +1,4 @@
-@section('title', 'Register - ' . config('app.name', 'TouchdCloud')) {{-- Sets the page title --}}
+@section('title', 'Register - ' . config('app.name', 'SIL Match')) {{-- Sets the page title --}}
 
 <x-guest-layout>
     {{-- Main container for the full-screen layout.
@@ -28,7 +28,7 @@
 
                     <h3 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 sm:mb-4 drop-shadow-lg">Start Your Journey!</h3>
                     <p class="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6 drop-shadow">
-                        Join TouchdCloud today and seamlessly manage your NDIS journey, connect with support, and access valuable resources.
+                        Join SIL Match today and seamlessly manage your NDIS journey, connect with support, and access valuable resources.
                     </p>
                     <p class="text-xs sm:text-sm lg:text-md font-semibold drop-shadow">
                         Your pathway to a more organized and connected experience begins here.
@@ -41,10 +41,10 @@
                 <div class="flex flex-col items-center mb-6 sm:mb-8">
                     {{-- Logo --}}
                     <a href="{{ route('home') }}">
-                        <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-20 sm:h-24 w-auto mb-3 sm:mb-4">
+                        <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }} Logo" class="h-20 sm:h-24 w-auto mb-3 sm:mb-4">
                     </a>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-custom-dark-teal text-center">
-                        Join TouchdCloud!
+                        Join SIL Match!
                     </h2>
                     <p class="mt-1 sm:mt-2 text-custom-dark-olive text-center text-sm sm:text-base">
                         Create your account to get started.

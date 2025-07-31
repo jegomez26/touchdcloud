@@ -42,8 +42,6 @@ return new class extends Migration
             // Funding and Looking Status
             $table->boolean('is_looking_hm')->default(false);
             $table->boolean('has_accommodation')->default(false);
-            $table->decimal('funding_amount_support_coor', 10, 2)->nullable();
-            $table->decimal('funding_amount_accommodation', 10, 2)->nullable();
 
             // Associated User Relationships (Emergency Contact Information)
             $table->string('relative_name')->nullable();
@@ -61,11 +59,6 @@ return new class extends Migration
 
             // New: Participant Code Name - UNIQUE for each participant
             $table->string('participant_code_name')->unique()->nullable();
-
-            // Document Paths (for PDF uploads)
-            $table->string('health_report_path')->nullable(); // Stores path to uploaded health report file
-            $table->text('health_report_text')->nullable(); // Stores alternative text details provided in the form
-            $table->string('assessment_path')->nullable(); // If this is for a separate assessment file
 
             $table->timestamps();
         });
