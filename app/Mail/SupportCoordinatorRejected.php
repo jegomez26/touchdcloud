@@ -36,7 +36,7 @@ class SupportCoordinatorRejected extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Update Regarding Your TouchdCloud Support Coordinator Application',
+            subject: 'Update Regarding Your SIL Match Support Coordinator Application',
         );
     }
 

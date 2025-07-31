@@ -35,7 +35,7 @@ class RoleMiddleware
             //    abort(403, 'Unauthorized action.');
 
             // b) Redirect to a general dashboard or home page with an error message:
-            return redirect('/dashboard')->with('error', 'You do not have permission to access this page.');
+            return redirect('/home')->with('error', 'You do not have permission to access this page.');
         }
 
         // 4. If the user has the required role, proceed with the request

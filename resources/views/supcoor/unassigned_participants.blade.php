@@ -22,7 +22,7 @@
                      document.getElementById('suburb').disabled = true;
                  }
              ">
-            <form action="{{ route('sc.supcoor.unassigned_participants') }}" method="GET" class="space-y-4 sm:space-y-5">
+            <form action="{{ route('sc.unassigned_participants') }}" method="GET" class="space-y-4 sm:space-y-5">
                 <div class="flex flex-col md:flex-row items-end gap-3 md:gap-4">
                     <div class="flex-grow w-full">
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search Participants</label>
@@ -113,7 +113,7 @@
                     </div>
 
                     <div class="col-span-full flex flex-col sm:flex-row justify-end gap-3 pt-2 sm:pt-0">
-                        <a href="{{ route('sc.supcoor.unassigned_participants') }}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 bg-gray-200 border border-transparent rounded-lg font-semibold text-sm text-gray-700 uppercase tracking-wider hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
+                        <a href="{{ route('sc.unassigned_participants') }}" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 bg-gray-200 border border-transparent rounded-lg font-semibold text-sm text-gray-700 uppercase tracking-wider hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
                             Clear Filters
                         </a>
                         <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-6 py-2.5 bg-[#cc8e45] border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-wider hover:bg-opacity-90 focus:bg-opacity-90 active:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#cc8e45] focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">

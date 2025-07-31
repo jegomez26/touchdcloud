@@ -126,7 +126,7 @@ class CoordinatorMessageController extends Controller
         // Update last_message_at on the conversation
         $conversation->update(['last_message_at' => now()]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        // broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
             'message' => 'Reply sent successfully!',
@@ -220,7 +220,7 @@ class CoordinatorMessageController extends Controller
             // 'subject' => $request->message_subject,
         ]);
 
-        broadcast(new MessageSent($message))->toOthers();
+        // broadcast(new MessageSent($message))->toOthers();
 
         return response()->json([
             'message' => 'Message sent successfully!',

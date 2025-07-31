@@ -1,4 +1,4 @@
-@section('title', 'Register as Support Coordinator - ' . config('app.name', 'TouchdCloud'))
+@section('title', 'Register as Support Coordinator - ' . config('app.name', 'SIL Match'))
 
 <x-guest-layout>
     {{-- Main container for the full-screen layout.
@@ -48,7 +48,7 @@
                 <div class="flex flex-col items-center mb-6 sm:mb-8">
                     {{-- Logo --}}
                     <a href="{{ route('home') }}">
-                        <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-20 sm:h-24 w-auto mb-3 sm:mb-4">
+                        <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }} Logo" class="h-20 sm:h-24 w-auto mb-3 sm:mb-4">
                     </a>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-custom-dark-teal text-center">
                         Register as a Support Coordinator

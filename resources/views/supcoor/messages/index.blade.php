@@ -22,7 +22,7 @@
                             <li class="mb-2 sm:mb-3 last:mb-0">
                                 <a href="#" data-conversation-id="{{ $conversation->id }}"
                                    class="conversation-item flex items-center p-3 sm:p-4 rounded-lg hover:bg-gray-100 transition-all duration-200 ease-in-out
-                                           {{ $initialConversationId == $conversation->id ? 'bg-primary-light text-white shadow-sm' : 'bg-white border border-border-light' }}"
+                                        {{ $initialConversationId == $conversation->id ? 'bg-primary-light text-white shadow-sm' : 'bg-white border border-border-light' }}"
                                    @click.prevent="selectConversation({{ $conversation->id }})">
                                     <div class="flex-shrink-0 relative">
                                         @php
@@ -66,10 +66,8 @@
 
                 {{-- Message Display Area and Input --}}
                 <div id="message-view-area"
-                    class="w-full md:w-2/3 bg-white rounded-xl border border-border-light flex flex-col shadow-md-light h-[calc(85vh-var(--header-height,100px))]"
-                    x-show="showMessage">
-
-                    
+                     class="w-full md:w-2/3 bg-white rounded-xl border border-border-light flex flex-col shadow-md-light h-[calc(85vh-var(--header-height,100px))]"
+                     x-show="showMessage">
 
                     {{-- Back button for mobile --}}
                     <div class="md:hidden p-3 border-b border-border-light bg-secondary-bg" x-show="showMessage && selectedConversationId">
@@ -84,7 +82,7 @@
 
                     {{-- Fixed Header --}}
                     <div x-show="selectedConversationId && !loading"
-                        class="p-3 sm:p-4 border-b border-border-light bg-secondary-bg flex items-center shadow-sm flex-shrink-0 sticky top-0 z-10">
+                         class="p-3 sm:p-4 border-b border-border-light bg-secondary-bg flex items-center shadow-sm flex-shrink-0 sticky top-0 z-10">
                         <img :src="participantAvatarUrl" alt="Participant Avatar"
                             class="w-12 h-12 sm:w-14 sm:h-14 rounded-full mr-3 sm:mr-4 object-cover border-2 border-white shadow-sm">
                         <div>
@@ -127,8 +125,8 @@
                                         style="min-height: 48px;"></textarea>
                             </div>
                             <button type="submit"
-                                    :disabled="loading"
-                                    class="bg-primary-dark text-white px-4 py-2.5 sm:px-6 sm:py-3 rounded-lg hover:bg-primary-light transition duration-200 ease-in-out font-semibold text-sm sm:text-base shadow-sm">
+                                        :disabled="loading"
+                                        class="bg-primary-dark text-white px-4 py-2.5 sm:px-6 sm:py-3 rounded-lg hover:bg-primary-light transition duration-200 ease-in-out font-semibold text-sm sm:text-base shadow-sm">
                                 <span x-show="!loading">Send</span>
                                 <span x-show="loading">
                                     <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -239,7 +237,6 @@
 @endsection
 
 @push('scripts')
-
 <script>
     window.currentRouteName = "{{ Route::currentRouteName() }}";
 </script>
@@ -255,7 +252,6 @@
             successMessage: '',
             participantAvatarUrl: '{{ asset("images/general.png") }}', // Default avatar
             currentUser: @json(Auth::user()), // Pass authenticated user data to Alpine.js
-            currentEchoChannel: null,
 
             // Mobile visibility states
             showList: true, // Controls sidebar visibility on mobile
@@ -307,11 +303,6 @@
                 this.showList = true;
                 this.showMessage = false;
                 this.selectedConversationId = null; // Important: Clear selected ID when returning to list
-                // Unsubscribe from the previous conversation channel if it was active
-                if (window.Echo && this.currentEchoChannel) {
-                    window.Echo.leave(this.currentEchoChannel);
-                    this.currentEchoChannel = null;
-                }
             },
 
             showConversationView() {
@@ -320,13 +311,6 @@
             },
 
             async selectConversation(conversationId) {
-                // Before loading a new conversation, leave the previous channel
-                if (window.Echo && this.selectedConversationId && this.selectedConversationId !== conversationId) {
-                    window.Echo.leave(`conversation.${this.selectedConversationId}`);
-                    console.log(`Left channel: conversation.${this.selectedConversationId}`);
-                    this.currentEchoChannel = null;
-                }
-
                 this.selectedConversationId = conversationId;
                 this.messages = []; // Clear previous messages
                 this.messageContent = '';
@@ -378,7 +362,6 @@
                     const data = await response.json();
 
                     this.messages = data.messages.map(msg => ({
-                        // Ensure data structure matches what Echo broadcastWith sends for consistency
                         id: msg.id,
                         content: msg.content,
                         created_at_formatted: this.formatDate(msg.created_at),
@@ -393,10 +376,6 @@
                     this.$nextTick(() => {
                         this.scrollToBottom();
                     });
-
-                    // ************* ADD THIS FOR REAL-TIME LISTENER *************
-                    this.listenForMessages(conversationId);
-                    // ***********************************************************
 
                 } catch (error) {
                     console.error('Error loading conversation:', error);
@@ -437,8 +416,6 @@
 
                     const data = await response.json();
                     this.messages.push({
-                        // This message object should match the structure produced by broadcastWith()
-                        // and also the map in selectConversation's fetch.
                         id: data.data.id,
                         content: data.data.content,
                         created_at_formatted: this.formatDate(data.data.created_at),
@@ -485,80 +462,6 @@
                 }
             },
 
-            // ************* NEW METHOD FOR REAL-TIME LISTENING *************
-            listenForMessages(conversationId) {
-                // Ensure Echo is initialized and leave any previous channel before subscribing
-                if (typeof window.Echo === 'undefined') {
-                    console.error('Laravel Echo is not initialized. Make sure resources/js/bootstrap.js is loaded and compiled.');
-                    return;
-                }
-
-                // If we were already listening to this channel, no need to re-subscribe
-                if (this.currentEchoChannel === `conversation.${conversationId}`) {
-                    return;
-                }
-
-                // Leave the previous channel if exists
-                if (this.currentEchoChannel) {
-                    window.Echo.leave(this.currentEchoChannel);
-                    console.log(`Left channel: ${this.currentEchoChannel}`);
-                }
-
-                this.currentEchoChannel = `conversation.${conversationId}`;
-                console.log(`Subscribing to channel: ${this.currentEchoChannel}`);
-
-                window.Echo.private(this.currentEchoChannel)
-                    .listen('.message.sent', (e) => { // Listen for the 'message.sent' event
-                        console.log('New message received via Reverb:', e);
-
-                        // Only add the message if it's not from the current user.
-                        // Messages sent by the current user are optimistically added by sendMessage().
-                        if (e.sender_id !== this.currentUser.id) {
-                            this.messages.push({
-                                id: e.id,
-                                content: e.content,
-                                created_at_formatted: this.formatDate(e.created_at),
-                                is_sender: false, // This message is incoming from the other party
-                                sender_id: e.sender_id,
-                                sender_name: e.sender_name, // This will be the participant's code name
-                                read_at: e.read_at,
-                            });
-                            this.scrollToBottom();
-
-                            // Update the last message preview and potentially add a "New" badge
-                            const currentConvListItem = document.querySelector(`.conversation-item[data-conversation-id="${e.conversation_id}"]`);
-                            if (currentConvListItem) {
-                                const previewElement = currentConvListItem.querySelector('.text-xs.sm\\:text-sm.truncate');
-                                if (previewElement) {
-                                    previewElement.textContent = e.content;
-                                }
-
-                                // If this conversation is currently *not* active, increment unread count
-                                // Otherwise, if it's active, it's marked as read by the backend anyway
-                                if (this.selectedConversationId != e.conversation_id) {
-                                    let newBadge = currentConvListItem.querySelector('.bg-accent-yellow');
-                                    if (!newBadge) {
-                                        newBadge = document.createElement('span');
-                                        newBadge.className = 'ml-2 sm:ml-4 flex-shrink-0 bg-accent-yellow text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-sm';
-                                        currentConvListItem.appendChild(newBadge);
-                                        newBadge.textContent = '1 New';
-                                    } else {
-                                        let currentCount = parseInt(newBadge.textContent.replace(' New', '')) || 0;
-                                        newBadge.textContent = `${currentCount + 1} New`;
-                                    }
-                                }
-                            }
-                        }
-                    })
-                    .error((error) => {
-                        console.error('Reverb channel error for conversation', conversationId, error);
-                        this.errorMessage = 'Real-time connection error. Messages may not update instantly.';
-                        setTimeout(() => { this.errorMessage = ''; }, 5000);
-                        // Potentially trigger re-authentication or a retry mechanism
-                    });
-            },
-            // *******************************************************************
-
             scrollToBottom() {
                 this.$nextTick(() => {
                     const messageArea = document.getElementById('messages-container');
@@ -574,10 +477,11 @@
             },
 
             autoResizeTextarea(event) {
-                event.target.style.height = 'auto';
-                event.target.style.height = (event.target.scrollHeight) + 'px';
+                const textarea = event.target;
+                textarea.style.height = 'auto'; // Reset height to recalculate
+                textarea.style.height = textarea.scrollHeight + 'px'; // Set to scroll height
             }
-        };
+        }
     }
 </script>
 @endpush

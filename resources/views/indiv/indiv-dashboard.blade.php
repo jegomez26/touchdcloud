@@ -97,8 +97,8 @@
         <!-- Desktop Header Content (Dashboard Title, Icons) -->
         <div class="hidden md:flex items-center justify-between w-full">
             <a href="{{ route('home') }}" class="text-3xl font-extrabold text-indigo-700 hover:text-indigo-900 transition duration-300">
-                    <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-10 inline-block align-middle mr-3">
-                    {{ config('app.name', 'TouchdCloud') }}
+                    <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }} Logo" class="h-10 inline-block align-middle mr-3">
+                    {{ config('app.name', 'SIL Match') }}
                 </a>
             <div class="flex items-center space-x-4 relative">
                 <!-- Search Bar in Header -->

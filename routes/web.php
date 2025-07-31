@@ -12,6 +12,7 @@ use App\Http\Controllers\ProviderDashboardController; // ADDED - For provider-sp
 use App\Http\Controllers\CompleteParticipantProfileController;
 use App\Http\Controllers\ParticipantMessageController;
 use App\Http\Controllers\SupportCoordinatorDashboardController;
+use App\Http\Controllers\ProviderAccommodationController;
 use App\Http\Controllers\CoordinatorMessageController;
 
 // --- Public Routes ---
@@ -118,9 +119,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $user->loadMissing('provider'); // Load the relationship
             if ($user->provider && $user->provider->status === 'verified') {
                 return redirect()->route('provider.dashboard');
-            } else {
-                return redirect()->route('provider.account.pending-approval');
-            }
+            } 
         }
         // Fallback for any unhandled roles or if no specific dashboard applies
         return view('home');
@@ -184,7 +183,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         });
     });
 
-    // --- Provider Routes (Require Admin Approval) ---
+    // --- Provider Routes ---
     Route::prefix('provider')->middleware('role:provider')->name('provider.')->group(function () { // Removed 'provider.approved' middleware
         Route::get('/', [ProviderDashboardController::class, 'index'])->name('dashboard');
 
@@ -197,6 +196,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/my-profile', [ProviderDashboardController::class, 'editProfile'])->name('my-profile.edit');
         Route::patch('/my-profile', [ProviderDashboardController::class, 'updateProfile'])->name('my-profile.update');
 
+
+        Route::get('/accommodations', [ProviderAccommodationController::class, 'index'])->name('accommodations.list');
+        Route::get('/accommodations/create', [ProviderAccommodationController::class, 'create'])->name('accommodations.create');
+        Route::post('/accommodations', [ProviderAccommodationController::class, 'store'])->name('accommodations.store');
+        Route::get('/accommodations/{accommodation}', [ProviderAccommodationController::class, 'show'])->name('accommodations.show');
+        Route::get('/accommodations/{accommodation}/edit', [ProviderAccommodationController::class, 'edit'])->name('accommodations.edit');
+        Route::put('/accommodations/{accommodation}', [ProviderAccommodationController::class, 'update'])->name('accommodations.update');
+        Route::delete('/accommodations/{accommodation}', [ProviderAccommodationController::class, 'destroy'])->name('accommodations.destroy');
         // Add other provider-specific routes (e.g., managing services, listings, messages) here
     });
 

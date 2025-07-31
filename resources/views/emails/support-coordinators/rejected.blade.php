@@ -1,7 +1,7 @@
 <x-mail::message>
-# Update Regarding Your TouchdCloud Support Coordinator Application, {{ $coordinatorName }}
+# Update Regarding Your SIL Match Support Coordinator Application, {{ $coordinatorName }}
 
-Thank you for your interest in joining TouchdCloud as a Support Coordinator.
+Thank you for your interest in joining SIL Match as a Support Coordinator.
 
 After reviewing your application, we regret to inform you that it has not been approved at this time.
 

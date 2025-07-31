@@ -1,4 +1,4 @@
-@section('title', 'Verify Email - ' . config('app.name', 'TouchdCloud'))
+@section('title', 'Verify Email - ' . config('app.name', 'SIL Match'))
 
 <x-guest-layout>
     {{-- The verification card container --}}
@@ -6,7 +6,7 @@
 
         <div class="flex flex-col items-center justify-center mb-6">
             <a href="{{ route('home') }}">
-                <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'TouchdCloud') }} Logo" class="h-20 w-auto mb-4">
+                <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }} Logo" class="h-20 w-auto mb-4">
             </a>
             <h2 class="text-2xl font-extrabold text-custom-dark-teal">
                 Verify Your Email Address

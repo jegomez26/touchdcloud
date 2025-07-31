@@ -6,7 +6,7 @@
 
     <div class="prose max-w-none text-custom-dark-olive">
         <h2>1. Introduction</h2>
-        <p>Your privacy is important to us. This Privacy Policy explains how TouchdCloud collects, uses, discloses, and safeguards your information when you visit our website <a href="http://www.touchdcloud.com" class="underline text-custom-dark-teal hover:text-custom-ochre">www.touchdcloud.com</a>, including any other media form, media channel, mobile website, or mobile application related or connected thereto (collectively, the “Site”). Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the Site.</p>
+        <p>Your privacy is important to us. This Privacy Policy explains how SIL Match collects, uses, discloses, and safeguards your information when you visit our website <a href="http://www.silmatch.org" class="underline text-custom-dark-teal hover:text-custom-ochre">www.silmatch.org</a>, including any other media form, media channel, mobile website, or mobile application related or connected thereto (collectively, the “Site”). Please read this privacy policy carefully. If you do not agree with the terms of this privacy policy, please do not access the Site.</p>
 
         <h2>2. Information We Collect</h2>
         <p>We may collect personal information that you voluntarily provide to us when you register on the Site, express an interest in obtaining information about us or our products and services, when you participate in activities on the Site, or otherwise when you contact us.</p>
@@ -48,7 +48,7 @@
 
         <h2>8. Contact Us</h2>
         <p>If you have questions or comments about this Privacy Policy, please contact us at:</p>
-        <p>TouchdCloud Support<br>support@touchdcloud.com</p>
+        <p>SIL Match Support<br>support@silmatch.org</p>
     </div>
 
     <div class="mt-8 text-center">

@@ -138,7 +138,7 @@ class ParticipantMessageController extends Controller
         // Update last_message_at on the conversation
         $conversation->update(['last_message_at' => now()]);
 
-        event(new MessageSent($message)); // Your MessageSent event expects a Message model
+        // event(new MessageSent($message)); // Your MessageSent event expects a Message model
 
         return response()->json([
             'message' => 'Reply sent successfully!',
@@ -212,7 +212,7 @@ class ParticipantMessageController extends Controller
             'original_recipient_role' => 'coordinator',
         ]);
 
-        event(new MessageSent($message));
+        // event(new MessageSent($message));
 
         return response()->json([
             'message' => 'Message sent successfully!',

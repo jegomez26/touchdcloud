@@ -13,7 +13,7 @@ class ProviderDashboardController extends Controller
         // Load the authenticated user's associated provider profile
         $provider = Auth::user()->provider;
 
-        return view('provider.dashboard', compact('provider')); // Create provider/dashboard.blade.php
+        return view('company.provider-db', compact('provider')); // Create provider/dashboard.blade.php
     }
 
     public function editProfile()
@@ -23,7 +23,7 @@ class ProviderDashboardController extends Controller
             // Handle case where provider profile doesn't exist (shouldn't happen after registration)
             abort(404);
         }
-        return view('provider.edit-profile', compact('provider')); // Create provider/edit-profile.blade.php
+        return view('company.edit-profile', compact('provider')); // Create provider/edit-profile.blade.php
     }
 
     public function updateProfile(Request $request)

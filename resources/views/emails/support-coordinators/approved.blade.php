@@ -1,9 +1,9 @@
 <x-mail::message>
-# Welcome to TouchdCloud, {{ $coordinatorName }}!
+# Welcome to SIL Match, {{ $coordinatorName }}!
 
-Great news! Your Support Coordinator account for TouchdCloud has been **approved**.
+Great news! Your Support Coordinator account for SIL Match has been **approved**.
 
-You can now log in and start managing your NDIS participants, connecting with other providers, and utilizing all the features TouchdCloud has to offer.
+You can now log in and start managing your NDIS participants, connecting with other providers, and utilizing all the features SIL Match has to offer.
 
 <x-mail::button :url="$loginLink">
 Login to Your Account

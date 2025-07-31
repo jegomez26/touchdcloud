@@ -19,7 +19,7 @@
                 {{-- Conversation List (Sidebar) --}}
                 <div id="conversation-sidebar"
                      class="w-full md:w-1/3 bg-secondary-bg rounded-xl p-4 md:p-5 overflow-y-auto border border-border-light shadow-sm flex-shrink-0
-                            {{ $initialConversationId ? 'hidden md:block' : 'block' }}"> {{-- Hide on mobile if initial conv is set, show otherwise --}}
+                             {{ $initialConversationId ? 'hidden md:block' : 'block' }}"> {{-- Hide on mobile if initial conv is set, show otherwise --}}
 
                     <h3 class="font-bold text-lg sm:text-xl text-primary-dark mb-4 md:mb-5 border-b pb-3 border-border-light">Conversations</h3>
                     <ul id="conversation-list">
@@ -27,9 +27,9 @@
                             <li class="mb-2 sm:mb-3 last:mb-0">
                                 <a href="#" data-conversation-id="{{ $conversation->id }}"
                                    class="conversation-item flex items-center p-3 sm:p-4 rounded-lg hover:bg-gray-100 transition-all duration-200 ease-in-out
-                                          {{ $initialConversationId == $conversation->id ? 'bg-primary-light text-white shadow-sm' : 'bg-white border border-border-light' }}">
+                                           {{ $initialConversationId == $conversation->id ? 'bg-primary-light text-white shadow-sm' : 'bg-white border border-border-light' }}">
                                     <img src="{{ $conversation->supportCoordinator->user->profile_avatar_url ? asset('storage/' . $conversation->supportCoordinator->user->profile_avatar_url) : asset('images/general.png') }}"
-                                         alt="Coordinator Avatar" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-3 sm:mr-4 object-cover border-2 border-white shadow-sm">
+                                            alt="Coordinator Avatar" class="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-3 sm:mr-4 object-cover border-2 border-white shadow-sm">
                                     <div class="flex-1 min-w-0"> {{-- Add min-w-0 to allow text truncation --}}
                                         <p class="text-sm sm:text-base font-semibold {{ $initialConversationId == $conversation->id ? 'text-white' : 'text-text-dark' }} leading-tight">
                                             {{ $conversation->supportCoordinator->user->name ?? 'Support Coordinator' }}
@@ -58,7 +58,7 @@
                 {{-- Message Display Area and Input --}}
                 <div id="message-view-area"
                      class="w-full md:w-2/3 bg-white rounded-xl border border-border-light flex flex-col shadow-md-light h-[calc(85vh-var(--header-height,100px))]
-                            {{ $initialConversationId ? 'block' : 'hidden md:block' }}"> {{-- Show if initial conv is set, else hide on mobile --}}
+                             {{ $initialConversationId ? 'block' : 'hidden md:block' }}"> {{-- Show if initial conv is set, else hide on mobile --}}
 
                     {{-- Back button for mobile --}}
                     <div class="md:hidden p-3 border-b border-border-light bg-secondary-bg">
@@ -181,7 +181,6 @@
 
         let currentConversationId = {{ $initialConversationId ?? 'null' }};
         const messageInputFormContainer = document.getElementById('message-input-form-container');
-        let currentEchoChannel = null;
 
         // Function to manage visibility on mobile
         function showConversationList() {
@@ -238,13 +237,6 @@
 
         // Function to fetch and display messages for a conversation
         function loadConversationMessages(conversationId) {
-            // First, unsubscribe from any previously active channel
-            if (currentEchoChannel) {
-                console.log('Unsubscribing from channel:', currentEchoChannel.name);
-                window.Echo.leave(currentEchoChannel.name); // Use .leave() for private channels
-                currentEchoChannel = null;
-            }
-
             currentConversationId = conversationId;
             if (currentConversationIdInput) {
                 currentConversationIdInput.value = conversationId;
@@ -295,65 +287,6 @@
                         if (messagesContainer) {
                             messagesContainer.scrollTop = messagesContainer.scrollHeight;
                         }
-
-                        // --- LARAVEL ECHO INTEGRATION ---
-                        // Subscribe to the private channel for this conversation
-                        currentEchoChannel = window.Echo.private(`conversation.${conversationId}`);
-                        console.log(`Subscribed to private channel: conversation.${conversationId}`);
-
-                        currentEchoChannel.listen('.message.sent', (e) => {
-                            console.log('New message received via WebSocket:', e);
-
-                            // The event data (e) comes from broadcastWith() in MessageSent event
-                            // We need to re-map it to match the format expected by renderMessage
-                            const incomingMessageData = {
-                                id: e.id,
-                                content: e.content,
-                                created_at: new Date(e.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }), // Format as needed
-                                read_at: e.read_at,
-                                // Determine if the sender of this broadcast message is the current user
-                                // This usually means the message was sent by someone else if it's an incoming broadcast
-                                is_sender: e.sender_id === window.App.user.id,
-                                // sender_name will be dynamically determined by renderMessage
-                            };
-
-                            const messagesContainer = document.getElementById('messages-container');
-                            if (messagesContainer) {
-                                // IMPORTANT: Only append if the message is NOT from the current user
-                                // (because we already append it immediately after sending in the fetch .then() block)
-                                // OR if you want to handle all messages via broadcast, remove the local append.
-                                // For simplicity and to avoid duplicates, we'll only append incoming.
-                                if (incomingMessageData.is_sender) {
-                                    // If the message is from the current user, it means this broadcast
-                                    // is just a confirmation that the message was sent.
-                                    // We already added it to the UI in the `fetch` success callback.
-                                    // You might want to update a "sent" status or mark it as read etc.
-                                    console.log('Skipping rendering own message received via broadcast.');
-                                } else {
-                                    messagesContainer.insertAdjacentHTML('beforeend', renderMessage(incomingMessageData, false, coordinatorName));
-                                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-                                    // Also update the conversation list preview for the current conversation
-                                    const currentConvListItem = document.querySelector(`.conversation-item[data-conversation-id="${conversationId}"]`);
-                                    if (currentConvListItem) {
-                                        const previewElement = currentConvListItem.querySelector('p.text-xs.sm\:text-sm');
-                                        if (previewElement) {
-                                            previewElement.textContent = e.content; // Update with latest message content
-                                            // You might also want to remove the "New" tag if it was there and this message is read
-                                            const newTag = currentConvListItem.querySelector('.bg-accent-yellow');
-                                            if (newTag) {
-                                                newTag.remove();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        })
-                        .error((error) => {
-                            console.error('Echo Private Channel Authorization Error:', error);
-                            alert('Failed to authorize for chat. Please refresh the page or contact support.');
-                        });
-                        // --- END LARAVEL ECHO INTEGRATION ---
                     }
 
                     // ... (existing active class update for conversation items) ...
@@ -442,7 +375,6 @@
                 })
                 .then(data => {
                     // This message was sent by the current user, so append it to the UI immediately.
-                    // The broadcast will also send it back, but we want immediate feedback.
                     const messagesContainer = document.getElementById('messages-container');
                     if (messagesContainer) {
                         // Assuming your `data.data` from the controller `reply` method

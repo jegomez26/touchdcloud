@@ -32,7 +32,7 @@ class SupportCoordinatorApproved extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your TouchdCloud Support Coordinator Account Has Been Approved!',
+            subject: 'Your SIL Match Support Coordinator Account Has Been Approved!',
         );
     }
 

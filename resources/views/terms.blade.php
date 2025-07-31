@@ -6,10 +6,10 @@
 
     <div class="prose max-w-none text-custom-dark-olive">
         <h2>1. Acceptance of Terms</h2>
-        <p>By accessing or using the TouchdCloud website and services, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to all the terms and conditions of this agreement, then you may not access the website or use any services.</p>
+        <p>By accessing or using the SIL Match website and services, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to all the terms and conditions of this agreement, then you may not access the website or use any services.</p>
 
         <h2>2. Services Provided</h2>
-        <p>TouchdCloud provides a platform for NDIS Participants, Support Coordinators, and Accommodation Providers to connect and facilitate housing solutions.</p>
+        <p>SIL Match provides a platform for NDIS Participants, Support Coordinators, and Accommodation Providers to connect and facilitate housing solutions.</p>
 
         <h2>3. User Responsibilities</h2>
         <p>Users are responsible for maintaining the confidentiality of their account and password and for restricting access to their computer. You agree to accept responsibility for all activities that occur under your account or password.</p>
@@ -18,13 +18,13 @@
         <p>You agree not to post, transmit, or otherwise make available any content that is unlawful, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, libelous, invasive of another's privacy, hateful, or racially, ethnically or otherwise objectionable.</p>
 
         <h2>5. Disclaimers and Limitation of Liability</h2>
-        <p>The services are provided "as is" without warranty of any kind. In no event shall TouchdCloud be liable for any direct, indirect, incidental, special, consequential, or exemplary damages, including but not limited to, damages for loss of profits, goodwill, use, data, or other intangible losses.</p>
+        <p>The services are provided "as is" without warranty of any kind. In no event shall SIL Match be liable for any direct, indirect, incidental, special, consequential, or exemplary damages, including but not limited to, damages for loss of profits, goodwill, use, data, or other intangible losses.</p>
 
         <h2>6. Changes to Terms</h2>
         <p>We reserve the right to modify these Terms at any time. We will notify you of any changes by posting the new Terms on this page.</p>
 
         <h2>7. Contact Information</h2>
-        <p>If you have any questions about these Terms, please contact us at support@touchdcloud.com.</p>
+        <p>If you have any questions about these Terms, please contact us at support@silmatch.org.</p>
     </div>
 
     <div class="mt-8 text-center">
