@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('middle_name')->nullable();
             $table->string('last_name');
-            $table->string('company_name'); // Added: Company Name
-            $table->string('abn')->nullable(); // Added: ABN (nullable since it's manual validation, might not be immediately available or required depending on your workflow)
+            $table->string('company_name');
+            $table->string('abn')->nullable();
             $table->string('sup_coor_code_name')->unique();
-            $table->string('sup_coor_image')->nullable();
+            $table->string('profile_picture_path')->nullable(); 
             $table->enum('status', ['pending_verification', 'verified', 'rejected'])->default('pending_verification');
             $table->text('verification_notes')->nullable();
             $table->timestamps();

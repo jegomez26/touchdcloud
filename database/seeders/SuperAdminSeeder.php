@@ -3,11 +3,13 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User; // Make sure to import the User model
-use App\Models\SupportCoordinator; // <--- NEW: Import the SupportCoordinator model
-use Illuminate\Support\Facades\Hash; // Required for hashing passwords
-use Carbon\Carbon; // Required for timestamps
-use Illuminate\Support\Str; // <--- NEW: Required for Str::random() for sup_coor_code_name
+use App\Models\User;
+use App\Models\SupportCoordinator;
+use App\Models\Provider; // NEW: Import the Provider model
+use App\Models\Property; // NEW: Import the Property model (assuming accommodations was renamed)
+use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class SuperAdminSeeder extends Seeder
 {
@@ -22,18 +24,15 @@ class SuperAdminSeeder extends Seeder
                 'first_name' => 'SIL Match',
                 'last_name' => 'Admin',
                 'email' => 'admin@silmatch.org',
-                'password' => Hash::make('sil-Admin25'), // Always hash passwords!
-                'role' => 'admin', // Ensure this matches your 'admin' enum value
-                'email_verified_at' => Carbon::now(), // Mark as verified
-                'profile_completed' => true, // Superadmin profile is considered complete
-                'is_representative' => false,
-                'relationship_to_participant' => null, // Added for completeness, explicitly null
-                'representative_first_name' => null, // Not a representative
-                'representative_last_name' => null,  // Not a representative
+                'password' => Hash::make('sil-Admin25'),
+                'role' => 'admin',
+                'email_verified_at' => Carbon::now(),
+                'profile_completed' => true,
+                'is_active' => true, // Ensure this is set
             ]);
-            $this->command->info('Superadmin created successfully!');
+            $this->command->info('Superadmin created successfully! ✨');
         } else {
-            $this->command->info('Superadmin already exists.');
+            $this->command->info('Superadmin already exists. ℹ️');
         }
 
         // 2. Create Support Coordinator User
@@ -43,40 +42,37 @@ class SuperAdminSeeder extends Seeder
                 'first_name' => 'Alice',
                 'last_name' => 'Smith',
                 'email' => 'sc@silmatch.org',
-                'password' => Hash::make('sil-sc25'), // Always hash passwords!
-                'role' => 'coordinator', // Ensure this matches your 'coordinator' enum value
-                'email_verified_at' => Carbon::now(), // Mark as verified
-                'profile_completed' => false,
-                'is_representative' => false,
-                'relationship_to_participant' => null, // Added for completeness
-                'representative_first_name' => null, // Not a representative
-                'representative_last_name' => null,  // Not a representative
+                'password' => Hash::make('sil-sc25'),
+                'role' => 'coordinator',
+                'email_verified_at' => Carbon::now(),
+                'profile_completed' => false, // Will be true once SupportCoordinator profile is created
+                'is_active' => true,
             ]);
-            $this->command->info('Support Coordinator User created successfully!');
+            $this->command->info('Support Coordinator User created successfully! 👩‍💼');
         } else {
-            $this->command->info('Support Coordinator User already exists.');
+            $this->command->info('Support Coordinator User already exists. ℹ️');
         }
 
         // 3. Create Support Coordinator Profile (in support_coordinators table)
-        // This should only happen if the coordinator user was just created or if the profile doesn't exist
         if ($coordinatorUser && !SupportCoordinator::where('user_id', $coordinatorUser->id)->exists()) {
             SupportCoordinator::create([
                 'user_id' => $coordinatorUser->id,
-                'first_name' => $coordinatorUser->first_name, // Use name from user table
-                'last_name' => $coordinatorUser->last_name,   // Use name from user table
-                'middle_name' => null, // Assuming no middle name for seeder example
-                'company_name' => 'Acme Support Services', // Example company name
-                'abn' => '12345678901', // Example ABN (must be 11 digits for valid ABNs)
-                'sup_coor_code_name' => 'SC-' . Str::upper(Str::random(6)), // Example code name
-                'sup_coor_image' => null, // No image for seeder example
-                'status' => 'verified', // Example status for seeder
+                'first_name' => $coordinatorUser->first_name,
+                'last_name' => $coordinatorUser->last_name,
+                'middle_name' => null,
+                'company_name' => 'Acme Support Services',
+                'abn' => '12345678901',
+                'sup_coor_code_name' => 'SC' . Str::upper(Str::random(6)),
+                'profile_picture_path' => null, // Updated column name
+                'status' => 'verified',
                 'verification_notes' => 'Seeded as verified coordinator.',
             ]);
-            $this->command->info('Support Coordinator Profile created successfully!');
+            // Update the user's profile_completed status after creating their profile
+            $coordinatorUser->update(['profile_completed' => true]);
+            $this->command->info('Support Coordinator Profile created successfully! ✅');
         } else if ($coordinatorUser) {
-            $this->command->info('Support Coordinator Profile already exists.');
+            $this->command->info('Support Coordinator Profile already exists. ℹ️');
         }
-
 
         // 4. Create Participant User
         if (!User::where('email', 'indiv@silmatch.org')->exists()) {
@@ -84,38 +80,70 @@ class SuperAdminSeeder extends Seeder
                 'first_name' => 'David',
                 'last_name' => 'Owen',
                 'email' => 'indiv@silmatch.org',
-                'password' => Hash::make('sil-indiv25'), // Always hash passwords!
-                'role' => 'participant', // Ensure this matches your 'participant' enum value
-                'email_verified_at' => Carbon::now(), // Mark as verified
+                'password' => Hash::make('sil-indiv25'),
+                'role' => 'participant',
+                'email_verified_at' => Carbon::now(),
                 'profile_completed' => false,
-                'is_representative' => false,
-                'relationship_to_participant' => null,
-                'representative_first_name' => null, // Not a representative
-                'representative_last_name' => null,  // Not a representative
+                'is_active' => true,
             ]);
-            $this->command->info('Participant created successfully!');
+            $this->command->info('Participant User created successfully! 🧑‍🦽');
         } else {
-            $this->command->info('Participant already exists.');
+            $this->command->info('Participant User already exists. ℹ️');
         }
 
         // 5. Create Provider User
-        if (!User::where('email', 'provider@silmatch.org')->exists()) {
-            User::create([
+        $providerUser = User::where('email', 'provider@silmatch.org')->first();
+        if (!$providerUser) {
+            $providerUser = User::create([
                 'first_name' => 'Emily',
                 'last_name' => 'Tan',
                 'email' => 'provider@silmatch.org',
-                'password' => Hash::make('sil-provider25'), // Changed password to avoid confusion
-                'role' => 'provider', // Ensure this matches your 'provider' enum value
-                'email_verified_at' => Carbon::now(), // Mark as verified
-                'profile_completed' => false,
-                'is_representative' => false,
-                'relationship_to_participant' => null,
-                'representative_first_name' => null, // Not a representative
-                'representative_last_name' => null,  // Not a representative
+                'password' => Hash::make('sil-provider25'),
+                'role' => 'provider',
+                'email_verified_at' => Carbon::now(),
+                'profile_completed' => false, // Will be true once Provider profile is created
+                'is_active' => true,
             ]);
-            $this->command->info('Provider created successfully!');
+            $this->command->info('Provider User created successfully! 🏢');
         } else {
-            $this->command->info('Provider already exists.');
+            $this->command->info('Provider User already exists. ℹ️');
         }
+
+        // 6. Create Provider Profile (in providers table)
+        if ($providerUser && !Provider::where('user_id', $providerUser->id)->exists()) {
+            Provider::create([
+                'user_id' => $providerUser->id,
+                'organisation_name' => 'Bright Future Homes',
+                'abn' => '98765432109',
+                'ndis_registration_number' => 'NDIS12345',
+                'provider_types' => ['SIL Provider', 'SDA Provider', 'Both'], // JSON array
+                'main_contact_name' => $providerUser->first_name . ' ' . $providerUser->last_name,
+                'main_contact_role_title' => 'Director',
+                'phone_number' => '0412345678',
+                'email_address' => $providerUser->email,
+                'website' => 'https://www.brightfuturehomes.com.au',
+                'office_address' => '123 Sunny St',
+                'office_suburb' => 'Sunshine',
+                'office_state' => 'VIC',
+                'office_post_code' => '3000',
+                'states_operated_in' => ['VIC', 'NSW', 'QLD'], // JSON array
+                'sil_support_types' => ['24/7 support', 'High-intensity supports'], // JSON array
+                'sil_support_types_other' => null,
+                'clinical_team_involvement' => 'Yes',
+                'staff_training_areas' => ['Medication administration', 'Manual handling', 'Complex needs'], // JSON array
+                'staff_training_areas_other' => null,
+                'plan' => 'Growth Plan', // Assuming they start on Growth
+                'provider_code_name' => 'PRV' . Str::upper(Str::random(6)),
+                'provider_logo_path' => null, // No logo for seeder example
+            ]);
+            // Update the user's profile_completed status after creating their profile
+            $providerUser->update(['profile_completed' => true]);
+            $this->command->info('Provider Profile created successfully! ✅');
+        } else if ($providerUser) {
+            $this->command->info('Provider Profile already exists. ℹ️');
+        }
+
+        
+
     }
 }

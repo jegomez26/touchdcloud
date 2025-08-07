@@ -36,6 +36,10 @@ Route::get('/privacy-policy', function () {
     return view('policy');
 })->name('policy.show');
 
+Route::get('/pr-db', function () {
+    return view('company.company-dashboard');
+})->name('pr-db');
+
 // Note: '/sc-db' is likely a temporary route. It's usually better to rely on role-based dashboard redirection.
 // Route::get('/sc-db', function () {
 //     return view('supcoor/sc-dashboard');

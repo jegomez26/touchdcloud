@@ -6,14 +6,14 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait; // Correct alias, but often not needed if implementing the interface directly
+use Illuminate\Auth\MustVerifyEmail as MustVerifyEmailTrait;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class User extends Authenticatable implements MustVerifyEmail // Implement the interface
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasFactory, Notifiable;
-    use MustVerifyEmailTrait; // Use the trait to get the hasVerifiedEmail() method and others
+    use MustVerifyEmailTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -27,10 +27,6 @@ class User extends Authenticatable implements MustVerifyEmail // Implement the i
         'password',
         'role',
         'profile_completed',
-        'is_representative',
-        'relationship_to_participant', // <--- This is on the User model
-        'representative_first_name', // <--- This is on the User model
-        'representative_last_name',  // <--- This is on the User model
         'is_active',
     ];
 
@@ -55,7 +51,6 @@ class User extends Authenticatable implements MustVerifyEmail // Implement the i
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'profile_completed' => 'boolean',
-            'is_representative' => 'boolean',
             'is_active' => 'boolean',
         ];
     }
@@ -91,7 +86,8 @@ class User extends Authenticatable implements MustVerifyEmail // Implement the i
     */
 
     /**
-     * Get the participant associated with the user.
+     * Get the participant profile associated with this user, if this user IS a participant.
+     * This applies when a 'participant' role user self-registers.
      */
     public function participant(): HasOne
     {
@@ -99,77 +95,58 @@ class User extends Authenticatable implements MustVerifyEmail // Implement the i
     }
 
     /**
-     * Get the participants that this user (as a representative) represents.
-     * Assuming 'representative_user_id' is the foreign key on the 'participants' table.
+     * Get the participants that this user has added (e.g., a representative, coordinator, or provider adding participants).
      */
-    public function participantsRepresented(): HasMany
+    public function participantsAdded(): HasMany
     {
-        return $this->hasMany(Participant::class, 'representative_user_id');
-    }
-
-    public function participantManaged(): HasMany
-    {
-        return $this->hasMany(Participant::class, 'support_coordinator_id');
+        return $this->hasMany(Participant::class, 'added_by_user_id');
     }
 
     /**
-     * Get the support coordinator record associated with the user.
+     * Get the support coordinator specific profile if this user has the 'coordinator' role.
+     * This assumes a separate 'SupportCoordinator' model/table which links back to 'users'.
      */
-    public function supportCoordinator(): HasOne
+    public function supportCoordinatorProfile(): HasOne
     {
         return $this->hasOne(SupportCoordinator::class, 'user_id');
     }
 
     /**
-     * Get the provider record associated with the user.
+     * Get the provider specific profile if this user has the 'provider' role.
+     * This assumes a separate 'Provider' model/table which links back to 'users'.
      */
-    public function provider(): HasOne
+    public function providerProfile(): HasOne
     {
-        // Assuming you have a Provider model for this relationship
-        // If 'Provider' maps directly to 'NDISBusiness', you might want to rename this method.
-        return $this->hasOne(Provider::class, 'user_id'); // Make sure this Provider model exists or is imported
+        return $this->hasOne(Provider::class, 'user_id');
+    }
+
+    /**
+     * Get the user's full name.
+     *
+     * @return string
+     */
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
     }
 
     /**
      * Polymorphic method to get the specific profile related to the user's role.
+     * Returns the associated profile model or null if not applicable.
      */
-    public function profile()
+    public function getRoleProfile()
     {
         switch ($this->role) {
             case 'participant':
-                return $this->participant();
+                return $this->participant; // Accessing the relationship directly
             case 'coordinator':
-                return $this->supportCoordinator();
+                return $this->supportCoordinatorProfile; // Accessing the relationship directly
             case 'provider':
-                return $this->provider(); // Using the provider() relationship here
+                return $this->providerProfile; // Accessing the relationship directly
             case 'admin':
                 return null;
             default:
                 return null;
         }
     }
-
-        /**
-     * Get the user's full name.
-     *
-     * @return string
-     */
-    public function getNameAttribute(): string
-    {
-        return "{$this->first_name} {$this->last_name}";
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Potential Redundancies / Clarifications
-    |--------------------------------------------------------------------------
-    */
-
-    // This 'user()' relationship is commented out, which is good.
-    // If you uncomment it, ensure it's for a specific self-referencing purpose
-    // and your 'users' table has a corresponding foreign key.
-    // public function user()
-    // {
-    //      return $this->belongsTo(User::class);
-    // }
 }

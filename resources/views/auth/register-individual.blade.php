@@ -2,16 +2,16 @@
 
 <x-guest-layout>
     {{-- Main container for the full-screen layout.
-         Uses `h-auto md:h-screen` to fill viewport height on medium+ screens and center content.
-         `flex`, `items-center`, `justify-center` will perfectly center the card within this height.
-         `p-4 sm:p-6 lg:p-8` provides universal padding. --}}
+        Uses `h-auto md:h-screen` to fill viewport height on medium+ screens and center content.
+        `flex`, `items-center`, `justify-center` will perfectly center the card within this height.
+        `p-4 sm:p-6 lg:p-8` provides universal padding. --}}
     <div class="relative h-auto md:h-screen flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
 
         {{-- The actual two-column card.
-             `md:flex` enables the two-column layout on medium+ screens.
-             `rounded-lg shadow-xl` for card styling.
-             `md:h-full md:max-h-[85vh]` controls its height, making it fill most of the screen vertically.
-             `overflow-hidden` ensures content stays within the card bounds. --}}
+            `md:flex` enables the two-column layout on medium+ screens.
+            `rounded-lg shadow-xl` for card styling.
+            `md:h-full md:max-h-[85vh]` controls its height, making it fill most of the screen vertically.
+            `overflow-hidden` ensures content stays within the card bounds. --}}
         <div class="relative w-full md:flex rounded-lg shadow-xl md:h-full md:max-h-[85vh] overflow-hidden" style="max-width: 1200px;">
 
             {{-- Left Column: Image/Illustration and Text (Hidden on small screens) --}}
@@ -44,10 +44,10 @@
                         <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }} Logo" class="h-20 sm:h-24 w-auto mb-3 sm:mb-4">
                     </a>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-custom-dark-teal text-center">
-                        Join SIL Match!
+                        Register as a Participant
                     </h2>
                     <p class="mt-1 sm:mt-2 text-custom-dark-olive text-center text-sm sm:text-base">
-                        Create your account to get started.
+                        Create your account to get started. You'll define if you are the participant or a representative after this step.
                     </p>
                 </div>
 
@@ -72,9 +72,8 @@
                             }
                         }
                     "
-                    class="space-y-4 sm:space-y-6" {{-- Adjusted spacing for better responsiveness --}}
+                    class="space-y-4 sm:space-y-6"
                     x-data="{
-                        registrationType: '{{ old('registration_type', 'participant') }}',
                         passwordFieldType: 'password',
                         confirmPasswordFieldType: 'password',
                         password: '',
@@ -106,131 +105,47 @@
                 >
                     @csrf
 
+                    {{-- Hidden input for role --}}
                     <input type="hidden" name="role" value="participant">
 
-                    {{-- "Who are you registering?" section (Toggle Button) --}}
-                    <div class="mb-4 sm:mb-6"> {{-- Adjusted margin-bottom --}}
-                        <label class="block text-sm sm:text-base font-semibold text-custom-dark-teal mb-2">Who are you registering?</label>
-                        <div class="relative flex w-full bg-custom-light-cream rounded-full p-1 border border-custom-light-grey-green">
-                            <div class="absolute inset-0 z-0 bg-custom-ochre rounded-full shadow-md transition-all duration-300 ease-in-out"
-                                 :class="registrationType === 'participant' ? 'transform translate-x-0 w-1/2' : 'transform translate-x-full w-1/2'">
-                            </div>
+                    <p class="text-sm sm:text-base text-custom-dark-olive mb-4">
+                        Please provide your details to create your user account. This account will be linked to the participant profile you set up after registration.
+                    </p>
 
-                            <button type="button"
-                                    @click="registrationType = 'participant'"
-                                    class="relative z-10 w-1/2 px-3 py-1.5 sm:px-4 sm:py-2 text-center rounded-full text-sm sm:text-base transition-colors duration-300 ease-in-out" {{-- Adjusted padding and font size --}}
-                                    :class="registrationType === 'participant' ? 'text-white font-bold' : 'text-custom-dark-teal hover:text-custom-ochre-darker'">
-                                I am the Participant
-                            </button>
-                            <button type="button"
-                                    @click="registrationType = 'representative'"
-                                    class="relative z-10 w-1/2 px-3 py-1.5 sm:px-4 sm:py-2 text-center rounded-full text-sm sm:text-base transition-colors duration-300 ease-in-out" {{-- Adjusted padding and font size --}}
-                                    :class="registrationType === 'representative' ? 'text-white font-bold' : 'text-custom-dark-teal hover:text-custom-ochre-darker'">
-                                I am registering for a Participant
-                            </button>
-
-                            <input type="hidden" name="registration_type" x-model="registrationType">
-                        </div>
-                        @error('registration_type')
-                            <span class="text-custom-ochre text-xs sm:text-sm mt-2 block">{{ $message }}</span> {{-- Adjusted font size --}}
-                        @enderror
-                    </div>
-
-                    {{-- Representative Fields - controlled by Alpine's x-show --}}
-                    <div x-show="registrationType === 'representative'" class="space-y-4 sm:space-y-6" {{-- Adjusted spacing --}}
-                         x-transition:enter="ease-out duration-300"
-                         x-transition:enter-start="opacity-0 transform -translate-y-4"
-                         x-transition:enter-end="opacity-100 transform translate-y-0"
-                         x-transition:leave="ease-in duration-200"
-                         x-transition:leave-start="opacity-100 transform translate-y-0"
-                         x-transition:leave-end="opacity-0 transform -translate-y-4">
-
-                        <h3 class="text-xl font-extrabold text-custom-dark-teal border-b border-custom-light-grey-green pb-3 mb-4">Your Details (Representative)</h3>
-
-                        {{-- Representative First Name and Last Name on one line --}}
-                        <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
-                            <div class="flex-1">
-                                <x-input-label for="representative_first_name" :value="__('Your First Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                <x-text-input type="text" name="representative_first_name" id="representative_first_name"
-                                                class="block w-full px-3 py-2 rounded-md shadow-sm
-                                                    text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                                    {{ $errors->has('representative_first_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                                :value="old('representative_first_name')"
-                                                x-bind:required="registrationType === 'representative'" />
-                                <x-input-error :messages="$errors->get('representative_first_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
-                            </div>
-
-                            <div class="flex-1">
-                                <x-input-label for="representative_last_name" :value="__('Your Last Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                <x-text-input type="text" name="representative_last_name" id="representative_last_name"
-                                                class="block w-full px-3 py-2 rounded-md shadow-sm
-                                                    text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                                    {{ $errors->has('representative_last_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                                :value="old('representative_last_name')"
-                                                x-bind:required="registrationType === 'representative'" />
-                                <x-input-error :messages="$errors->get('representative_last_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
-                            </div>
-                        </div>
-
-                        <div>
-                            <x-input-label for="relationship_to_participant" :value="__('Relationship to Participant')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                            <select name="relationship_to_participant" id="relationship_to_participant"
-                                    class="block w-full px-3 py-2 border rounded-md shadow-sm
-                                            text-sm sm:text-base bg-custom-white text-custom-dark-teal
-                                            {{ $errors->has('relationship_to_participant') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                    x-bind:required="registrationType === 'representative'">
-                                <option value="">Select Relationship</option>
-                                <option value="Parent" {{ old('relationship_to_participant') == 'Parent' ? 'selected' : '' }}>Parent</option>
-                                <option value="Guardian" {{ old('relationship_to_participant') == 'Guardian' ? 'selected' : '' }}>Guardian</option>
-                                <option value="Support Coordinator" {{ old('relationship_to_participant') == 'Support Coordinator' ? 'selected' : '' }}>Support Coordinator</option>
-                                <option value="Family Member" {{ old('relationship_to_participant') == 'Family Member' ? 'selected' : '' }}>Family Member</option>
-                                <option value="Other" {{ old('relationship_to_participant') == 'Other' ? 'selected' : '' }}>Other</option>
-                            </select>
-                            <x-input-error :messages="$errors->get('relationship_to_participant')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
-                        </div>
-
-                        <h3 class="text-xl font-extrabold text-custom-dark-teal border-b border-custom-light-grey-green pb-3 mt-4 sm:mt-6 mb-4">Participant's Details</h3>
-                    </div>
-
-                    {{-- Participant/User Details --}}
-                    {{-- Participant First Name and Last Name on one line --}}
+                    {{-- First Name and Last Name on one line --}}
                     <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                         <div class="flex-1">
-                            <x-input-label for="first_name" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1">
-                                <span x-text="registrationType === 'representative' ? 'Participant\'s First Name' : 'Your First Name'"></span>
-                            </x-input-label>
+                            <x-input-label for="first_name" :value="__('Your First Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                             <x-text-input type="text" name="first_name" id="first_name"
-                                            class="block w-full px-3 py-2 rounded-md shadow-sm
-                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                                {{ $errors->has('first_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                            :value="old('first_name')" required autocomplete="first_name" />
+                                          class="block w-full px-3 py-2 rounded-md shadow-sm
+                                                 text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                 {{ $errors->has('first_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                          :value="old('first_name')" required autocomplete="first_name" />
                             <x-input-error :messages="$errors->get('first_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                         </div>
 
                         <div class="flex-1">
-                            <x-input-label for="last_name" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1">
-                                <span x-text="registrationType === 'representative' ? 'Participant\'s Last Name' : 'Your Last Name'"></span>
-                            </x-input-label>
+                            <x-input-label for="last_name" :value="__('Your Last Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                             <x-text-input type="text" name="last_name" id="last_name"
-                                            class="block w-full px-3 py-2 rounded-md shadow-sm
-                                                text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
-                                                {{ $errors->has('last_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                            :value="old('last_name')" required autocomplete="last_name" />
+                                          class="block w-full px-3 py-2 rounded-md shadow-sm
+                                                 text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                                 {{ $errors->has('last_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                          :value="old('last_name')" required autocomplete="last_name" />
                             <x-input-error :messages="$errors->get('last_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                         </div>
                     </div>
 
                     <div>
-                        <x-input-label for="email" :value="__('Email Address')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                        <x-input-label for="email" :value="__('Your Email Address')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                         <x-text-input id="email"
-                                         class="block w-full px-3 py-2 rounded-md shadow-sm
+                                      class="block w-full px-3 py-2 rounded-md shadow-sm
                                              text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
                                              {{ $errors->has('email') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
-                                         type="email"
-                                         name="email"
-                                         :value="old('email')"
-                                         required
-                                         autocomplete="username" />
+                                      type="email"
+                                      name="email"
+                                      :value="old('email')"
+                                      required
+                                      autocomplete="username" />
                         <x-input-error :messages="$errors->get('email')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                     </div>
 
@@ -269,7 +184,7 @@
                         <x-input-error :messages="$errors->get('password')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
 
                         {{-- Password Criteria List --}}
-                        <ul class="text-xs sm:text-sm mt-2 space-y-1"> {{-- Adjusted font size --}}
+                        <ul class="text-xs sm:text-sm mt-2 space-y-1">
                             <li :class="hasMinLength ? 'text-green-600 font-semibold' : 'text-custom-ochre'">
                                 <span x-html="hasMinLength ? '&#10003;' : '&#10006;'"></span> At least 8 characters
                             </li>
@@ -332,28 +247,28 @@
                         <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                     </div>
 
-                    <div class="block mt-4 sm:mt-6"> {{-- Adjusted margin-top --}}
+                    <div class="block mt-4 sm:mt-6">
                         <label for="terms_and_privacy" class="inline-flex items-center text-custom-dark-olive cursor-pointer">
                             <input id="terms_and_privacy" type="checkbox"
                                    class="rounded border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre
                                           {{ $errors->has('terms_and_privacy') ? 'border-custom-ochre' : '' }}"
                                    name="terms_and_privacy" {{ old('terms_and_privacy') ? 'checked' : '' }} required>
-                            <span class="ml-2 text-xs sm:text-sm"> {{-- Adjusted font size --}}
+                            <span class="ml-2 text-xs sm:text-sm">
                                 I agree to the <a href="{{ route('terms.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Terms of Service</a> and <a href="{{ route('policy.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Privacy Policy</a>.
                             </span>
                         </label>
                         <x-input-error :messages="$errors->get('terms_and_privacy')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                     </div>
 
-                    <div class="flex items-center justify-end mt-6 sm:mt-8"> {{-- Adjusted margin-top --}}
+                    <div class="flex items-center justify-end mt-6 sm:mt-8">
                         <a class="underline text-xs sm:text-sm text-custom-dark-teal hover:text-custom-ochre rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ochre" href="{{ route('login') }}">
                             {{ __('Already registered?') }}
                         </a>
 
                         <x-primary-button class="ms-4 py-1.5 px-4 sm:py-2 sm:px-6 rounded-md text-white
-                                                bg-custom-ochre hover:bg-custom-ochre-darker
-                                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ochre
-                                                font-semibold text-sm sm:text-base transition ease-in-out duration-150"> {{-- Adjusted padding and font size --}}
+                                                 bg-custom-ochre hover:bg-custom-ochre-darker
+                                                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ochre
+                                                 font-semibold text-sm sm:text-base transition ease-in-out duration-150">
                             {{ __('Register') }}
                         </x-primary-button>
                     </div>
