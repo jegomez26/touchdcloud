@@ -16,19 +16,15 @@ return new class extends Migration
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
-            // Ensure these match the values sent by your forms and validated by the controller
+            // 'participant' role is for self-registered participants.
+            // 'coordinator' for support coordinators.
+            // 'provider' for SIL/SDA providers.
+            // 'admin' for administrators.
             $table->enum('role', ['participant', 'coordinator', 'provider', 'admin'])->default('participant');
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->boolean('profile_completed')->default(false);
-            $table->boolean('is_representative')->default(false); // Indicates if this user ACCOUNT is a representative (e.g., for login)
-            $table->string('relationship_to_participant')->nullable(); // Relationship of this user (if they are a representative) to the participant they registered
-
-            // Add the fields for the *representative's* name, *if* the user registering is a representative
-            // These are nullable because not every user will be a representative.
-            $table->string('representative_first_name')->nullable();
-            $table->string('representative_last_name')->nullable();
-
+            $table->boolean('profile_completed')->default(false); // Indicates if their *own* profile (for participant/coordinator/provider) is complete
+            $table->boolean('is_active')->default(true); // For admin deactivation
             $table->rememberToken();
             $table->timestamps();
         });

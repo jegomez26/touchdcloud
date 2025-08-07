@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('accommodation_matches', function (Blueprint $table) {
+        Schema::create('property_matches', function (Blueprint $table) {
             $table->id();
             $table->foreignId('participant_id')->constrained('participants')->onDelete('cascade');
-            $table->foreignId('accommodation_id')->constrained('accommodations')->onDelete('cascade');
+            $table->foreignId('property_id')->constrained('properties')->onDelete('cascade');
             $table->foreignId('support_coordinator_id')->nullable()->constrained('support_coordinators')->onDelete('set null');
             $table->foreignId('provider_id')->constrained('providers')->onDelete('cascade');
             $table->enum('match_status', ['proposed_by_provider', 'reviewed_by_sc', 'interest_expressed_by_participant', 'declined', 'successful'])->default('proposed_by_provider');

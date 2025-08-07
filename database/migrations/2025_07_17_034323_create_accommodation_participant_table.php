@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('accommodation_participant', function (Blueprint $table) {
+        Schema::create('property_participant', function (Blueprint $table) {
             // No 'id' column here for a simple pivot table
-            $table->foreignId('accommodation_id')->constrained('accommodations')->onDelete('cascade');
+            $table->foreignId('property_id')->constrained('properties')->onDelete('cascade');
             $table->foreignId('participant_id')->constrained('participants')->onDelete('cascade');
-            $table->primary(['accommodation_id', 'participant_id']); // Composite primary key
+            $table->primary(['property_id', 'participant_id']); // Composite primary key
             $table->date('assignment_date');
             $table->date('end_date')->nullable();
             $table->boolean('is_current_resident')->default(true);
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('accommodation_participant');
+        Schema::dropIfExists('property_participant');
     }
 };

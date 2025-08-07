@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\NDISBusiness; // Keep NDISBusiness if used elsewhere, but not for SupportCoordinator registration now
 use App\Models\SupportCoordinator;
 use App\Models\Provider;
 use Illuminate\Auth\Events\Registered;
@@ -16,15 +15,16 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log; // Added for logging exceptions
 
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the default registration view (for individuals/participants).
+     * Display the default registration view (for individuals/participants/representatives).
      */
     public function create(): View
     {
-        return view('auth.register-individual');
+        return view('auth.register-individual'); // Renamed to 'register' as it's the primary general registration
     }
 
     /**
@@ -32,8 +32,6 @@ class RegisteredUserController extends Controller
      */
     public function createCoordinator(): View
     {
-        // Removed: $ndisBusinesses = NDISBusiness::all(['id', 'business_name', 'abn']);
-        // Removed: compact('ndisBusinesses')
         return view('auth.register-coordinator');
     }
 
@@ -47,64 +45,47 @@ class RegisteredUserController extends Controller
 
     /**
      * Handle an incoming registration request for Participants (Individual or Representative).
+     * This method now only creates the User account for the person signing up.
+     * The detailed participant/representative profile is handled in a subsequent step.
      *
      * @throws \Illuminate\Validation\ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
-        $rules = [
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        // Validation for the User account creator's details
+        $request->validate([
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => [
                 'required',
                 'confirmed',
                 Rules\Password::min(8)->mixedCase()->numbers()->symbols(),
             ],
+            // 'role' will always be 'participant' for users signing up via this form
             'role' => ['required', 'string', Rule::in(['participant'])],
-            'registration_type' => ['required', 'string', Rule::in(['participant', 'representative'])],
             'terms_and_privacy' => ['accepted'],
-        ];
+        ]);
 
-        if ($request->input('registration_type') === 'representative') {
-            $rules['first_name'] = ['required', 'string', 'max:255'];
-            $rules['last_name'] = ['required', 'string', 'max:255'];
-            $rules['representative_first_name'] = ['required', 'string', 'max:255'];
-            $rules['representative_last_name'] = ['required', 'string', 'max:255'];
-            $rules['relationship_to_participant'] = ['required', 'string', 'max:255'];
-        } else {
-            $rules['first_name'] = ['required', 'string', 'max:255'];
-            $rules['last_name'] = ['required', 'string', 'max:255'];
-        }
-
-        $request->validate($rules);
-
-        $isRepresentativeAccount = ($request->input('registration_type') === 'representative');
-
-        $userData = [
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'participant',
-            'profile_completed' => false,
-            'is_representative' => $isRepresentativeAccount,
-        ];
-
-        if ($isRepresentativeAccount) {
-            $userData['first_name'] = $request->first_name;
-            $userData['last_name'] = $request->last_name;
-            $userData['relationship_to_participant'] = $request->relationship_to_participant;
-            $userData['representative_first_name'] = $request->representative_first_name;
-            $userData['representative_last_name'] = $request->representative_last_name;
-        } else {
-            $userData['first_name'] = $request->first_name;
-            $userData['last_name'] = $request->last_name;
-        }
-
-        $user = User::create($userData);
+            'role' => 'participant', // All users registering here get 'participant' role
+            'profile_completed' => false, // Set to false, indicates they need to complete their specific profile
+            // 'is_representative' is NOT stored in the 'users' table.
+            // This will be determined and stored in the 'participants' table later.
+        ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect to a dedicated route for completing the participant/representative profile
+        // This is where they will specify if they are the participant or a representative,
+        // and provide all related NDIS participant details.
+        return redirect()->route('dashboard');
     }
 
     /**
@@ -117,7 +98,7 @@ class RegisteredUserController extends Controller
             'last_name' => ['required', 'string', 'max:255'],
             'company_name' => ['required', 'string', 'max:255'],
             'abn' => ['required', 'string', 'digits:11'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class],
             'password' => [
                 'required',
                 'confirmed',
@@ -134,7 +115,7 @@ class RegisteredUserController extends Controller
             'role' => 'coordinator',
             'password' => Hash::make($request->password),
             'profile_completed' => false,
-            'is_representative' => false,
+            // 'is_representative' is NOT stored in the 'users' table.
         ]);
 
         $supCoorCodeName = 'SC' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
@@ -161,18 +142,39 @@ class RegisteredUserController extends Controller
      * Handle an incoming registration request for Providers.
      */
     public function storeProvider(Request $request): RedirectResponse
-    {
+{
         $request->validate([
-            'company_name' => ['required', 'string', 'max:255'],
+            // SECTION 1: Organisation Details
+            'organisation_name' => ['required', 'string', 'max:255'], // Renamed from company_name
             'abn' => ['required', 'string', 'digits:11', 'unique:providers,abn'],
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'address' => ['nullable', 'string', 'max:255'],
-            'suburb' => ['nullable', 'string', 'max:255'],
-            'state' => ['nullable', 'string', 'max:255'],
-            'post_code' => ['nullable', 'string', 'max:10'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'contact_phone' => ['nullable', 'string', 'max:20'],
+            'ndis_registration_number' => ['nullable', 'string', 'max:255'], // New field
+            'provider_types' => ['required', 'array', Rule::in(['SIL Provider', 'SDA Provider', 'Both'])], // New field, expects array
+            'provider_types.*' => ['string'], // Validate each item in the array
+
+            'main_contact_name' => ['required', 'string', 'max:255'], // Renamed from first_name/last_name combination
+            'main_contact_role_title' => ['nullable', 'string', 'max:255'], // New field
+            'phone_number' => ['required', 'string', 'max:20'], // Renamed from contact_phone
+            'email_address' => ['required', 'string', 'email', 'max:255', 'unique:providers,email_address'], // Renamed from email, unique to providers table
+            'website' => ['nullable', 'url', 'max:255'], // New field
+
+            'office_address' => ['nullable', 'string', 'max:255'], // Renamed from address
+            'office_suburb' => ['nullable', 'string', 'max:255'], // Renamed from suburb
+            'office_state' => ['nullable', 'string', 'max:255'], // Renamed from state
+            'office_post_code' => ['nullable', 'string', 'max:10'], // Renamed from post_code
+            'states_operated_in' => ['required', 'array'], // New field, expects array of states
+            'states_operated_in.*' => ['string', 'max:255'], // Validate each item in the array
+
+            // SECTION 2: Services Provided (assuming these are collected on the same form)
+            'sil_support_types' => ['nullable', 'array'], // New field, expects array
+            'sil_support_types.*' => ['string'], // Validate each item in the array
+            'sil_support_types_other' => ['nullable', 'string'], // New field
+            'clinical_team_involvement' => ['nullable', 'string', Rule::in(['Yes', 'No', 'In partnership with external providers'])], // New field
+            'staff_training_areas' => ['nullable', 'array'], // New field, expects array
+            'staff_training_areas.*' => ['string'], // Validate each item in the array
+            'staff_training_areas_other' => ['nullable', 'string'], // New field
+
+            // User authentication details for the *person registering*
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class], // This is for the User model
             'password' => [
                 'required',
                 'confirmed',
@@ -182,14 +184,14 @@ class RegisteredUserController extends Controller
             'terms_and_privacy' => ['accepted'],
         ]);
 
+        // Create the User account for the individual managing the provider account
         $user = User::create([
-            'first_name' => $request->first_name,
-            'last_name' => $request->last_name,
-            'email' => $request->email,
+            'first_name' => $request->main_contact_name, // Use main_contact_name for user's first name if not separate fields
+            'last_name' => $request->input('main_contact_last_name', ''), // Assuming you might add a separate last name for the contact, otherwise it's empty
+            'email' => $request->email, // This is the user's login email
             'role' => 'provider',
             'password' => Hash::make($request->password),
             'profile_completed' => true, // Providers are considered "profile_completed" upon registration
-            'is_representative' => false,
         ]);
 
         $providerCodeName = 'PR' . str_pad($user->id, 4, '0', STR_PAD_LEFT);
@@ -197,21 +199,37 @@ class RegisteredUserController extends Controller
         try {
             Provider::create([
                 'user_id' => $user->id,
-                'company_name' => $request->company_name,
+                // SECTION 1: Organisation Details
+                'organisation_name' => $request->organisation_name,
                 'abn' => $request->abn,
-                'address' => $request->address,
-                'suburb' => $request->suburb,
-                'state' => $request->state,
-                'post_code' => $request->post_code,
+                'ndis_registration_number' => $request->ndis_registration_number,
+                'provider_types' => json_encode($request->provider_types), // Store as JSON string
+                'main_contact_name' => $request->main_contact_name,
+                'main_contact_role_title' => $request->main_contact_role_title,
+                'phone_number' => $request->phone_number,
+                'email_address' => $request->email_address, // This is the provider's contact email, distinct from the user's login email
+                'website' => $request->website,
+                'office_address' => $request->office_address,
+                'office_suburb' => $request->office_suburb,
+                'office_state' => $request->office_state,
+                'office_post_code' => $request->office_post_code,
+                'states_operated_in' => json_encode($request->states_operated_in), // Store as JSON string
+
+                // SECTION 2: Services Provided
+                'sil_support_types' => $request->sil_support_types ? json_encode($request->sil_support_types) : null, // Store as JSON string, handle nullable
+                'sil_support_types_other' => $request->sil_support_types_other,
+                'clinical_team_involvement' => $request->clinical_team_involvement,
+                'staff_training_areas' => $request->staff_training_areas ? json_encode($request->staff_training_areas) : null, // Store as JSON string, handle nullable
+                'staff_training_areas_other' => $request->staff_training_areas_other,
+
+                // Retained from your previous schema if still needed (not in new form spec)
+                'plan' => 'free', // Default or from request if you add it to the form
                 'provider_code_name' => $providerCodeName,
-                'contact_phone' => $request->contact_name,
-                'contact_email' => $request->email,
-                'plan' => 'free',
+                // 'provider_logo_path' => // Will be handled if you add file upload
             ]);
         } catch (\Exception $e) {
-            \Log::error("Error creating provider: " . $e->getMessage());
-            // Optionally, return back with an error message for development
-            return back()->withErrors(['db_error' => 'Could not create provider. Please try again.']);
+            Log::error("Error creating provider: " . $e->getMessage());
+            return back()->withErrors(['db_error' => 'Could not create provider. Please try again.'])->withInput(); // Added withInput()
         }
 
         event(new Registered($user));
