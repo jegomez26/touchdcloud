@@ -28,6 +28,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role',
         'profile_completed',
         'is_active',
+        'is_representative', // Indicates if the user is registering on behalf of someone else
     ];
 
     /**
@@ -52,6 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
             'profile_completed' => 'boolean',
             'is_active' => 'boolean',
+            'is_representative' => 'boolean', // Cast to boolean for easier checks
         ];
     }
 

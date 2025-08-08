@@ -62,20 +62,25 @@ class RegisteredUserController extends Controller
                 'confirmed',
                 Rules\Password::min(8)->mixedCase()->numbers()->symbols(),
             ],
-            // 'role' will always be 'participant' for users signing up via this form
-            'role' => ['required', 'string', Rule::in(['participant'])],
+            // 'role' can now be 'participant' OR 'representative'
+            'role' => ['required', 'string', Rule::in(['participant', 'representative'])],
             'terms_and_privacy' => ['accepted'],
         ]);
+        // dd($request->role);
+        $isRep = $request->role === 'representative' ? 1 : 0;
+        // dd($isRep);
 
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'participant', // All users registering here get 'participant' role
+            // The `role` is still `participant` because that is the broader user type.
+            'role' => 'participant', 
+            // The `is_representative` column is used to differentiate between a participant
+            // registering for themselves and a representative registering on their behalf.
+            'is_representative' => $isRep,
             'profile_completed' => false, // Set to false, indicates they need to complete their specific profile
-            // 'is_representative' is NOT stored in the 'users' table.
-            // This will be determined and stored in the 'participants' table later.
         ]);
 
         event(new Registered($user));

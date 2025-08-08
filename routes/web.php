@@ -139,6 +139,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        
+        // --- ADDED Participant Profile Panel Routes ---
+        Route::prefix('profile')->name('profile.')->group(function () {
+            Route::get('basic-details', function () {
+                return view('indiv.profile.basic-details');
+            })->name('basic-details');
+
+            Route::get('ndis-support-needs', function () {
+                return view('indiv.profile.ndis-support-needs');
+            })->name('ndis-support-needs');
+
+            Route::get('health-safety', function () {
+                return view('indiv.profile.health-safety');
+            })->name('health-safety');
+
+            Route::get('living-preferences', function () {
+                return view('indiv.profile.living-preferences');
+            })->name('living-preferences');
+
+            Route::get('compatibility-personality', function () {
+                return view('indiv.profile.compatibility-personality');
+            })->name('compatibility-personality');
+
+            Route::get('availability', function () {
+                return view('indiv.profile.availability');
+            })->name('availability');
+
+            Route::get('emergency-contact', function () {
+                return view('indiv.profile.emergency-contact');
+            })->name('emergency-contact');
+        });
 
         // Participant Messaging Routes
         Route::prefix('messages')->name('messages.')->group(function () {
