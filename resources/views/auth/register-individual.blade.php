@@ -17,10 +17,10 @@
             {{-- Left Column: Image/Illustration and Text (Hidden on small screens) --}}
             <div class="hidden md:flex flex-col w-full md:w-1/2 bg-[#2D4A80] p-6 lg:p-10 items-center justify-center text-white text-center h-full">
                 {{-- Dynamic background image for the scene --}}
-                <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{ asset('images/register_illustration_background.png') }}');">
+                <!-- <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{ asset('images/register_illustration_background.png') }}');"> -->
                     {{-- Overlay to darken the image slightly and ensure text readability --}}
                     <div class="absolute inset-0 bg-black opacity-50"></div>
-                </div>
+                <!-- </div> -->
 
                 <div class="relative z-10 flex flex-col items-center justify-center h-full">
                     {{-- The "Happy.png" image for the prominent illustration --}}
@@ -44,10 +44,10 @@
                         <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }} Logo" class="h-20 sm:h-24 w-auto mb-3 sm:mb-4">
                     </a>
                     <h2 class="text-2xl sm:text-3xl font-extrabold text-custom-dark-teal text-center">
-                        Register as a Participant
+                        Create Your Account
                     </h2>
                     <p class="mt-1 sm:mt-2 text-custom-dark-olive text-center text-sm sm:text-base">
-                        Create your account to get started. You'll define if you are the participant or a representative after this step.
+                        Let's get you set up! Are you registering as a participant or a representative?
                     </p>
                 </div>
 
@@ -58,7 +58,7 @@
                     &times;
                 </a>
 
-                <form method="POST" action="{{ route('register') }}"
+                <form method="POST" action="{{ route('register.participant.create') }}"
                     x-ref="form"
                     @submit.prevent="
                         passwordConfirmationTouched = true;
@@ -74,6 +74,7 @@
                     "
                     class="space-y-4 sm:space-y-6"
                     x-data="{
+                        selectedRole: 'participant', // Default to participant
                         passwordFieldType: 'password',
                         confirmPasswordFieldType: 'password',
                         password: '',
@@ -106,10 +107,39 @@
                     @csrf
 
                     {{-- Hidden input for role --}}
-                    <input type="hidden" name="role" value="participant">
+                    <input type="hidden" name="role" x-model="selectedRole">
+
+                    {{-- New Full-Width Toggle Switch for Participant/Representative --}}
+                    <div class="mb-6">
+                        <div class="w-full h-12 flex rounded-full bg-gray-200 p-1 relative transition-colors duration-300">
+                            {{-- Sliding background for the active choice --}}
+                            <div class="absolute top-1 bottom-1 w-1/2 rounded-full bg-white shadow transition-transform duration-300 ease-in-out"
+                                :class="selectedRole === 'representative' ? 'translate-x-full' : ''">
+                            </div>
+
+                            {{-- Participant Label/Button --}}
+                            <button type="button" @click="selectedRole = 'participant'"
+                                class="flex-1 z-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors duration-300 ease-in-out"
+                                :class="selectedRole === 'participant' ? 'text-custom-dark-teal' : 'text-gray-500'">
+                                Participant
+                            </button>
+
+                            {{-- Representative Label/Button --}}
+                            <button type="button" @click="selectedRole = 'representative'"
+                                class="flex-1 z-10 rounded-full flex items-center justify-center font-semibold text-sm transition-colors duration-300 ease-in-out"
+                                :class="selectedRole === 'representative' ? 'text-custom-dark-teal' : 'text-gray-500'">
+                                Representative
+                            </button>
+                        </div>
+                        <p class="mt-4 text-sm sm:text-base text-custom-dark-olive text-center">
+                            <span x-show="selectedRole === 'participant'">You'll create an account for yourself, the participant.</span>
+                            <span x-show="selectedRole === 'representative'">You'll create an account for yourself, the representative, and link it to a participant later.</span>
+                        </p>
+                    </div>
+                    {{-- End New Toggle Switch --}}
 
                     <p class="text-sm sm:text-base text-custom-dark-olive mb-4">
-                        Please provide your details to create your user account. This account will be linked to the participant profile you set up after registration.
+                        Please provide your details below to create your user account.
                     </p>
 
                     {{-- First Name and Last Name on one line --}}
@@ -162,8 +192,8 @@
                                 required
                                 autocomplete="new-password"
                                 class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10
-                                        border"
+                                         text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10
+                                         border"
                                 :class="{
                                     'border-green-500 ring-green-300': allPasswordCriteriaMet && password.length > 0,
                                     'border-custom-ochre ring-custom-ochre': password.length > 0 && !allPasswordCriteriaMet
@@ -218,7 +248,7 @@
                                 @input="passwordsMatch"
                                 @blur="handlePasswordConfirmationBlur()"
                                 class="block w-full px-3 py-2 rounded-md shadow-sm
-                                        text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10 border"
+                                         text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10 border"
                                 :class="{
                                     'border-green-500 ring-green-300': passwordsMatch && passwordConfirmation.length > 0,
                                     'border-custom-ochre ring-custom-ochre': passwordConfirmationTouched && !passwordsMatch

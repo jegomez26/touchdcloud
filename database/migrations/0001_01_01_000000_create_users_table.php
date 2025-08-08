@@ -21,6 +21,7 @@ return new class extends Migration
             // 'provider' for SIL/SDA providers.
             // 'admin' for administrators.
             $table->enum('role', ['participant', 'coordinator', 'provider', 'admin'])->default('participant');
+            $table->boolean('is_representative')->default(false); // Indicates if the user is a representative of a participan
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->boolean('profile_completed')->default(false); // Indicates if their *own* profile (for participant/coordinator/provider) is complete
