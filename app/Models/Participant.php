@@ -33,18 +33,18 @@ class Participant extends Model
         'pronouns_other',
         'languages_spoken',
         'aboriginal_torres_strait_islander',
-        'sil_funding_status',
-        'ndis_plan_review_date',
-        'ndis_plan_manager',
-        'has_support_coordinator',
-        'daily_living_support_needs',
-        'daily_living_support_needs_other',
-        'primary_disability',
-        'secondary_disability',
-        'estimated_support_hours_sil_level',
-        'night_support_type',
-        'uses_assistive_technology_mobility_aids',
-        'assistive_technology_mobility_aids_list',
+        'sil_funding_status', // Found in your list
+        'ndis_plan_review_date', // Found in your list
+        'ndis_plan_manager', // Found in your list
+        'has_support_coordinator', // Found in your list
+        'daily_living_support_needs', // Found in your list
+        'daily_living_support_needs_other', // Found in your list
+        'primary_disability', // Found in your list
+        'secondary_disability', // Found in your list
+        'estimated_support_hours_sil_level', // Found in your list
+        'night_support_type', // Found in your list
+        'uses_assistive_technology_mobility_aids', // Found in your list
+        'assistive_technology_mobility_aids_list', // Found in your list
         'medical_conditions_relevant',
         'medication_administration_help',
         'behaviour_support_plan_status',
@@ -91,7 +91,9 @@ class Participant extends Model
         'languages_spoken' => 'array',
         'has_support_coordinator' => 'boolean',
         'daily_living_support_needs' => 'array',
+        'daily_living_support_needs_other' => 'string', // Added this field
         'uses_assistive_technology_mobility_aids' => 'boolean',
+        'assistive_technology_mobility_aids_list' => 'string', // Added this field
         'medication_administration_help' => 'boolean',
         'preferred_sil_locations' => 'array',
         'housemate_preferences' => 'array',
@@ -103,7 +105,17 @@ class Participant extends Model
         'disability_type' => 'array', // Assuming this is also a JSON array
         'is_looking_hm' => 'boolean',
         'has_accommodation' => 'boolean',
-        // Add any other boolean or JSON fields from your schema here
+
+        // NDIS Details Fields
+        'sil_funding_status' => 'string', // Enum in DB, but treated as string in PHP
+        'ndis_plan_review_date' => 'date', // Date field
+        'ndis_plan_manager' => 'string', // Enum in DB, but treated as string in PHP
+
+        // Support Needs Fields
+        'primary_disability' => 'string',
+        'secondary_disability' => 'string',
+        'estimated_support_hours_sil_level' => 'string',
+        'night_support_type' => 'string', // Enum in DB, but treated as string in PHP
     ];
 
     /**
@@ -120,5 +132,10 @@ class Participant extends Model
     public function representativeUser()
     {
         return $this->belongsTo(User::class, 'representative_user_id');
+    }
+
+    public function participantContact()
+    {
+        return $this->hasOne(ParticipantContact::class, 'participant_id');
     }
 }

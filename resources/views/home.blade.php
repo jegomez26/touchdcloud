@@ -3,224 +3,171 @@
 @section('content')
 
     <section class="relative h-screen flex items-center justify-center text-white overflow-hidden bg-cover bg-center"
-        style="margin-top:-100px;">
-        {{-- Parallax Layers --}}
-        {{-- Added custom classes for responsive background sizes --}}
-        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/Sunset.png');" data-parallax-speed="1"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/Greens.png');" data-parallax-speed="-1.3"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/BackHouse.png');" data-parallax-speed="-1"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/FrontHouse.png');" data-parallax-speed="-0.5"></div>
-        <div class="absolute inset-0 parallax-layer" style="background-image: url('images/Boy_Girl.png');" data-parallax-speed="0"></div>
+        style="margin-top:-100px; padding-top: 50px; ">
+        {{-- Parallax Layers - Only enabled on larger screens --}}
+        {{-- The z-index values create an explicit stacking order from back to front. --}}
+        <div class="absolute inset-0 parallax-layer hidden md:block" style="background-repeat: no-repeat; background-image: url('images/Sunset.png'); background-size: 100vw auto; z-index: 10;" data-parallax-speed="1"></div>
+        <div class="absolute inset-0 parallax-layer hidden md:block" style="background-repeat: no-repeat; background-image: url('images/Greens.png'); background-size: 100vw auto; z-index: 11;" data-parallax-speed="-1.3"></div>
+        <div class="absolute inset-0 parallax-layer hidden md:block" style="background-repeat: no-repeat; background-image: url('images/BackHouse.png'); background-size: 100vw auto; z-index: 12;" data-parallax-speed="-1"></div>
 
-        {{-- Subtle gradient overlay for aesthetic depth and text readability using the new palette --}}
-        <div class="absolute inset-0 bg-gradient-to-br from-[#33595a] via-[#3e4732] to-black opacity-0 z-10"></div>
+        {{-- Static background layers for mobile --}}
+        <div class="absolute inset-0 md:hidden bg-cover bg-center" style="background-image: url('images/Sunset.png'); z-index: 10;"></div>
+        <div class="absolute inset-0 md:hidden bg-cover bg-center" style="background-image: url('images/Greens.png'); z-index: 11;"></div>
+        <div class="absolute inset-0 md:hidden bg-cover bg-center" style="background-image: url('images/BackHouse.png'); z-index: 12;"></div>
 
-        <div class="container mx-auto px-6 relative z-20 text-center">
-            <h1 class="text-4xl sm:text-6xl lg:text-8xl font-extrabold leading-tight mb-6
-                         animate-fade-in-up drop-shadow-2xl tracking-tight">
-                Your <span class="block mt-4 text-[#cc8e45] transform hover:scale-105 transition-transform duration-300 ease-out">Journey to Independence</span> Starts Here
+        {{-- These layers are now explicitly positioned with a higher z-index to be in front of the text. --}}
+        <div class="absolute inset-0 parallax-layer hidden md:block" style="background-repeat: no-repeat; background-image: url('images/FrontHouse.png'); background-size: 100vw auto; z-index: 20;" data-parallax-speed="-0.5"></div>
+        <div class="absolute inset-0 parallax-layer hidden md:block" style="background-repeat: no-repeat; background-image: url('images/Boy-Girl.png'); background-size: 100vw auto; z-index: 25;" data-parallax-speed="0" data-parallax-x-speed="-1"></div>
+        
+        {{-- Static foreground layers for mobile --}}
+        <div class="absolute inset-0 md:hidden bg-cover bg-center" style="background-image: url('images/FrontHouse.png'); z-index: 20;"></div>
+        <div class="absolute inset-0 md:hidden bg-cover bg-center" style="background-image: url('images/Boy-Girl.png'); z-index: 25;"></div>
+        
+        {{-- UPDATED: Text container with adjusted positioning and font sizes for mobile --}}
+        <div class="container mx-auto px-4 sm:px-6 relative z-20 text-left 
+                    transform -translate-y-60 sm:-translate-y-60 md:-translate-y-60 lg:-translate-y-80">
+            <h1 class="text-4xl xs:text-5xl sm:text-6xl md:text-6xl lg:text-8xl font-extrabold leading-tight
+                         animate-fade-in-up tracking-tight drop-shadow-lg">
+                <span class="text-[#cc8e45] transform hover:scale-105 transition-transform duration-300 ease-out">Journey to Independence</span>
             </h1>
-            <p class="text-lg sm:text-2xl text-[#f8f1e1] mb-12 max-w-5xl mx-auto
-                         animate-fade-in-up delay-200 drop-shadow-lg leading-relaxed">
-                Touch D Cloud is your trusted partner for NDIS participant accommodation and support coordination. We empower you to live independently and comfortably, <span class="text-[#cc8e45] transition-transform duration-300 ease-out">every step of the way</span>.
-            </p>
-            <a href="{{ route('listings') }}"
-               class="inline-block bg-[#cc8e45] text-white hover:bg-[#a67137] font-extrabold py-4 px-10 rounded-full text-xl sm:text-2xl shadow-2xl
-                           transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
-                           animate-fade-in-up delay-400 border-2 border-[#cc8e45] focus:outline-none focus:ring-4 focus:ring-[#cc8e45]">
-                Find Your Perfect Home <span class="ml-2">→</span>
-            </a>
-        </div>
-    </section>
-
-    <section class="py-20 sm:py-32 bg-gradient-to-br from-[#f8f1e1] to-[#ffffff]">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-4xl sm:text-5xl font-extrabold text-[#33595a] mb-16 animate-fade-in-down">
-                How Touch D Cloud Empowers You
+            <h2 class="text-4xl xs:text-6xl sm:text-7xl md:text-7xl lg:text-9xl xl:text-11xl font-extrabold leading-tight mb-4 sm:mb-6
+                         animate-fade-in-up tracking-tight drop-shadow-lg">
+                Starts Here
             </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                <div class="bg-white p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
-                             transform hover:-translate-y-4 border-b-8 border-[#cc8e45]
-                             group flex flex-col items-center animate-fade-in-left">
-                    <div class="bg-[#e1e7dd] rounded-full p-6 mb-8 group-hover:bg-[#bcbabb] transition-colors duration-300">
-                        <img src="https://img.icons8.com/ios-filled/120/2563EB/home-page.png" alt="Home Icon"
-                             class="w-28 h-28 object-contain filter drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300">
-                    </div>
-                    <h3 class="text-3xl font-bold text-[#3e4732] mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Curated Accommodation</h3>
-                    <p class="text-lg text-gray-700 leading-relaxed">
-                        Explore a carefully selected range of NDIS-friendly homes tailored to diverse needs and preferences, ensuring comfort and suitability.
-                    </p>
-                </div>
-                <div class="bg-white p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
-                             transform hover:-translate-y-4 border-b-8 border-[#33595a]
-                             group flex flex-col items-center animate-fade-in-up delay-200">
-                    <div class="bg-[#e1e7dd] rounded-full p-6 mb-8 group-hover:bg-[#bcbabb] transition-colors duration-300">
-                        <img src="https://img.icons8.com/ios-filled/120/4F46E5/customer-support.png" alt="Support Icon"
-                             class="w-28 h-28 object-contain filter drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300">
-                    </div>
-                    <h3 class="text-3xl font-bold text-[#3e4732] mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Expert Support Coordination</h3>
-                    <p class="text-lg text-gray-700 leading-relaxed">
-                        Connect with dedicated support coordinators who provide personalized guidance to navigate your NDIS plan with clarity and confidence.
-                    </p>
-                </div>
-                <div class="bg-white p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
-                             transform hover:-translate-y-4 border-b-8 border-[#3e4732]
-                             group flex flex-col items-center animate-fade-in-right delay-400">
-                    <div class="bg-[#e1e7dd] rounded-full p-6 mb-8 group-hover:bg-[#bcbabb] transition-colors duration-300">
-                        <img src="https://img.icons8.com/ios-filled/120/9333EA/medal.png" alt="Independence Icon"
-                             class="w-28 h-28 object-contain filter drop-shadow-md group-hover:drop-shadow-lg transition-all duration-300">
-                    </div>
-                    <h3 class="text-3xl font-bold text-[#3e4732] mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Achieve True Independence</h3>
-                    <p class="text-lg text-gray-700 leading-relaxed">
-                        We empower NDIS participants to live fulfilling, independent lives by providing the right environment and comprehensive assistance.
-                    </p>
-                </div>
-            </div> {{-- End grid --}}
+        </div>
+
+        {{-- Transparent box unchanged as its z-index is already high enough --}}
+        <div class="absolute inset-0 flex items-end justify-center md:justify-end z-30 px-4 sm:px-6 md:px-10 lg:px-20 pt-4 sm:pt-6 md:pt-10 pb-4 sm:pb-6 md:pb-10">
+            <div class="bg-white/10 backdrop-blur-sm p-4 sm:p-6 relative z-30 rounded-xl border border-white/20 max-w-sm sm:max-w-lg md:max-w-xl lg:max-w-2xl w-full
+                         animate-fade-in-up delay-200 drop-shadow-lg">
+                <p class="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#f8f1e1] leading-relaxed mb-4 sm:mb-6">
+                    SIL Match is your trusted partner for NDIS participant accommodation and support coordination. We empower you to live independently and comfortably, every step of the way.
+                </p>
+                <a href="{{ route('listings') }}"
+                   class="inline-block bg-[#cc8e45] text-white hover:bg-[#a67137] font-extrabold py-3 sm:py-4 px-6 sm:px-8 md:px-10 rounded-full text-base sm:text-lg md:text-xl lg:text-2xl shadow-2xl
+                                 transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
+                                 animate-fade-in-up delay-400 border-2 border-[#cc8e45] focus:outline-none focus:ring-4 focus:ring-[#cc8e45] w-full sm:w-auto text-center">
+                    Find Your Perfect Home <span class="ml-2">→</span>
+                </a>
+            </div>
         </div>
     </section>
-
-    <section class="py-20 sm:py-32 bg-[#e1e7dd] text-[#33595a]">
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-4xl sm:text-5xl font-extrabold mb-8 animate-fade-in-down">
-                Choose the Plan That's Right for You
+    
+    <section class="relative py-12 sm:py-16 md:py-20 lg:py-32 bg-gradient-to-br from-[#cc8e45] to-[#ffffff] overflow-hidden">
+        {{-- HouseSmall.png: Behind cards, aligned to bottom-left, moves left-to-right on scroll --}}
+        {{-- UPDATED: Increased height to make image larger --}}
+        <div class="absolute bottom-0 left-0 right-0 h-[800px] parallax-layer hidden lg:block" 
+            style="background-image: url('images/HouseSmall.png'); background-repeat: no-repeat; background-size: auto 100%; background-position: bottom left; z-index: 10;" 
+            data-parallax-speed="0" data-parallax-x-speed="1">
+        </div>
+        
+        {{-- PicnicFun.png: On top of cards, fixed at bottom-center --}}
+        {{-- UPDATED: Removed translate-y and made image larger --}}
+        <img src="images/picnicfun.png" alt="picnicfun"
+            class="absolute bottom-0 left-1/2 transform -translate-x-1/2 hidden lg:block object-contain z-40
+                    w-60 h-60 sm:w-60 sm:h-60 lg:w-80 lg:h-80 xl:w-80 xl:h-80 translate-y-14"> 
+        
+        <div class="container mx-auto px-4 sm:px-6 text-center relative z-10">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#ffffff] mb-8 sm:mb-12 md:mb-16 animate-fade-in-down">
+                How SIL Match Empowers You
             </h2>
-            <p class="text-xl text-[#3e4732] mb-16 max-w-3xl mx-auto animate-fade-in-down delay-200">
-                Tailored support options to match your unique needs and aspirations within the NDIS framework.
-            </p>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
-
-                {{-- Package 1: Community Access Plan --}}
-                <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col justify-between
-                             transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-left relative" style="margin-top: 120px; margin-bottom: 440px">
-                    <div class="mb-8">
-                        {{-- Placeholder for Illustration 1 --}}
-                        <img src="images/Group01.png" class="absolute -top-5 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-50"> <h3 class="text-4xl font-extrabold text-[#33595a] mb-4" style="margin-top: -5px">Community Access Plan</h3>
-                        <p class="text-lg text-[#bcbabb] mb-6">Small operations, easy start</p>
-                        <hr class="border-t-2 border-[#f8f1e1] my-6">
-                        <ul class="text-left text-lg text-[#3e4732] space-y-3">
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Basic Accommodation Listings</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Community Event Calendar</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Essential Communication Tools</li>
-                        </ul>
-                    </div>
-                    <a href="#" class="block w-full text-center bg-[#33595a] text-white font-bold py-4 px-6 rounded-full
-                                             hover:bg-[#3e4732] transition duration-300 ease-in-out shadow-lg
-                                             focus:outline-none focus:ring-4 focus:ring-[#bcbabb]">
-                        Get Started
-                    </a>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-10">
+                <div class="backdrop-blur-md bg-white/10 border border-white/20 p-6 sm:p-8 md:p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
+            transform hover:-translate-y-4
+            group flex flex-col items-center animate-fade-in-up delay-200">
+                    <div class="absolute inset-0 w-full h-full object-cover opacity-10 rounded-3xl z-10"></div>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] z-20 transition-colors duration-300">SDA & SIL Matching</h3>
+                    <p class="text-sm sm:text-base md:text-lg text-white-300 leading-relaxed z-20">
+                        Our intelligent matching system connects NDIS participants with Supported Independent Living (SIL) and Specialist Disability Accommodation (SDA) options that truly fit their lives. We consider your exact support requirements, lifestyle preferences, location choices, and accessibility needs to ensure every match feels right. 
+                    </p>
                 </div>
-
-                {{-- Package 2: Inclusive Living Plan --}}
-                <div class="bg-[#33595a] rounded-3xl shadow-2xl p-8 flex flex-col justify-between border-8 border-[#cc8e45]
-                             transform hover:scale-[1.05] transition-all duration-500 animate-fade-in-up delay-200 relative" style="margin-top: 80px; margin-bottom: 400px">
-                    <div class="mb-8">
-                        {{-- Placeholder for Illustration 2 --}}
-                        <img src="images/Happy.png" class="absolute -top-12 left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-50"> <h3 class="text-4xl font-extrabold text-[#ffffff] mb-4" style="margin-top: 25px">Inclusive Living Plan</h3>
-                        <p class="text-lg text-[#f8f1e1] mb-6">Medium-sized provider support</p>
-                        <hr class="border-t-2 border-[#f8f1e1] my-6">
-                        <ul class="text-left text-lg text-[#f8f1e1] space-y-3">
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Everything in Community Access</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Advanced Matching Algorithms</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Dedicated Support Coordinator Access</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Enhanced Communication Tools</li>
-                        </ul>
-                    </div>
-                    <a href="#" class="block w-full text-center bg-[#cc8e45] text-white font-bold py-4 px-6 rounded-full
-                                             hover:bg-[#a67137] transition duration-300 ease-in-out shadow-lg
-                                             focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]">
-                        Get Started
-                    </a>
+                <div class="backdrop-blur-md bg-white/10 border border-white/20 p-6 sm:p-8 md:p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
+                    transform hover:-translate-y-4
+                    group flex flex-col items-center animate-fade-in-up delay-200">
+                    <div class="absolute inset-0 w-full h-full object-cover opacity-40 rounded-3xl z-10"></div>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] z-20 transition-colors duration-300">Curated Accommodation</h3>
+                    <p class="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed z-20">
+                        Discover a handpicked selection of NDIS-friendly homes designed to meet a wide range of needs and preferences. Every property is carefully reviewed for accessibility, safety, and comfort, ensuring it's not only suitable but also a place you can truly call home. From modern apartments to spacious shared houses, we connect you with environments where you can thrive.
+                    </p>
                 </div>
-
-                {{-- Package 3: Full Support Plan --}}
-                <div class="bg-white rounded-3xl shadow-xl p-8 flex flex-col justify-between
-                             transform hover:scale-[1.03] transition-all duration-500 animate-fade-in-right relative" style="margin-top: 120px; margin-bottom: 430px">
-                    <div class="mb-8">
-                        {{-- Placeholder for Illustration 3 --}}
-                        <img src="images/Manny.png" class="absolute -top-15px left-1/2 -translate-x-1/2 -translate-y-1/2 w-60 h-50" style="margin-top: -120px"> <h3 class="text-4xl font-extrabold text-[#33595a] mb-4" style="margin-top: -5px">Full Support Plan</h3>
-                        <p class="text-lg text-[#bcbabb] mb-6">Advanced matching for large provider</p>
-                        <hr class="border-t-2 border-[#f8f1e1] my-6">
-                        <ul class="text-left text-lg text-[#3e4732] space-y-3">
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Everything in Inclusive Living</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Dedicated Account Manager</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Premium Provider Network Access</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Custom Reporting & Insights</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Priority Support</li>
-                        </ul>
-                    </div>
-                    <a href="#" class="block w-full text-center bg-[#33595a] text-white font-bold py-4 px-6 rounded-full
-                                             hover:bg-[#3e4732] transition duration-300 ease-in-out shadow-lg
-                                             focus:outline-none focus:ring-4 focus:ring-[#bcbabb]">
-                        Get Started
-                    </a>
+                <div class="backdrop-blur-md bg-white/10 border border-white/20 p-6 sm:p-8 md:p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
+                    transform hover:-translate-y-4
+                    group flex flex-col items-center animate-fade-in-up delay-200">
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Expert Support Coordination</h3>
+                    <p class="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed">
+                        Connect with dedicated support coordinators who understand your goals and challenges. We provide personalised, one-on-one guidance to help you navigate your NDIS plan with clarity and confidence. From exploring housing options to maximising your funding, we work alongside you every step of the way to ensure you have the right support in the right place.
+                    </p>
                 </div>
-
-            </div> {{-- End grid --}}
-
-            <p class="text-xl text-[#3e4732] mt-16 animate-fade-in-up delay-400">
-            </p>
+                <div class="backdrop-blur-md bg-white/10 border border-white/20 p-6 sm:p-8 md:p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
+                    transform hover:-translate-y-4
+                    group flex flex-col items-center animate-fade-in-up delay-200">
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Achieve True Independence</h3>
+                    <p class="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed">
+                        We believe independence looks different for everyone and we're here to help you achieve yours. By connecting you with the right living environment and providing access to the support you need, we empower you to make choices, build skills, and live life on your terms. Our goal is to create a home setting where confidence, capability, and freedom can flourish.
+                    </p>
+                </div>
+            </div>
         </div>
     </section>
 
-    <section class="py-20 sm:py-32 bg-[#f8f1e1]"> {{-- Updated background color --}}
-        <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-            <div class="flex justify-center md:justify-start transform hover:scale-102 transition-transform duration-500 animate-fade-in-left">
+    <section class="py-12 sm:py-16 md:py-20 lg:py-32 bg-[#f8f1e1]">
+        <div class="container mx-auto px-4 sm:px-6 grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 md:gap-16 items-center">
+            <div class="flex justify-center md:justify-start transform hover:scale-102 transition-transform duration-500 animate-fade-in-left order-2 md:order-1">
                 <img src="images/hero-bg2.jpg"
                      alt="Connecting people with support"
-                     class="rounded-2xl shadow-2xl max-w-full h-auto object-cover border-4 border-[#cc8e45]" style="max-height: 500px;"> {{-- Updated border color --}}
+                     class="rounded-2xl shadow-2xl max-w-full h-auto object-cover border-4 border-[#cc8e45] w-full max-h-64 sm:max-h-80 md:max-h-96 lg:max-h-[500px]">
             </div>
-            <div class="text-center md:text-left animate-fade-in-right">
-                <h2 class="text-4xl sm:text-5xl font-extrabold text-[#33595a] mb-8 leading-tight"> {{-- Updated text color --}}
-                    Our Commitment: <span class="text-[#cc8e45]">Accessibility & Empowerment</span> {{-- Updated text color --}}
+            <div class="text-center md:text-left animate-fade-in-right order-1 md:order-2">
+                <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#33595a] mb-6 sm:mb-8 leading-tight">
+                    Our Commitment: <span class="text-[#cc8e45]">Accessibility & Empowerment</span>
                 </h2>
-                <p class="text-xl text-[#3e4732] mb-8 leading-relaxed"> {{-- Updated text color --}}
-                    At Touch D Cloud, we are driven by the belief that every individual deserves a supportive and independent living environment. Our platform is meticulously designed for **transparency, ease of access, and genuine care**.
+                <p class="text-base sm:text-lg md:text-xl text-[#3e4732] mb-6 sm:mb-8 leading-relaxed">
+                    At SIL Match, we are driven by the belief that every individual deserves a supportive and independent living environment. Our platform is meticulously designed for transparency, ease of access, and genuine care.
                 </p>
-                <p class="text-lg text-[#bcbabb] mb-10 leading-relaxed"> {{-- Updated text color --}}
+                <p class="text-sm sm:text-base md:text-lg text-[#bcbabb] mb-8 sm:mb-10 leading-relaxed">
                     We've simplified the journey for NDIS participants and their families, providing a user-friendly and comprehensive resource for finding ideal homes and essential support services.
                 </p>
                 <a href="{{ route('about') }}"
-                   class="inline-block bg-[#cc8e45] hover:bg-[#a67137] text-white font-bold py-4 px-8 rounded-full shadow-lg
-                             transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl
-                             focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]"> {{-- Updated button colors --}}
+                   class="inline-block bg-[#cc8e45] hover:bg-[#a67137] text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-lg
+                                 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-xl
+                                 focus:outline-none focus:ring-4 focus:ring-[#f8f1e1] text-sm sm:text-base">
                     Discover Our Vision <span class="ml-2">→</span>
                 </a>
             </div>
         </div>
     </section>
 
-    <section class="py-20 sm:py-32 bg-[#ffffff]"> {{-- Updated background color --}}
-        <div class="container mx-auto px-6 text-center">
-            <h2 class="text-4xl sm:text-5xl font-extrabold text-[#33595a] mb-16 animate-fade-in-down"> {{-- Updated text color --}}
+    <section class="py-12 sm:py-16 md:py-20 lg:py-32 bg-[#ffffff]">
+        <div class="container mx-auto px-4 sm:px-6 text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#33595a] mb-8 sm:mb-12 md:mb-16 animate-fade-in-down">
                 Hear From Our Thriving Community
             </h2>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div class="bg-[#f8f1e1] p-10 rounded-2xl shadow-xl flex flex-col items-center hover:shadow-2xl {{-- Updated background color --}}
-                             transition-all duration-500 transform hover:scale-[1.02] animate-fade-in-left">
-                    <p class="text-xl text-[#3e4732] mb-8 italic leading-relaxed font-serif"> {{-- Updated text color --}}
-                        "Touch D Cloud was a game-changer for me. Finding suitable NDIS accommodation felt overwhelming, but their platform made it incredibly simple and reassuring. The support truly made a difference!"
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
+                <div class="bg-[#f8f1e1] p-6 sm:p-8 md:p-10 rounded-2xl shadow-xl flex flex-col items-center hover:shadow-2xl
+                                 transition-all duration-500 transform hover:scale-[1.02] animate-fade-in-left">
+                    <p class="text-base sm:text-lg md:text-xl text-[#3e4732] mb-6 sm:mb-8 italic leading-relaxed font-serif">
+                        "SIL Match was a game-changer for me. Finding suitable NDIS accommodation felt overwhelming, but their platform made it incredibly simple and reassuring. The support truly made a difference!"
                     </p>
                     <div class="flex items-center mt-auto">
                         <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1976&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                             alt="Jane Doe Avatar" class="w-20 h-20 rounded-full mr-5 object-cover border-4 border-[#cc8e45] shadow-lg"> {{-- Updated border color --}}
+                             alt="Jane Doe Avatar" class="w-16 sm:w-20 h-16 sm:h-20 rounded-full mr-4 sm:mr-5 object-cover border-4 border-[#cc8e45] shadow-lg">
                         <div>
-                            <p class="font-extrabold text-[#33595a] text-2xl">Jane Doe</p> {{-- Updated text color --}}
-                            <p class="text-md text-[#3e4732]">NDIS Participant</p> {{-- Updated text color --}}
+                            <p class="font-extrabold text-[#33595a] text-lg sm:text-xl md:text-2xl">Jane Doe</p>
+                            <p class="text-sm sm:text-base text-[#3e4732]">NDIS Participant</p>
                         </div>
                     </div>
                 </div>
-                <div class="bg-[#f8f1e1] p-10 rounded-2xl shadow-xl flex flex-col items-center hover:shadow-2xl {{-- Updated background color --}}
-                             transition-all duration-500 transform hover:scale-[1.02] animate-fade-in-right delay-200">
-                    <p class="text-xl text-[#3e4732] mb-8 italic leading-relaxed font-serif"> {{-- Updated text color --}}
-                        "As a support coordinator, I rely on Touch D Cloud daily. It's an indispensable resource that significantly streamlines the process of connecting participants with the ideal housing and support they need. Highly efficient and reliable!"
+                <div class="bg-[#f8f1e1] p-6 sm:p-8 md:p-10 rounded-2xl shadow-xl flex flex-col items-center hover:shadow-2xl
+                                 transition-all duration-500 transform hover:scale-[1.02] animate-fade-in-right delay-200">
+                    <p class="text-base sm:text-lg md:text-xl text-[#3e4732] mb-6 sm:mb-8 italic leading-relaxed font-serif">
+                        "As a support coordinator, I rely on SIL Match daily. It's an indispensable resource that significantly streamlines the process of connecting participants with the ideal housing and support they need. Highly efficient and reliable!"
                     </p>
                     <div class="flex items-center mt-auto">
                         <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                             alt="John Smith Avatar" class="w-20 h-20 rounded-full mr-5 object-cover border-4 border-[#33595a] shadow-lg"> {{-- Updated border color --}}
+                             alt="John Smith Avatar" class="w-16 sm:w-20 h-16 sm:h-20 rounded-full mr-4 sm:mr-5 object-cover border-4 border-[#33595a] shadow-lg">
                         <div>
-                            <p class="font-extrabold text-[#33595a] text-2xl">John Smith</p> {{-- Updated text color --}}
-                            <p class="text-md text-[#3e4732]">Support Coordinator</p> {{-- Updated text color --}}
+                            <p class="font-extrabold text-[#33595a] text-lg sm:text-xl md:text-2xl">John Smith</p>
+                            <p class="text-sm sm:text-base text-[#3e4732]">Support Coordinator</p>
                         </div>
                     </div>
                 </div>
@@ -228,128 +175,114 @@
         </div>
     </section>
 
-    <section class="bg-[#33595a] py-20 sm:py-32 text-white text-center"> {{-- Updated background color --}}
-        <div class="container mx-auto px-6">
-            <h2 class="text-4xl sm:text-5xl font-extrabold mb-8 drop-shadow-lg animate-fade-in-down">
+    <section class="bg-[#33595a] py-12 sm:py-16 md:py-20 lg:py-32 text-white text-center">
+        <div class="container mx-auto px-4 sm:px-6">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 sm:mb-8 drop-shadow-lg animate-fade-in-down">
                 Ready to Take the Next Step Towards <span class="text-[#cc8e45]">Independence?</span>
             </h2>
-            <p class="text-xl text-[#f8f1e1] mb-12 max-w-4xl mx-auto drop-shadow-md leading-relaxed"> {{-- Updated text color --}}
+            <p class="text-base sm:text-lg md:text-xl text-[#f8f1e1] mb-8 sm:mb-10 md:mb-12 max-w-4xl mx-auto drop-shadow-md leading-relaxed">
                 Join our growing community and experience the simplicity of finding ideal NDIS accommodation and expert support, tailored just for you.
             </p>
-            <a href="{{ route('register') }}"
-               class="inline-block bg-[#cc8e45] text-white hover:bg-[#a67137] font-extrabold py-5 px-12 rounded-full text-xl sm:text-2xl shadow-2xl
-                         transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
-                         focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]"> {{-- Updated button colors --}}
+            <a @click.prevent="showRegisterRoleModal = true"
+               class="inline-block bg-[#cc8e45] text-white hover:bg-[#a67137] font-extrabold py-4 sm:py-5 px-8 sm:px-10 md:px-12 rounded-full text-base sm:text-lg md:text-xl lg:text-2xl shadow-2xl
+                                 transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
+                                 focus:outline-none focus:ring-4 focus:ring-[#f8f1e1] w-full sm:w-auto">
                 Register Your Account Today! <span class="ml-2">→</span>
             </a>
         </div>
     </section>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if we should enable parallax (only on medium screens and up)
+        const shouldEnableParallax = window.innerWidth >= 768; // md breakpoint
+        
+        if (shouldEnableParallax) {
+            // Find all parallax layers
             const parallaxLayers = document.querySelectorAll('.parallax-layer');
             const heroSection = document.querySelector('section.relative.h-screen');
 
-            // Define the breakpoint for disabling parallax (e.g., 768px for Tailwind's 'md')
-            const disableParallaxBreakpoint = 768;
-
             if (parallaxLayers.length > 0 && heroSection) {
-                // Function to update parallax on scroll
-                const updateParallax = () => {
-                    // Only apply parallax if the screen width is greater than or equal to the breakpoint
-                    if (window.innerWidth >= disableParallaxBreakpoint) {
-                        const scrollTop = window.pageYOffset;
-                        const heroSectionTop = heroSection.getBoundingClientRect().top + scrollTop;
+                window.addEventListener('scroll', function() {
+                    const scrollTop = window.pageYOffset;
+                    const heroSectionTop = heroSection.getBoundingClientRect().top + scrollTop;
 
-                        parallaxLayers.forEach(layer => {
-                            const speed = parseFloat(layer.dataset.parallaxSpeed);
-                            const yPos = -((scrollTop - heroSectionTop) * speed);
-                            layer.style.backgroundPositionY = yPos + 'px';
-                        });
-                    } else {
-                        // If parallax is disabled, reset background-position-y for static effect
-                        parallaxLayers.forEach(layer => {
-                            layer.style.backgroundPositionY = 'center'; // Or '0px', depending on desired initial position
-                        });
-                    }
-                };
-
-                // Function to set initial background sizes based on screen width
-                const setInitialBackgroundSize = () => {
                     parallaxLayers.forEach(layer => {
-                        // On larger screens or when parallax is active, use 'cover' or '100vw auto'
-                        if (window.innerWidth >= disableParallaxBreakpoint) {
-                            layer.style.backgroundSize = 'cover';
-                        } else {
-                            // On smaller screens where parallax is disabled, ensure it still covers the section
-                            layer.style.backgroundSize = 'cover'; // Keep 'cover' to fill the section
+                        const speed = parseFloat(layer.dataset.parallaxSpeed);
+                        const xSpeed = parseFloat(layer.dataset.parallaxXSpeed);
+
+                        // Handle vertical movement for all layers with data-parallax-speed
+                        const yPos = -((scrollTop - heroSectionTop) * speed);
+                        layer.style.backgroundPositionY = yPos + 'px';
+
+                        // Handle horizontal movement for layers with data-parallax-x-speed
+                        if (!isNaN(xSpeed)) {
+                            const xOffset = scrollTop * xSpeed;
+                            layer.style.backgroundPositionX = `${xOffset}px`;
                         }
                     });
-                };
+                });
 
-                // Initial setup
-                setInitialBackgroundSize();
-                updateParallax(); // Apply initial parallax or static position
-
-                // Event listeners
-                window.addEventListener('scroll', updateParallax); // Always listen, but function checks breakpoint
-                window.addEventListener('resize', () => {
-                    setInitialBackgroundSize();
-                    updateParallax(); // Recalculate parallax/static on resize
+                // Set initial background positions to prevent a jump on load
+                parallaxLayers.forEach(layer => {
+                    layer.style.backgroundPositionY = '0px';
+                    layer.style.backgroundPositionX = '0px';
                 });
             }
+        }
 
-            // Simple Scroll Reveal (rest of your existing script)
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.1
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('animate-active');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            document.querySelectorAll('.animate-fade-in-down, .animate-fade-in-left, .animate-fade-in-right, .animate-fade-in-up').forEach(element => {
-                element.classList.add('opacity-0');
-                observer.observe(element);
-            });
+        // Disable parallax on window resize if screen becomes too small
+        let resizeTimeout;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(function() {
+                if (window.innerWidth < 768) {
+                    // Remove parallax listeners and reset positions on small screens
+                    const parallaxLayers = document.querySelectorAll('.parallax-layer');
+                    parallaxLayers.forEach(layer => {
+                        layer.style.backgroundPositionY = '0px';
+                        layer.style.backgroundPositionX = '0px';
+                    });
+                }
+            }, 250);
         });
+
+        // Simple Scroll Reveal for sections (using Intersection Observer)
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1 // Trigger when 10% of the element is visible
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-fade-in-down, .animate-fade-in-left, .animate-fade-in-right, .animate-fade-in-up').forEach(element => {
+            element.classList.add('opacity-0');
+            observer.observe(element);
+        });
+    });
     </script>
 
     <style>
         .parallax-layer {
+            background-size: cover;
             background-repeat: no-repeat;
-            background-position: center; /* Ensures it's centered initially */
-            background-attachment: scroll; /* Default to scroll for smaller screens, overridden for larger */
-            transition: background-size 0.3s ease-out; /* Smooth transition for background-size changes */
-            height: 100%;
-            width: 100%;
+            background-position: center;
         }
 
-        /* Styles for larger screens (where parallax is active) */
-        @media (min-width: 768px) { /* Apply these styles for medium screens and up */
-            .parallax-layer {
-                background-size: cover; /* Ensure it covers on larger screens */
-                background-attachment: fixed; /* This is key for the parallax feel */
-            }
+        /* Extra small screens */
+        @media (max-width: 475px) {
+            .text-xs { font-size: 0.75rem; }
         }
 
-        /* Styles for smaller screens (where parallax is disabled) */
-        @media (max-width: 767px) {
-            .parallax-layer {
-                background-size: cover; /* Keep 'cover' to fill the section height on small screens */
-                background-attachment: scroll; /* Ensure it scrolls normally with the page */
-                background-position: center; /* Center the image without parallax movement */
-            }
-        }
-
-        /* Tailwind Animations (rest of your existing styles) */
+        /* Tailwind Animations */
         @keyframes fadeInDown {
             from {
                 opacity: 0;
@@ -414,6 +347,28 @@
         /* General animation delays for feature cards etc. */
         .delay-200 { animation-delay: 0.2s; }
         .delay-400 { animation-delay: 0.4s; }
+
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            /* Ensure text is readable on mobile */
+            .drop-shadow-2xl {
+                filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.8));
+            }
+            
+            /* Better spacing on mobile */
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        /* Performance optimization for mobile */
+        @media (max-width: 767px) {
+            .parallax-layer {
+                transform: none !important;
+                background-attachment: scroll !important;
+            }
+        }
     </style>
 
 @endsection

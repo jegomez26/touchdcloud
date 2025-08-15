@@ -622,7 +622,7 @@
             // --- End Overlay Handling ---
 
             // --- Flatpickr Initialization ---
-            flatpickr(".flatpickr-input", {
+            flatpickr("#date_of_birth-input", {
                 dateFormat: "Y-m-d",
                 maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
             });
