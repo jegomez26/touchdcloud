@@ -32,7 +32,6 @@
 
         <div class="space-y-6">
             <div class="space-y-6">
-                <h2 class="text-2xl font-semibold text-gray-800">NDIS Details</h2>
 
                 <div>
                     <label for="sil_funding_status" class="block text-sm font-medium text-gray-700">Do you currently have SIL funding in your NDIS plan?</label>

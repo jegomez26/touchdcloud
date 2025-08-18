@@ -6,7 +6,6 @@
 @section('profile_content')
     <div class="p-6 bg-white rounded-lg shadow-md max-w-4xl mx-auto">
         
-        <!-- Success Message -->
         @if (session('status'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                 <span class="block sm:inline">{{ session('status') }}</span>
@@ -16,7 +15,6 @@
             </div>
         @endif
 
-        <!-- General Error Message (for non-field-specific errors) -->
         @if ($errors->any() && !session('status'))
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                 <strong class="font-bold">Whoops!</strong>
@@ -31,8 +29,8 @@
             @csrf
             @method('PUT')
 
-            <!-- SECTION 0: Form Completion Details -->
             <div class="space-y-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Personal Information</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label for="first_name" class="block text-sm font-medium text-gray-700">First Name</label>
@@ -62,7 +60,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label for="participant_email" class="block text-sm font-medium text-gray-700">Participant Email (Optional)</label>
+                        <label for="participant_email" class="block text-sm font-medium text-gray-700">Participant Email</label>
                         <input type="email" name="participant_email" id="participant_email" value="{{ old('participant_email', $participant->participant_email ?? '') }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('participant_email') border-red-500 @enderror">
                         @error('participant_email')
@@ -70,7 +68,7 @@
                         @enderror
                     </div>
                     <div>
-                        <label for="participant_phone" class="block text-sm font-medium text-gray-700">Participant Phone (Optional)</label>
+                        <label for="participant_phone" class="block text-sm font-medium text-gray-700">Participant Phone</label>
                         <input type="tel" name="participant_phone" id="participant_phone" value="{{ old('participant_phone', $participant->participant_phone ?? '') }}"
                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('participant_phone') border-red-500 @enderror">
                         @error('participant_phone')
@@ -82,7 +80,7 @@
                 <div>
                     <label for="participant_contact_method" class="block text-sm font-medium text-gray-700">Preferred Contact Method (Optional)</label>
                     <select name="participant_contact_method" id="participant_contact_method"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('participant_contact_method') border-red-500 @enderror">
+                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('participant_contact_method') border-red-500 @enderror">
                         <option value="">Select an option</option>
                         <option value="Phone" {{ old('participant_contact_method', $participant->participant_contact_method ?? '') == 'Phone' ? 'selected' : '' }}>Phone</option>
                         <option value="Email" {{ old('participant_contact_method', $participant->participant_contact_method ?? '') == 'Email' ? 'selected' : '' }}>Email</option>
@@ -108,7 +106,6 @@
                 </div>
             </div>
 
-            <!-- New Section for Contact Person -->
             <div id="contact_person_fields" class="space-y-6 mt-8">
                 <hr class="my-8">
                 <h2 class="text-2xl font-semibold text-gray-800">Contact Person Details</h2>
@@ -116,11 +113,14 @@
                     <div>
                         <label for="contact_full_name" class="block text-sm font-medium text-gray-700">Contact Full Name</label>
                         <input type="text" name="contact_full_name" id="contact_full_name" value="{{ old('contact_full_name', $participant->participantContact->full_name ?? '') }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('contact_full_name') border-red-500 @enderror">
+                        @error('contact_full_name')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="contact_relationship" class="block text-sm font-medium text-gray-700">Relationship to Participant</label>
-                        <select name="contact_relationship" id="contact_relationship" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="contact_relationship" id="contact_relationship" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('contact_relationship') border-red-500 @enderror">
                             <option value="">Select an option</option>
                             @php
                                 $relationships = ['Family member', 'Carer', 'Public Guardian', 'Support Worker', 'Other'];
@@ -129,25 +129,37 @@
                                 <option value="{{ $relationship }}" {{ old('contact_relationship', $participant->participantContact->relationship_to_participant ?? '') == $relationship ? 'selected' : '' }}>{{ $relationship }}</option>
                             @endforeach
                         </select>
+                        @error('contact_relationship')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="contact_organisation" class="block text-sm font-medium text-gray-700">Organisation (Optional)</label>
                         <input type="text" name="contact_organisation" id="contact_organisation" value="{{ old('contact_organisation', $participant->participantContact->organisation ?? '') }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('contact_organisation') border-red-500 @enderror">
+                        @error('contact_organisation')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="contact_phone" class="block text-sm font-medium text-gray-700">Phone Number (Optional)</label>
                         <input type="tel" name="contact_phone" id="contact_phone" value="{{ old('contact_phone', $participant->participantContact->phone_number ?? '') }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('contact_phone') border-red-500 @enderror">
+                        @error('contact_phone')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="contact_email" class="block text-sm font-medium text-gray-700">Email Address (Optional)</label>
                         <input type="email" name="contact_email" id="contact_email" value="{{ old('contact_email', $participant->participantContact->email_address ?? '') }}"
-                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('contact_email') border-red-500 @enderror">
+                        @error('contact_email')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label for="contact_method" class="block text-sm font-medium text-gray-700">Preferred Method of Contact (Optional)</label>
-                        <select name="contact_method" id="contact_method" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="contact_method" id="contact_method" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('contact_method') border-red-500 @enderror">
                             <option value="">Select an option</option>
                             @php
                                 $contactMethods = ['Phone', 'Email', 'Either'];
@@ -156,10 +168,13 @@
                                 <option value="{{ $method }}" {{ old('contact_method', $participant->participantContact->preferred_method_of_contact ?? '') == $method ? 'selected' : '' }}>{{ $method }}</option>
                             @endforeach
                         </select>
+                        @error('contact_method')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div class="col-span-1">
                         <label for="contact_consent" class="block text-sm font-medium text-gray-700">Consent to speak on behalf</label>
-                        <select name="contact_consent" id="contact_consent" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <select name="contact_consent" id="contact_consent" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('contact_consent') border-red-500 @enderror">
                             <option value="">Select an option</option>
                             @php
                                 $consents = ['Yes', 'No', 'Consent pending or unsure'];
@@ -168,13 +183,78 @@
                                 <option value="{{ $consent }}" {{ old('contact_consent', $participant->participantContact->consent_to_speak_on_behalf ?? '') == $consent ? 'selected' : '' }}>{{ $consent }}</option>
                             @endforeach
                         </select>
+                        @error('contact_consent')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
             </div>
 
             <hr class="my-8">
 
-            <!-- SECTION 1: Basic Demographics -->
+            <div class="space-y-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Address Details</h2>
+                <div>
+                    <label for="street_address" class="block text-sm font-medium text-gray-700">Street Address</label>
+                    <input type="text" name="street_address" id="street_address" value="{{ old('street_address', $participant->street_address ?? '') }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('street_address') border-red-500 @enderror">
+                    @error('street_address')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="state" class="block text-sm font-medium text-gray-700">State</label>
+                        <select name="state" id="state"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('state') border-red-500 @enderror">
+                            <option value="">Select a State</option>
+                            @php
+                                $states = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA']; // Australian states/territories
+                            @endphp
+                            @foreach ($states as $state)
+                                <option value="{{ $state }}" {{ old('state', $participant->state ?? '') == $state ? 'selected' : '' }}>{{ $state }}</option>
+                            @endforeach
+                        </select>
+                        @error('state')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="suburb" class="block text-sm font-medium text-gray-700">Suburb</label>
+                        <select name="suburb" id="suburb"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('suburb') border-red-500 @enderror">
+                            <option value="">Select a Suburb</option>
+                            {{-- Suburbs will be loaded dynamically via JavaScript --}}
+                            @if(old('state', $participant->state ?? ''))
+                                {{-- If there's an old state or participant state, try to pre-fill the suburb --}}
+                                @php
+                                    // This assumes you have a way to get suburbs for the old/current state on initial load
+                                    // For simplicity in this Blade, we'll just put the current selected suburb if it exists
+                                @endphp
+                                @if($participant->suburb)
+                                    <option value="{{ $participant->suburb }}" selected>{{ $participant->suburb }}</option>
+                                @endif
+                            @endif
+                        </select>
+                        @error('suburb')
+                            <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div>
+                    <label for="post_code" class="block text-sm font-medium text-gray-700">Postcode</label>
+                    <input type="text" name="post_code" id="post_code" value="{{ old('post_code', $participant->post_code ?? '') }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('postcode') border-red-500 @enderror">
+                    @error('post_code')
+                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <hr class="my-8">
+
             <div class="space-y-6">
                 <h2 class="text-2xl font-semibold text-gray-800">Basic Demographics</h2>
 
@@ -190,7 +270,7 @@
                     <div>
                         <label for="gender_identity" class="block text-sm font-medium text-gray-700">Gender Identity</label>
                         <select name="gender_identity" id="gender_identity"
-                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('gender_identity') border-red-500 @enderror">
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('gender_identity') border-red-500 @enderror">
                             <option value="">Select an option</option>
                             <option value="Female" {{ old('gender_identity', $participant->gender_identity ?? '') == 'Female' ? 'selected' : '' }}>Female</option>
                             <option value="Male" {{ old('gender_identity', $participant->gender_identity ?? '') == 'Male' ? 'selected' : '' }}>Male</option>
@@ -263,12 +343,10 @@
                             ];
                         @endphp
                         
-                        <!-- Pre-populate options with commonly spoken Australian languages -->
                         @foreach ($australianLanguages as $language)
                             <option value="{{ $language }}" {{ in_array($language, $selectedLanguages) ? 'selected' : '' }}>{{ $language }}</option>
                         @endforeach
 
-                        <!-- Add previously selected languages that are not in the default list -->
                         @if(!empty($selectedLanguages))
                             @foreach($selectedLanguages as $language)
                                 @if(!in_array($language, $australianLanguages) && $language !== 'Other')
@@ -307,20 +385,18 @@
 
             <div class="mt-8 flex justify-end">
                 <button type="submit" class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                    Save
+                    Save Changes
                 </button>
             </div>
         </form>
     </div>
 
-    <!-- Vendor Scripts and Styles -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
-    <!-- Custom JavaScript for interactivity -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // ----- Gender Identity "Other" field toggle -----
@@ -430,6 +506,52 @@
 
             // Add event listener for changes in choices.js
             languagesElement.addEventListener('change', toggleLanguagesOther);
+
+            // ----- Dynamic Suburb Loading -----
+            const stateSelect = document.getElementById('state');
+            const suburbSelect = document.getElementById('suburb');
+            const currentSuburb = "{{ old('suburb', $participant->suburb ?? '') }}"; // Capture the old/current suburb for pre-selection
+
+            async function loadSuburbs(state) {
+                suburbSelect.innerHTML = '<option value="">Loading suburbs...</option>';
+                suburbSelect.disabled = true;
+
+                if (!state) {
+                    suburbSelect.innerHTML = '<option value="">Select a State first</option>';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/get-suburbs/${state}`);
+                    const suburbs = await response.json();
+
+                    suburbSelect.innerHTML = '<option value="">Select a Suburb</option>';
+                    suburbs.forEach(suburb => {
+                        const option = document.createElement('option');
+                        option.value = suburb;
+                        option.textContent = suburb;
+                        if (suburb === currentSuburb) {
+                            option.selected = true;
+                        }
+                        suburbSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching suburbs:', error);
+                    suburbSelect.innerHTML = '<option value="">Error loading suburbs</option>';
+                } finally {
+                    suburbSelect.disabled = false;
+                }
+            }
+
+            // Initial load of suburbs if a state is already selected (e.g., on form errors or edit)
+            if (stateSelect.value) {
+                loadSuburbs(stateSelect.value);
+            }
+
+            // Event listener for state change
+            stateSelect.addEventListener('change', (event) => {
+                loadSuburbs(event.target.value);
+            });
         });
     </script>
 @endsection

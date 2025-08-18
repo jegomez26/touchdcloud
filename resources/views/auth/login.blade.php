@@ -29,7 +29,7 @@
 
                     <h3 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 sm:mb-4 drop-shadow-lg">Welcome Back!</h3>
                     <p class="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6 drop-shadow">
-                        We're thrilled to see you again. Log back into your account to continue managing your NDIS participants and connecting with the community.
+                        Continue your search, check messages, and manage your matches all in one place.
                     </p>
                     <p class="text-xs sm:text-sm lg:text-md font-semibold drop-shadow">
                         Your seamless experience awaits.

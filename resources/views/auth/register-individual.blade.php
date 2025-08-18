@@ -26,9 +26,9 @@
                     {{-- The "Happy.png" image for the prominent illustration --}}
                     <img src="{{ asset('images/Happy.png') }}" alt="Registration Illustration" class="max-w-[150px] sm:max-w-xs h-auto object-contain mb-6 sm:mb-8">
 
-                    <h3 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 sm:mb-4 drop-shadow-lg">Start Your Journey!</h3>
+                    <h3 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 sm:mb-4 drop-shadow-lg">Welcome, Participants!</h3>
                     <p class="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6 drop-shadow">
-                        Join SIL Match today and seamlessly manage your NDIS journey, connect with support, and access valuable resources.
+                        Find people who are a good fit to share a home with. Create your profile, search listings, and connect with others who understand your needs and goals. Your journey to a supportive and comfortable living arrangement starts here.
                     </p>
                     <p class="text-xs sm:text-sm lg:text-md font-semibold drop-shadow">
                         Your pathway to a more organized and connected experience begins here.

@@ -113,6 +113,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasOne(SupportCoordinator::class, 'user_id');
     }
 
+    public function participantsRepresented()
+    {
+        return $this->hasMany(Participant::class, 'representative_user_id');
+    }
+
     /**
      * Get the provider specific profile if this user has the 'provider' role.
      * This assumes a separate 'Provider' model/table which links back to 'users'.

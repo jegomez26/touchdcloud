@@ -8,7 +8,7 @@
                 Finding Your Perfect Fit, Together
             </h2>
             <p class="text-xl text-[#3e4732] mb-16 max-w-3xl mx-auto animate-fade-in-down delay-200">
-                We're here to help you navigate the NDIS journey, offering tailored support to match your unique needs and aspirations. Whether you're a participant seeking a new home, a housemate, or a support coordinator, or a provider looking to connect, we have a plan designed just for you.
+                We are here to help you navigate the NDIS journey by matching you with the right people to share a home with. Our platform is designed to connect participants with compatible housemates based on lifestyle, support needs, and shared goals. Whether you are a participant looking for a housemate, a support coordinator helping someone find the right match, or a provider connecting people, we have a plan for you.
             </p>
 
 
@@ -16,32 +16,38 @@
             <div class="mb-16">
                 <h3 class="text-3xl sm:text-4xl font-extrabold mb-6 text-[#33595a]">For Participants & Support Coordinators: Absolutely Free! 💖</h3>
                 <p class="text-lg text-[#3e4732] mb-10 max-w-3xl mx-auto">
-                    We believe everyone deserves the right support and connections without financial barriers. That's why our platform is completely free for participants and support coordinators. Explore, connect, and thrive!
+                    We believe everyone should have the chance to find the right people to live with, without financial barriers. That is why our platform is completely free for participants, carers and Support Coordinators. Create your profile, explore matches, connect, and start building the right living arrangement for you.
                 </p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-left">
                     <div class="bg-white rounded-2xl shadow-lg p-8 animate-fade-in-left">
                         <h4 class="text-2xl font-bold mb-4 text-[#cc8e45]">For Participants: Your Journey Starts Here! ✨</h4>
+                    <p class="text-xl text-[#3e4732] mb-5 max-w-2xl mx-auto animate-fade-in-down delay-200">
+                    Create your free profile, share your lifestyle, support needs, and what you are looking for in a housemate. Get matched with compatible people and start connecting.
+                    </p>
                         <ul class="text-lg text-[#3e4732] space-y-3">
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Discover available accommodations that feel right for you.</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Be effortlessly connected for potential accommodation or housemate matches.</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Easily find a support coordinator who understands your needs.</li>
+                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>100% Free.</li>
+                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Unlimited Matches.</li>
+                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Safe and Private Messaging.</li>
                         </ul>
                     </div>
                     <div class="bg-white rounded-2xl shadow-lg p-8 animate-fade-in-right">
                         <h4 class="text-2xl font-bold mb-4 text-[#cc8e45]">For Support Coordinators: Empowering Your Impact 🤝</h4>
+                    <p class="text-xl text-[#3e4732] mb-5 max-w-2xl mx-auto animate-fade-in-down delay-200">
+                    Help participants find the right people to live with quickly and easily. Create profiles on their behalf, view matches, and make introductions that lead to supportive living arrangements.
+                    </p>
                         <ul class="text-lg text-[#3e4732] space-y-3">
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Effortlessly search for ideal accommodations for your participants.</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Receive contacts for potential accommodation or housemate matches for those you support.</li>
-                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Connect and communicate with participants who are seeking support.</li>
+                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>100% Free.</li>
+                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Manage multiple participant profiles.</li>
+                            <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#33595a] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Save time and reduce mismatches.</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
             {{-- Provider Pricing Section --}}
-            <h3 class="text-3xl sm:text-4xl font-extrabold mb-6 text-[#33595a] mt-20">For Providers: Choose Your Growth Path 💼</h3>
+            <h3 class="text-3xl sm:text-4xl font-extrabold mb-6 text-[#33595a] mt-20">For Providers: Build Happy Households 💼</h3>
             <p class="text-xl text-[#3e4732] mb-16 max-w-3xl mx-auto">
-                Ready to expand your reach and connect with more participants? Our flexible plans are designed to help your organization thrive within the NDIS community.
+                List your current vacancies and connect with participants who will fit in well with your existing households. Use our matching tools to create stable, positive living arrangements.
             </p>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-16">
@@ -62,7 +68,7 @@
                             <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Email support</li>
                         </ul>
                     </div>
-                    <a href="#" class="block w-full text-center bg-[#33595a] text-white font-bold py-4 px-6 rounded-full
+                    <a href="{{route('register.provider.create')}}" class="block w-full text-center bg-[#33595a] text-white font-bold py-4 px-6 rounded-full
                                          hover:bg-[#3e4732] transition duration-300 ease-in-out shadow-lg
                                          focus:outline-none focus:ring-4 focus:ring-[#bcbabb]">
                         Get Started
@@ -86,7 +92,7 @@
                             <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Early access to feature updates</li>
                         </ul>
                     </div>
-                    <a href="#" class="block w-full text-center bg-[#cc8e45] text-white font-bold py-4 px-6 rounded-full
+                    <a href="{{route('register.provider.create')}}" class="block w-full text-center bg-[#cc8e45] text-white font-bold py-4 px-6 rounded-full
                                          hover:bg-[#a67137] transition duration-300 ease-in-out shadow-lg
                                          focus:outline-none focus:ring-4 focus:ring-[#f8f1e1]">
                         Get Started
@@ -111,7 +117,7 @@
                             <li class="flex items-center"><svg class="w-6 h-6 mr-3 text-[#cc8e45] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>Property listings included</li>
                         </ul>
                     </div>
-                    <a href="#" class="block w-full text-center bg-[#33595a] text-white font-bold py-4 px-6 rounded-full
+                    <a href="{{route('register.provider.create')}}" class="block w-full text-center bg-[#33595a] text-white font-bold py-4 px-6 rounded-full
                                          hover:bg-[#3e4732] transition duration-300 ease-in-out shadow-lg
                                          focus:outline-none focus:ring-4 focus:ring-[#bcbabb]">
                         Get Started

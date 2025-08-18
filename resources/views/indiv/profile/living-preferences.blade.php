@@ -32,7 +32,6 @@
         @method('PUT') {{-- Use PUT method for updates --}}
 
         <div class="space-y-6">
-            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Living Preferences</h2>
 
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Preferred SIL Location(s):</label>
@@ -82,11 +81,11 @@
                             </div>
                             <div class="flex-1">
                                 <label for="suburb_{{ $index }}" class="block text-sm font-medium text-gray-700">Suburb</label>
-                                <select name="preferred_sil_locations[{{ $index }}][suburb]" id="suburb_{{ $index }}"
-                                    class="suburb-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" multiple>
+                                <select name="preferred_sil_locations[{{ $index }}][suburb]" id="suburb_{{ $index }}" {{-- Removed '[]' and 'multiple' --}}
+                                    class="suburb-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">Select Suburb</option>
+                                    {{-- The specific suburb option will be dynamically added by JS or pre-selected if available --}}
                                     @if (!empty(old("preferred_sil_locations.$index.suburb", $location['suburb'] ?? '')))
-                                        {{-- Add the existing suburb as a selected option --}}
                                         <option value="{{ old("preferred_sil_locations.$index.suburb", $location['suburb'] ?? '') }}" selected>
                                             {{ old("preferred_sil_locations.$index.suburb", $location['suburb'] ?? '') }}
                                         </option>
@@ -315,7 +314,8 @@
             }
 
             try {
-                const response = await fetch(`/get-suburbs?state=${state}`);
+                // CHANGE THIS LINE: Pass state as a URL parameter
+                const response = await fetch(`/get-suburbs/${state}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -327,24 +327,21 @@
                 }
 
                 // Clear existing options
-                suburbSelectElement.innerHTML = '<option value="">Select Suburb</option>';
+                suburbSelectElement.innerHTML = ''; // Clear everything, Choices.js will add its own options
 
-                // Add new options
-                const options = suburbs.map(suburb => ({ value: suburb, label: suburb }));
-                // Add initial suburbs as selected choices
-                initialSuburbs.forEach(initialSuburb => {
-                    if (!options.some(option => option.value === initialSuburb)) {
-                        options.push({ value: initialSuburb, label: initialSuburb, selected: true });
-                    }
-                });
+                // Add new options and mark initial suburbs as selected
+                const options = suburbs.map(suburb => ({
+                    value: suburb,
+                    label: suburb,
+                    selected: initialSuburbs.includes(suburb) // Check if this suburb should be pre-selected
+                }));
 
                 // Re-initialize Choices.js
-                suburbChoicesInstances[suburbSelectElement.id] = initializeChoices(suburbSelectElement, initialSuburbs);
+                suburbChoicesInstances[suburbSelectElement.id] = initializeChoices(suburbSelectElement);
                 suburbChoicesInstances[suburbSelectElement.id].setChoices(options, 'value', 'label', true);
 
             } catch (error) {
                 console.error('Error fetching suburbs:', error);
-                // Handle error gracefully, e.g., show a message to the user
                 if (suburbChoicesInstances[suburbSelectElement.id]) {
                     suburbChoicesInstances[suburbSelectElement.id].destroy();
                 }
@@ -357,32 +354,17 @@
         document.querySelectorAll('.preferred-location-row').forEach(row => {
             const stateSelect = row.querySelector('.state-select');
             const suburbSelect = row.querySelector('.suburb-select');
-            // Get the current selected suburbs. It might be a single string or an array from old()
-            let initialSuburbsForThisRow = [];
-            const selectedOption = suburbSelect.querySelector('option[selected]');
-            if (selectedOption) {
-                try {
-                    // Attempt to parse as JSON array (if multiple were selected via Choices.js)
-                    initialSuburbsForThisRow = JSON.parse(selectedOption.value);
-                    if (!Array.isArray(initialSuburbsForThisRow)) {
-                        initialSuburbsForThisRow = [selectedOption.value];
-                    }
-                } catch (e) {
-                    // If it's not a JSON array, it's a single string
-                    initialSuburbsForThisRow = [selectedOption.value];
-                }
-            }
+            // Get the currently selected suburb (if any)
+            const currentSelectedSuburb = suburbSelect.value;
 
-            // Initialize Choices.js for the existing suburb select
-            suburbChoicesInstances[suburbSelect.id] = initializeChoices(suburbSelect, initialSuburbsForThisRow);
-
-            // Fetch suburbs for the initially selected state
+            // Fetch suburbs for the initially selected state, and pre-select the current suburb
             if (stateSelect.value) {
-                fetchSuburbs(stateSelect.value, suburbSelect, initialSuburbsForThisRow);
+                fetchSuburbs(stateSelect.value, suburbSelect, currentSelectedSuburb);
             }
 
+            // Add change listener to state select to update suburbs
             stateSelect.addEventListener('change', function () {
-                fetchSuburbs(this.value, suburbSelect);
+                fetchSuburbs(this.value, suburbSelect); // When state changes, clear previous suburb selection
             });
         });
 
@@ -405,8 +387,8 @@
                 </div>
                 <div class="flex-1">
                     <label for="suburb_${locationIndex}" class="block text-sm font-medium text-gray-700">Suburb</label>
-                    <select name="preferred_sil_locations[${locationIndex}][suburb][]" id="suburb_${locationIndex}"
-                        class="suburb-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" multiple>
+                    <select name="preferred_sil_locations[${locationIndex}][suburb]" id="suburb_${locationIndex}"
+                        class="suburb-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <option value="">Select Suburb</option>
                     </select>
                 </div>
@@ -418,9 +400,6 @@
 
             const newStateSelect = newRow.querySelector('.state-select');
             const newSuburbSelect = newRow.querySelector('.suburb-select');
-
-            // Initialize Choices.js for the new suburb select
-            suburbChoicesInstances[newSuburbSelect.id] = initializeChoices(newSuburbSelect);
 
             newStateSelect.addEventListener('change', function () {
                 fetchSuburbs(this.value, newSuburbSelect);

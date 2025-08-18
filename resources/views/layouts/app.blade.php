@@ -173,8 +173,7 @@
                         Sign Up
                     </h2>
                     <p class="mt-2 text-base sm:text-lg text-custom-dark-teal mb-6 sm:mb-8">
-                        Before signing up please let us know whether you are an NDIS Participant, Support Coordinator or NDIS Accommodation Provider
-                        by selecting one of the options below:
+                        Before signing up, please choose your role so we can set up your account in the best way for you. Select one of the options below:
                     </p>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mt-6 sm:mt-10">
@@ -186,7 +185,7 @@
                             </div>
                             <h3 class="text-lg sm:text-xl font-bold text-custom-dark-teal mb-1 sm:mb-2">NDIS Participant</h3>
                             <p class="text-custom-dark-olive text-center text-sm mb-3 sm:mb-4 flex-grow">
-                                Sign up to create a profile. Enter information about what you are looking for to find the home that is right for you.
+                               Create your profile and share what you are looking for in a housemate or living arrangement. Search listings, connect with others, and find people who are the right fit for you.
                             </p>
                             <span class="mt-auto px-4 py-2 sm:px-6 sm:py-3 border border-custom-dark-teal text-custom-dark-teal rounded-full font-semibold hover:bg-custom-dark-teal-darker hover:text-white transition duration-300 text-sm sm:text-base">
                                 Participant Sign Up
@@ -201,22 +200,22 @@
                             </div>
                             <h3 class="text-lg sm:text-xl font-bold text-custom-dark-teal mb-1 sm:mb-2">Support Coordinator</h3>
                             <p class="text-custom-dark-olive text-center text-sm mb-3 sm:mb-4 flex-grow">
-                                Sign up to create profiles for the people you support. Enter their needs and preferences and find appropriate housing options.
+                                Create and manage profiles for the people you support. Search listings, connect with participants, providers, and other coordinators, and help match people with the right living arrangements.
                             </p>
                             <span class="mt-auto px-4 py-2 sm:px-6 sm:py-3 border border-custom-dark-teal text-custom-dark-teal rounded-full font-semibold hover:bg-custom-dark-teal-darker hover:text-white transition duration-300 text-sm sm:text-base">
                                 Coordinator Sign Up
                             </span>
                         </a>
 
-                        {{-- NDIS Accommodation Provider --}}
+                        {{-- NDIS Support and Accommodation Provider --}}
                         <a href="{{ route('register.provider.create') }}"
                            class="flex flex-col items-center p-4 sm:p-6 border border-custom-light-grey-green rounded-lg shadow-lg bg-custom-light-cream hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
                             <div class="text-custom-dark-teal mb-3 sm:mb-4">
                                 <svg class="w-12 h-12 sm:w-16 sm:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M17 12h.01M12 12h.01M10 16h.01"></path></svg>
                             </div>
-                            <h3 class="text-lg sm:text-xl font-bold text-custom-dark-teal mb-1 sm:mb-2">NDIS Accommodation Provider</h3>
+                            <h3 class="text-lg sm:text-xl font-bold text-custom-dark-teal mb-1 sm:mb-2">NDIS Support & Accommodation Provider</h3>
                             <p class="text-custom-dark-olive text-center text-sm mb-3 sm:mb-4 flex-grow">
-                                Sign up as a Provider and subscribe to a plan if you intend to list more than two properties. Receive Housing Seeker enquiries and fill your vacancies.
+                                Create a provider account to connect with participants, Support Coordinators, and other providers. Upload depersonalised participant details to find matches, and if you have a Premium plan, list your available properties for public viewing.
                             </p>
                             <span class="mt-auto px-4 py-2 sm:px-6 sm:py-3 border border-custom-dark-teal text-custom-dark-teal rounded-full font-semibold hover:bg-custom-dark-teal-darker hover:text-white transition duration-300 text-sm sm:text-base">
                                 Provider Sign Up

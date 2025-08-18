@@ -31,7 +31,7 @@
 
                     <h3 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 sm:mb-4 drop-shadow-lg">Partner with Us, Providers!</h3>
                     <p class="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6 drop-shadow">
-                        Expand your reach, simplify client management, and showcase your services to a wider audience. Join our network of dedicated service providers and connect with those who need you most.
+                        Connect with participants, Support Coordinators, and other providers to create stable and positive living arrangements. Upload depersonalised participant details, search for matches, and if you have a Premium plan, list your properties for public viewing. Your journey to filling vacancies with the right people starts here.
                     </p>
                     <p class="text-xs sm:text-sm lg:text-md font-semibold drop-shadow">
                         Together, let's build a stronger, more accessible support community.

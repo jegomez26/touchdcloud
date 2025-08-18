@@ -31,7 +31,7 @@
 
                     <h3 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold mb-3 sm:mb-4 drop-shadow-lg">Welcome, Support Coordinators!</h3>
                     <p class="text-sm sm:text-base lg:text-lg leading-relaxed mb-4 sm:mb-6 drop-shadow">
-                        Unlock a seamless way to manage your NDIS participants, streamline your administrative tasks, and connect with a supportive community. Your journey to more effective coordination begins here.
+                        Make it easier to connect participants with the right living arrangements. Create profiles, search listings, and message participants, providers, and other coordinators all in one place. Your journey to faster, more effective matching starts here.
                     </p>
                     <p class="text-xs sm:text-sm lg:text-md font-semibold drop-shadow">
                         Join us and make a real difference, one participant at a time.

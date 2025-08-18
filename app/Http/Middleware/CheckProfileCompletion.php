@@ -26,7 +26,7 @@ class CheckProfileCompletion
                 if ($request->route()->getName() !== 'profile.complete.show' &&
                     $request->route()->getName() !== 'profile.complete') { // Allow POST to complete
                     return redirect()->route('profile.complete.show')
-                                     ->with('status', 'Please complete your profile.');
+                                     ->with('error', 'Please complete your profile.');
                 }
             }
         }
