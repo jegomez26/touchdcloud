@@ -19,6 +19,7 @@ return new class extends Migration
             // No 'unique()' constraint here if a User (e.g., a representative) can manage multiple participants.
             // If the user_id is set, it means that user *is* this participant.
             $table->foreignId('user_id')->nullable()->unique()->constrained('users')->onDelete('cascade');
+            $table->foreignId('representative_user_id')->nullable()->constrained('users')->onDelete('set null');
 
             // SECTION 0: Form Completion Details (related to who the profile is FOR)
             $table->string('first_name'); // Participant's first name

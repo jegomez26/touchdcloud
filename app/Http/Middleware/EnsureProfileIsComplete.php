@@ -26,7 +26,7 @@ class EnsureProfileIsComplete
             $request->route()->getName() !== 'profile.complete.show' &&
             $request->route()->getName() !== 'home') // <--- Make sure 'home' is here
             {
-                return redirect()->route('profile.complete.show')->with('info', 'Please complete your profile to access all features.');
+                return redirect()->route('profile.complete.show')->with('error', 'Please complete your profile to access all features.');
             }
         }
 

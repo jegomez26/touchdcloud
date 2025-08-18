@@ -331,7 +331,7 @@
                     </button>
 
                     <div id="profile-dropdown" class="absolute right-0 mt-2 w-48 bg-custom-white rounded-lg shadow-xl py-1 ring-1 ring-black ring-opacity-5 hidden z-30 transition-all duration-300 ease-out transform origin-top-right scale-95 opacity-0">
-                        <a href="{{ route('profile.complete.show') }}" class="block px-4 py-2 text-sm text-text-dark hover:bg-border-light hover:text-primary-dark w-full text-left transition-colors duration-150 rounded-md">
+                        <a href="{{ route('indiv.profile.basic-details') }}" class="block px-4 py-2 text-sm text-text-dark hover:bg-border-light hover:text-primary-dark w-full text-left transition-colors duration-150 rounded-md">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user inline-block mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
                         </a>
                         <button data-action="settings" class="block px-4 py-2 text-sm text-text-dark hover:bg-border-light hover:text-primary-dark w-full text-left transition-colors duration-150 rounded-md">
@@ -402,7 +402,7 @@
                 {{-- Add Profile Menu items here for mobile --}}
                 <hr class="my-4 border-border-light">
                 <p class="text-xs font-semibold text-text-light uppercase mb-2 px-4">Account</p>
-                <a href="{{ route('profile.complete.show') }}" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
+                <a href="{{ route('indiv.profile.basic-details') }}" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user mr-3"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
                 </a>
                 <button data-action="settings" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">

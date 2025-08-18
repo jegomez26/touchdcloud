@@ -7,11 +7,22 @@
 <div class="min-h-screen bg-gray-50 font-sans" x-data="participantProfile()">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="flex gap-8 flex-col md:flex-row">
-            <!-- Side Navigation Panel -->
             <div class="w-full md:w-80 flex-shrink-0">
                 <div class="bg-white rounded-lg shadow-sm border">
                     <div class="p-4 border-b">
-                        <h2 class="text-lg font-semibold text-gray-900">Profile Sections</h2>
+                        <div class="mb-4"> {{-- Added a div to wrap the header and progress for better grouping --}}
+                            <h2 class="text-lg font-semibold text-gray-900">Participant Profile</h2>
+
+                            {{-- Profile Completion Progress --}}
+                            @isset($profileCompletionPercentage)
+                                <span class="text-sm font-medium text-blue-600">
+                                    Profile Completion: {{ $profileCompletionPercentage }}%
+                                </span>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 mt-2">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $profileCompletionPercentage }}%"></div>
+                                </div>
+                            @endisset
+                        </div>
                     </div>
                     <nav class="p-2">
                         <template x-for="(section, key) in sections" :key="key">
@@ -41,16 +52,13 @@
                 </div>
             </div>
 
-            <!-- Main Content Panel -->
             <div class="flex-1">
                 <div class="bg-white rounded-lg shadow-sm border">
-                    <!-- Content Header -->
                     <div class="px-6 py-4 border-b">
                         <h2 class="text-xl font-semibold text-gray-900">@yield('page_title')</h2>
                         <p class="text-gray-600 text-sm mt-1">@yield('page_description')</p>
                     </div>
 
-                    <!-- Content Body -->
                     <div class="p-6">
                         @yield('profile_content')
                     </div>

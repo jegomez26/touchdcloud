@@ -21,7 +21,6 @@ class Participant extends Model
         'first_name',
         'last_name',
         'middle_name',
-        // ... (all the other fillable fields from your form)
         'participant_email',
         'participant_phone',
         'participant_contact_method',

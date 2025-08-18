@@ -3,7 +3,7 @@
 @section('content')
 
     <section class="relative h-screen flex items-center justify-center text-white overflow-hidden bg-cover bg-center"
-        style="margin-top:-100px; padding-top: 50px; ">
+        style="margin-top:-100px; padding-top: 150px; ">
         {{-- Parallax Layers - Only enabled on larger screens --}}
         {{-- The z-index values create an explicit stacking order from back to front. --}}
         <div class="absolute inset-0 parallax-layer hidden md:block" style="background-repeat: no-repeat; background-image: url('images/Sunset.png'); background-size: 100vw auto; z-index: 10;" data-parallax-speed="1"></div>
@@ -40,14 +40,14 @@
         <div class="absolute inset-0 flex items-end justify-center md:justify-end z-30 px-4 sm:px-6 md:px-10 lg:px-20 pt-4 sm:pt-6 md:pt-10 pb-4 sm:pb-6 md:pb-10">
             <div class="bg-white/10 backdrop-blur-sm p-4 sm:p-6 relative z-30 rounded-xl border border-white/20 max-w-sm sm:max-w-lg md:max-w-xl lg:max-w-2xl w-full
                          animate-fade-in-up delay-200 drop-shadow-lg">
-                <p class="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#f8f1e1] leading-relaxed mb-4 sm:mb-6">
-                    SIL Match is your trusted partner for NDIS participant accommodation and support coordination. We empower you to live independently and comfortably, every step of the way.
+                <p class="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-[#000000] leading-relaxed mb-4 sm:mb-6">
+                    SIL Match helps NDIS participants find the right people to live with. We connect you with housemates who understand your needs, share your goals, and help create a supportive and comfortable home life.
                 </p>
                 <a href="{{ route('listings') }}"
                    class="inline-block bg-[#cc8e45] text-white hover:bg-[#a67137] font-extrabold py-3 sm:py-4 px-6 sm:px-8 md:px-10 rounded-full text-base sm:text-lg md:text-xl lg:text-2xl shadow-2xl
                                  transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
                                  animate-fade-in-up delay-400 border-2 border-[#cc8e45] focus:outline-none focus:ring-4 focus:ring-[#cc8e45] w-full sm:w-auto text-center">
-                    Find Your Perfect Home <span class="ml-2">→</span>
+                    Find Your Perfect Match <span class="ml-2">→</span>
                 </a>
             </div>
         </div>
@@ -76,34 +76,34 @@
             transform hover:-translate-y-4
             group flex flex-col items-center animate-fade-in-up delay-200">
                     <div class="absolute inset-0 w-full h-full object-cover opacity-10 rounded-3xl z-10"></div>
-                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] z-20 transition-colors duration-300">SDA & SIL Matching</h3>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] z-20 transition-colors duration-300">Finding the Right Housemates</h3>
                     <p class="text-sm sm:text-base md:text-lg text-white-300 leading-relaxed z-20">
-                        Our intelligent matching system connects NDIS participants with Supported Independent Living (SIL) and Specialist Disability Accommodation (SDA) options that truly fit their lives. We consider your exact support requirements, lifestyle preferences, location choices, and accessibility needs to ensure every match feels right. 
+                        Our matching system connects NDIS participants with people who are a good fit to live with. We look at lifestyle, routines, location, and support needs so you can share a home with the right people. 
                     </p>
                 </div>
                 <div class="backdrop-blur-md bg-white/10 border border-white/20 p-6 sm:p-8 md:p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
                     transform hover:-translate-y-4
                     group flex flex-col items-center animate-fade-in-up delay-200">
                     <div class="absolute inset-0 w-full h-full object-cover opacity-40 rounded-3xl z-10"></div>
-                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] z-20 transition-colors duration-300">Curated Accommodation</h3>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] z-20 transition-colors duration-300">Matches Made for You</h3>
                     <p class="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed z-20">
-                        Discover a handpicked selection of NDIS-friendly homes designed to meet a wide range of needs and preferences. Every property is carefully reviewed for accessibility, safety, and comfort, ensuring it's not only suitable but also a place you can truly call home. From modern apartments to spacious shared houses, we connect you with environments where you can thrive.
+                        See profiles of participants who share your interests and understand your needs. Every match is based on what matters most to you, helping you build a positive and supportive home life.
                     </p>
                 </div>
                 <div class="backdrop-blur-md bg-white/10 border border-white/20 p-6 sm:p-8 md:p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
                     transform hover:-translate-y-4
                     group flex flex-col items-center animate-fade-in-up delay-200">
-                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Expert Support Coordination</h3>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Support to Make it Happen</h3>
                     <p class="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed">
-                        Connect with dedicated support coordinators who understand your goals and challenges. We provide personalised, one-on-one guidance to help you navigate your NDIS plan with clarity and confidence. From exploring housing options to maximising your funding, we work alongside you every step of the way to ensure you have the right support in the right place.
+                        We make it easy for you, your family, or your support coordinator to manage your profile and connect with potential housemates. You can message safely and decide who is the best fit.
                     </p>
                 </div>
                 <div class="backdrop-blur-md bg-white/10 border border-white/20 p-6 sm:p-8 md:p-10 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500
                     transform hover:-translate-y-4
                     group flex flex-col items-center animate-fade-in-up delay-200">
-                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Achieve True Independence</h3>
+                    <h3 class="text-xl sm:text-2xl md:text-3xl font-bold text-[#3e4732] mb-3 sm:mb-4 group-hover:text-[#cc8e45] transition-colors duration-300">Live Well Together</h3>
                     <p class="text-sm sm:text-base md:text-lg text-gray-700 leading-relaxed">
-                        We believe independence looks different for everyone and we're here to help you achieve yours. By connecting you with the right living environment and providing access to the support you need, we empower you to make choices, build skills, and live life on your terms. Our goal is to create a home setting where confidence, capability, and freedom can flourish.
+                        When you live with the right people, it is easier to feel at home, grow your skills, and enjoy your independence. We are here to help you make that happen.
                     </p>
                 </div>
             </div>
@@ -122,10 +122,10 @@
                     Our Commitment: <span class="text-[#cc8e45]">Accessibility & Empowerment</span>
                 </h2>
                 <p class="text-base sm:text-lg md:text-xl text-[#3e4732] mb-6 sm:mb-8 leading-relaxed">
-                    At SIL Match, we are driven by the belief that every individual deserves a supportive and independent living environment. Our platform is meticulously designed for transparency, ease of access, and genuine care.
+                    At SIL Match, we believe everyone should have the chance to live with people who make them feel supported and included. Our platform is designed so NDIS participants can easily find and connect with housemates who understand their needs and respect their independence.
                 </p>
-                <p class="text-sm sm:text-base md:text-lg text-[#bcbabb] mb-8 sm:mb-10 leading-relaxed">
-                    We've simplified the journey for NDIS participants and their families, providing a user-friendly and comprehensive resource for finding ideal homes and essential support services.
+                <p class="text-sm sm:text-base md:text-lg text-[#3e4732] mb-8 sm:mb-10 leading-relaxed">
+                    We make sure our service is easy to use, safe, and welcoming for everyone, no matter their accessibility needs. Our goal is to help create living arrangements where people feel at home and can build a positive life together.
                 </p>
                 <a href="{{ route('about') }}"
                    class="inline-block bg-[#cc8e45] hover:bg-[#a67137] text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-full shadow-lg
@@ -140,7 +140,7 @@
     <section class="py-12 sm:py-16 md:py-20 lg:py-32 bg-[#ffffff]">
         <div class="container mx-auto px-4 sm:px-6 text-center">
             <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#33595a] mb-8 sm:mb-12 md:mb-16 animate-fade-in-down">
-                Hear From Our Thriving Community
+                Hear How SIL Match Will Help You
             </h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12">
                 <div class="bg-[#f8f1e1] p-6 sm:p-8 md:p-10 rounded-2xl shadow-xl flex flex-col items-center hover:shadow-2xl
@@ -178,16 +178,16 @@
     <section class="bg-[#33595a] py-12 sm:py-16 md:py-20 lg:py-32 text-white text-center">
         <div class="container mx-auto px-4 sm:px-6">
             <h2 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 sm:mb-8 drop-shadow-lg animate-fade-in-down">
-                Ready to Take the Next Step Towards <span class="text-[#cc8e45]">Independence?</span>
+                Ready to <span class="text-[#cc8e45]">Connect?</span>
             </h2>
             <p class="text-base sm:text-lg md:text-xl text-[#f8f1e1] mb-8 sm:mb-10 md:mb-12 max-w-4xl mx-auto drop-shadow-md leading-relaxed">
-                Join our growing community and experience the simplicity of finding ideal NDIS accommodation and expert support, tailored just for you.
+                Join SIL Match and become part of a growing community where participants, support coordinators, and providers can find the right people to create supportive, positive living arrangements. Whether you want to meet compatible housemates, help someone find the right match, or fill a vacancy, we make it simple and secure.
             </p>
             <a @click.prevent="showRegisterRoleModal = true"
                class="inline-block bg-[#cc8e45] text-white hover:bg-[#a67137] font-extrabold py-4 sm:py-5 px-8 sm:px-10 md:px-12 rounded-full text-base sm:text-lg md:text-xl lg:text-2xl shadow-2xl
                                  transition duration-400 ease-in-out transform hover:scale-105 hover:shadow-3xl
                                  focus:outline-none focus:ring-4 focus:ring-[#f8f1e1] w-full sm:w-auto">
-                Register Your Account Today! <span class="ml-2">→</span>
+                Start Matching Today!
             </a>
         </div>
     </section>
