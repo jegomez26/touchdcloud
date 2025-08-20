@@ -91,7 +91,8 @@
                     <a href="{{ route('about') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">About Us</a>
                     <a href="{{ route('pricing') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">Pricing</a>
                     <a href="{{ route('listings') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">Listings</a>
-
+                    <a href="{{ route('faqs') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">FAQs</a>
+                    
                     {{-- AUTHENTICATION LINKS (Desktop) --}}
                     @auth
                         <a href="{{ url('/dashboard') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">Dashboard</a>

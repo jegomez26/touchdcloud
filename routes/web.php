@@ -10,12 +10,25 @@ use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\ParticipantProfileController;
 use App\Http\Controllers\ProviderDashboardController;
 use App\Http\Controllers\ParticipantMessageController;
-use App\Http\Controllers\SupportCoordinatorDashboardController;
+use App\Http\Controllers\SupportCoordinatorDashboardController; // Use alias
+use App\Http\Controllers\SupportCoordinator\ParticipantController as SupportCoordinatorParticipantController; // Use alias
 use App\Http\Controllers\ProviderAccommodationController;
-use App\Http\Controllers\CoordinatorMessageController;
+use App\Http\Controllers\SupportCoordinator\CoordinatorMessageController; // Use alias
 use Illuminate\Support\Facades\Auth;
 
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
 // --- Public Routes ---
+// Routes accessible without authentication
 Route::get('/', function () {
     return view('home');
 })->name('home');
@@ -32,6 +45,10 @@ Route::get('/listings', function () {
     return view('listings');
 })->name('listings');
 
+Route::get('/faqs', function () {
+    return view('faqs');
+})->name('faqs');
+
 Route::get('/terms-of-service', function () {
     return view('terms');
 })->name('terms.show');
@@ -40,14 +57,17 @@ Route::get('/privacy-policy', function () {
     return view('policy');
 })->name('policy.show');
 
+// Note: '/pr-db' seems like a temporary debug route, consider removing or protecting in production.
 Route::get('/pr-db', function () {
     return view('company.company-dashboard');
 })->name('pr-db');
 
+// Route for dynamic suburb loading based on state
 Route::get('/get-suburbs/{state}', [LocationController::class, 'getSuburbs'])->name('get.suburbs');
 
 
 // --- Guest-Only Routes (Authentication) ---
+// Routes only accessible to users who are NOT logged in
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
@@ -65,16 +85,21 @@ Route::middleware('guest')->group(function () {
 
 
 // --- Authenticated & Verified Routes ---
+// Routes requiring a logged-in and verified user
 Route::middleware(['auth', 'verified'])->group(function () {
 
+    // Logout route
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 
-    // --- Profile Completion Routes for Participants ---
-    // These routes are for the multi-step profile completion and should be accessible
-    // even if the profile is not yet completed. The middleware on the controller will
-    // redirect if the profile is already complete.
-    Route::prefix('participant/profile')->name('indiv.profile.')->middleware('role:participant')->group(function () {
-        // GET routes for displaying forms
+    // --- Participant/Representative Profile Completion Routes ---
+    // These routes are for the multi-step profile completion by the participant themselves
+    // or their representative. They are NOT under the 'sc' prefix.
+    Route::prefix('profile')->name('indiv.profile.')->middleware('role:participant,representative')->group(function () {
+        // Initial profile creation handler (e.g., if a participant registers and needs to start)
+        Route::get('create', [ParticipantProfileController::class, 'create'])->name('create'); // Handles finding/creating the participant record
+        Route::post('complete', [ParticipantProfileController::class, 'store'])->name('complete.store'); // For a single-page or initial completion form if needed
+
+        // GET routes for displaying individual profile sections
         Route::get('basic-details', [ParticipantProfileController::class, 'basicDetails'])->name('basic-details');
         Route::get('ndis-support-needs', [ParticipantProfileController::class, 'ndisDetails'])->name('ndis-support-needs');
         Route::get('health-safety', [ParticipantProfileController::class, 'healthSafety'])->name('health-safety');
@@ -83,7 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('availability', [ParticipantProfileController::class, 'availability'])->name('availability');
         Route::get('emergency-contact', [ParticipantProfileController::class, 'emergencyContact'])->name('emergency-contact');
 
-        // PUT routes for updating data
+        // PUT routes for updating individual profile sections
         Route::put('basic-details', [ParticipantProfileController::class, 'updateBasicDetails'])->name('basic-details.update');
         Route::put('ndis-support-needs', [ParticipantProfileController::class, 'updateNdisDetails'])->name('ndis-support-needs.update');
         Route::put('health-safety', [ParticipantProfileController::class, 'updateHealthSafety'])->name('health-safety.update');
@@ -92,10 +117,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('availability', [ParticipantProfileController::class, 'updateAvailability'])->name('availability.update');
         Route::put('emergency-contact', [ParticipantProfileController::class, 'updateEmergencyContact'])->name('emergency-contact.update');
     });
-
-    // The single, temporary route for the initial one-page form
-    Route::get('/profile/complete', [ParticipantProfileController::class, 'create'])->name('profile.complete.show');
-    Route::post('/profile/complete', [ParticipantProfileController::class, 'store'])->name('profile.complete.store');
 
     // --- Super Admin Panel Routes ---
     Route::prefix('superadmin')->middleware('role:admin')->name('superadmin.')->group(function () {
@@ -119,14 +140,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('support-coordinators/{coordinator}/reject', [SuperAdminDashboardController::class, 'rejectSupportCoordinator'])->name('support-coordinators.reject');
     });
 
-    // Route::middleware(['auth', 'profile.complete.check'])->group(function () {
-    //     Route::get('/indiv/dashboard', function () {
-    //         return view('indiv.dashboard');
-    //     })->name('indiv.dashboard');
-    //     // All other routes that require a completed profile go here...
-    // });
-
     // --- General Dashboard & Role-Based Redirection ---
+    // This route acts as a central hub for authenticated users
     Route::get('/dashboard', function () {
         $user = Auth::user();
 
@@ -139,25 +154,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
             } else {
                 return redirect()->route('coordinator.account.pending-approval');
             }
-        } elseif ($user->role === 'participant') {
+        } elseif ($user->role === 'participant' || $user->is_representative) { // Include representatives here
             if ($user->profile_completed) {
                 return redirect()->route('indiv.dashboard');
             } else {
-                // This redirect now goes to the first step of the multi-step form
+                // Redirect to the first step of the multi-step form for profile completion
                 return redirect()->route('indiv.profile.basic-details');
             }
         } elseif ($user->role === 'provider') {
             $user->loadMissing('provider');
             if ($user->provider && $user->provider->status === 'verified') {
                 return redirect()->route('provider.dashboard');
+            } else {
+                 // Example for provider pending approval view
+                return redirect()->route('provider.account.pending-approval');
             }
         }
-        return view('home');
+        return view('home'); // Fallback if role is not recognized
     })->name('dashboard');
 
     // --- Participant Panel Routes (Require Profile Completion) ---
-    // The profile completion routes have been moved out of this middleware group
-    // The main dashboard and other routes are still protected.
+    // These routes are only accessible to participants *after* their profile is completed.
     Route::middleware('role:participant', 'profile.complete.check')->prefix('participant')->name('indiv.')->group(function () {
         // Individual Participant Dashboard
         Route::get('/dashboard', [IndividualDashboardController::class, 'index'])->name('dashboard');
@@ -183,21 +200,49 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('coordinator.account.pending-approval');
 
     Route::prefix('sc')->middleware(['role:coordinator', 'coordinator.approved'])->name('sc.')->group(function () {
+        // Support Coordinator Dashboard
         Route::get('/', [SupportCoordinatorDashboardController::class, 'index'])->name('dashboard');
 
-        // Participant Management by Support Coordinators
+        // Participant Management by Support Coordinators (CRUD operations)
+        // These routes use the dedicated SupportCoordinatorParticipantController
         Route::get('participants', [SupportCoordinatorDashboardController::class, 'listParticipants'])->name('participants.list');
-        Route::get('participants/create', [SupportCoordinatorDashboardController::class, 'createParticipant'])->name('participants.create');
-        Route::post('participants', [SupportCoordinatorDashboardController::class, 'storeParticipant'])->name('participants.store');
-        Route::get('participants/{participant}', [SupportCoordinatorDashboardController::class, 'showParticipant'])->name('participants.show');
-        Route::get('participants/{participant}/edit', [SupportCoordinatorDashboardController::class, 'editParticipant'])->name('participants.edit');
-        Route::put('participants/{participant}', [SupportCoordinatorDashboardController::class, 'updateParticipant'])->name('participants.update');
-        Route::delete('participants/{participant}', [SupportCoordinatorDashboardController::class, 'destroyParticipant'])->name('participants.destroy');
+        Route::get('participants/create', [SupportCoordinatorParticipantController::class, 'create'])->name('participants.create');
+        Route::post('participants', [SupportCoordinatorParticipantController::class, 'store'])->name('participants.store');
+        Route::get('participants/{participant}', [SupportCoordinatorParticipantController::class, 'show'])->name('participants.show');
+        Route::get('participants/{participant}/edit', [SupportCoordinatorParticipantController::class, 'showBasicDetails'])->name('participants.edit');
+        Route::put('participants/{participant}', [SupportCoordinatorParticipantController::class, 'update'])->name('participants.update');
+        Route::delete('participants/{participant}', [SupportCoordinatorParticipantController::class, 'destroy'])->name('participants.destroy');
+
+        // Participant Profile Editing by Support Coordinators (for specific sections of existing participants)
+        // These routes allow a SC to edit sections of a participant's profile, identified by {participant}
+        Route::prefix('participants/{participant}/profile')->name('participants.profile.')->group(function () {
+            Route::get('basic-details', [SupportCoordinatorParticipantController::class, 'showBasicDetails'])->name('basic-details');
+            Route::put('basic-details', [SupportCoordinatorParticipantController::class, 'updateBasicDetails'])->name('basic-details.update');
+
+            Route::get('ndis-support-needs', [SupportCoordinatorParticipantController::class, 'showNdisDetails'])->name('ndis-support-needs');
+            Route::put('ndis-support-needs', [SupportCoordinatorParticipantController::class, 'updateNdisDetails'])->name('ndis-support-needs.update');
+
+            Route::get('health-safety', [SupportCoordinatorParticipantController::class, 'showHealthSafety'])->name('health-safety');
+            Route::put('health-safety', [SupportCoordinatorParticipantController::class, 'updateHealthSafety'])->name('health-safety.update');
+
+            Route::get('living-preferences', [SupportCoordinatorParticipantController::class, 'showLivingPreferences'])->name('living-preferences');
+            Route::put('living-preferences', [SupportCoordinatorParticipantController::class, 'updateLivingPreferences'])->name('living-preferences.update');
+
+            Route::get('compatibility-personality', [SupportCoordinatorParticipantController::class, 'showCompatibilityPersonality'])->name('compatibility-personality');
+            Route::put('compatibility-personality', [SupportCoordinatorParticipantController::class, 'updateCompatibilityPersonality'])->name('compatibility-personality.update');
+
+            Route::get('availability', [SupportCoordinatorParticipantController::class, 'showAvailability'])->name('availability');
+            Route::put('availability', [SupportCoordinatorParticipantController::class, 'updateAvailability'])->name('availability.update');
+
+            Route::get('emergency-contact', [SupportCoordinatorParticipantController::class, 'showEmergencyContact'])->name('emergency-contact');
+            Route::put('emergency-contact', [SupportCoordinatorParticipantController::class, 'updateEmergencyContact'])->name('emergency-contact.update');
+        });
 
         // Viewing Providers (from Support Coordinator's perspective)
         Route::get('providers', [SupportCoordinatorDashboardController::class, 'viewProviders'])->name('providers.index');
         Route::get('providers/{provider}', [SupportCoordinatorDashboardController::class, 'showProvider'])->name('providers.show');
 
+        // Other Support Coordinator specific routes
         Route::get('/unassigned-participants', [SupportCoordinatorDashboardController::class, 'viewUnassignedParticipants'])->name('unassigned_participants');
         Route::post('/send-message-to-participant/{participant}', [CoordinatorMessageController::class, 'sendMessageToParticipant'])->name('send_message_to_participant');
 
@@ -211,6 +256,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- Provider Routes ---
     Route::prefix('provider')->middleware('role:provider')->name('provider.')->group(function () {
+        // Pending Approval View for Providers (add if you have one, similar to coordinator)
+        Route::get('/account/pending-approval', function () {
+            return view('auth.provider-pending-approval'); // Create this view if it doesn't exist
+        })->name('account.pending-approval');
+
         Route::get('/', [ProviderDashboardController::class, 'index'])->name('dashboard');
 
         // User Profile Management (Breeze default profile routes, if providers can edit their User profile)
@@ -222,6 +272,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/my-profile', [ProviderDashboardController::class, 'editProfile'])->name('my-profile.edit');
         Route::patch('/my-profile', [ProviderDashboardController::class, 'updateProfile'])->name('my-profile.update');
 
+        // Accommodation Management by Providers
         Route::get('/accommodations', [ProviderAccommodationController::class, 'index'])->name('accommodations.list');
         Route::get('/accommodations/create', [ProviderAccommodationController::class, 'create'])->name('accommodations.create');
         Route::post('/accommodations', [ProviderAccommodationController::class, 'store'])->name('accommodations.store');
@@ -233,4 +284,5 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
+// Authentication routes included by Laravel Breeze (login, register, reset password, etc.)
 require __DIR__.'/auth.php';

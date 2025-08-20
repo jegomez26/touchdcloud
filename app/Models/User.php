@@ -108,7 +108,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * Get the support coordinator specific profile if this user has the 'coordinator' role.
      * This assumes a separate 'SupportCoordinator' model/table which links back to 'users'.
      */
-    public function supportCoordinatorProfile(): HasOne
+    public function supportCoordinator(): HasOne
     {
         return $this->hasOne(SupportCoordinator::class, 'user_id');
     }
@@ -122,7 +122,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * Get the provider specific profile if this user has the 'provider' role.
      * This assumes a separate 'Provider' model/table which links back to 'users'.
      */
-    public function providerProfile(): HasOne
+    public function provider(): HasOne
     {
         return $this->hasOne(Provider::class, 'user_id');
     }
@@ -147,9 +147,9 @@ class User extends Authenticatable implements MustVerifyEmail
             case 'participant':
                 return $this->participant; // Accessing the relationship directly
             case 'coordinator':
-                return $this->supportCoordinatorProfile; // Accessing the relationship directly
+                return $this->supportCoordinator; // Accessing the relationship directly
             case 'provider':
-                return $this->providerProfile; // Accessing the relationship directly
+                return $this->provider; // Accessing the relationship directly
             case 'admin':
                 return null;
             default:
