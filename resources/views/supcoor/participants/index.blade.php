@@ -23,17 +23,17 @@
         {{-- Search and Filter Form --}}
         <div class="mb-6 md:mb-8 bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner border border-gray-100"
              x-data="{
-                openFilters: false,
-                selectedDisabilityType: {{ json_encode(request('disability_type', '')) }},
-                selectedState: {{ json_encode(request('state', '')) }},
-                currentSuburb: {{ json_encode(request('suburb', '')) }}
+                 openFilters: false,
+                 selectedPrimaryDisability: {{ json_encode(request('primary_disability', '')) }},
+                 selectedState: {{ json_encode(request('state', '')) }},
+                 currentSuburb: {{ json_encode(request('suburb', '')) }}
              }"
              x-init="
-                if (selectedState) {
-                    loadSuburbsForFilter(selectedState, currentSuburb);
-                } else {
-                    document.getElementById('suburb').disabled = true;
-                }
+                 if (selectedState) {
+                     loadSuburbsForFilter(selectedState, currentSuburb);
+                 } else {
+                     document.getElementById('suburb').disabled = true;
+                 }
              ">
             <form action="{{ route('sc.participants.list') }}" method="GET" class="space-y-4 sm:space-y-5">
                 <div class="flex flex-col md:flex-row items-end gap-3 md:gap-4"> {{-- Adjusted gaps for smaller screens --}}
@@ -63,14 +63,14 @@
                      x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
                      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 border-t border-gray-200 pt-5 mt-5"> {{-- Adjusted grid for sm screens --}}
 
-                    {{-- Disability Type Filter --}}
+                    {{-- Primary Disability Filter --}}
                     <div>
-                        <label for="disability_type" class="block text-sm font-medium text-gray-700 mb-1">Disability Type</label>
-                        <select id="disability_type" name="disability_type"
-                                x-model="selectedDisabilityType"
+                        <label for="primary_disability" class="block text-sm font-medium text-gray-700 mb-1">Primary Disability</label>
+                        <select id="primary_disability" name="primary_disability"
+                                x-model="selectedPrimaryDisability"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 p-2.5 text-base">
-                            <option value="">All Disability Types</option>
-                            @foreach($disabilityTypes as $type)
+                            <option value="">All Primary Disabilities</option>
+                            @foreach($primaryDisabilityTypes as $type)
                                 <option value="{{ $type }}">{{ $type }}</option>
                             @endforeach
                         </select>
@@ -129,7 +129,7 @@
 
         @if ($participants->isEmpty())
             <div class="text-center py-8 sm:py-12 bg-gray-50 rounded-lg border border-gray-200 flex flex-col items-center justify-center p-4 sm:p-6"> {{-- Responsive padding for empty state --}}
-                <img src="{{ asset('images/empty-participant.svg') }}" alt="No participants illustration" class="mx-auto max-w-xs h-32 sm:h-48 mb-4 sm:mb-6 opacity-80"> {{-- Responsive image size --}}
+                
                 <p class="text-lg sm:text-xl text-gray-600 mb-2 sm:mb-4 font-medium">No participants found matching your criteria.</p>
                 <p class="text-gray-500 text-sm sm:text-base max-w-lg">Try adjusting your search terms or filters, or add a new participant to get started!</p>
             </div>
@@ -143,22 +143,22 @@
                                 $avatarPath = 'images/general.png'; // Default
                                 $randomMale = rand(1, 2);
                                 $randomFemale = rand(1, 2);
-                                // Ensure the gender values match what's stored in your database (e.g., "Male", "Female")
-                                if ($participant->gender === 'Male') {
+                                // Ensure the gender values match what's stored in your database (e.g., "Male", "Female", "Other", "Prefer not to say")
+                                if ($participant->gender_identity === 'Male') {
                                     $avatarPath = 'images/male' . $randomMale . '.png';
-                                } elseif ($participant->gender === 'Female') {
+                                } elseif ($participant->gender_identity === 'Female') {
                                     $avatarPath = 'images/female' . $randomFemale . '.png';
                                 }
                             @endphp
-                            <img src="{{ asset($avatarPath) }}" alt="{{ $participant->gender ?? 'General' }} Avatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto sm:mr-5 object-cover border-4 border-[#cc8e45] shadow-sm mb-3 sm:mb-0"> {{-- Responsive size and margin --}}
+                            <img src="{{ asset($avatarPath) }}" alt="{{ $participant->gender_identity ?? 'General' }} Avatar" class="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto sm:mr-5 object-cover border-4 border-[#cc8e45] shadow-sm mb-3 sm:mb-0"> {{-- Responsive size and margin --}}
 
                             <div class="w-full">
                                 <h4 class="text-xl sm:text-2xl font-bold text-[#33595a] leading-tight">{{ $participant->first_name }} {{ $participant->last_name }}</h4>
                                 @if($participant->participant_code_name)
                                     <p class="text-gray-600 text-sm mt-1">Code: <span class="font-semibold">{{ $participant->participant_code_name }}</span></p>
                                 @endif
-                                @if($participant->birthday)
-                                    <p class="text-gray-600 text-sm">Age: <span class="font-medium">{{ \Carbon\Carbon::parse($participant->birthday)->age }}</span></p>
+                                @if($participant->date_of_birth) {{-- Updated to date_of_birth --}}
+                                    <p class="text-gray-600 text-sm">Age: <span class="font-medium">{{ \Carbon\Carbon::parse($participant->date_of_birth)->age }}</span></p>
                                 @endif
                                 @if($participant->suburb && $participant->state)
                                     <p class="text-gray-600 text-sm">Location: <span class="font-medium">{{ $participant->suburb }}, {{ $participant->state }}</span></p>
@@ -166,37 +166,41 @@
                             </div>
                         </div>
 
-                        {{-- Accommodation Type Chip --}}
-                        @if($participant->accommodation_type)
+                        {{-- Current Living Situation Chip --}}
+                        @if($participant->current_living_situation) {{-- Updated to current_living_situation --}}
                             <div class="mb-3 sm:mb-4"> {{-- Responsive margin --}}
                                 <span class="inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-semibold bg-[#33595a] text-white shadow-sm"> {{-- Responsive padding and text size --}}
                                     <svg class="w-3 h-3 mr-1 sm:w-4 sm:h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                                    Accommodation Needed: {{ $participant->accommodation_type }}
+                                    Current Living: {{ $participant->current_living_situation }}
                                 </span>
                             </div>
                         @endif
 
-                        {{-- Disability Type Chips (if any) --}}
-                        @if(!empty($participant->disability_type))
-                            <div class="mb-3 sm:mb-4"> {{-- Responsive margin --}}
-                                <p class="text-gray-700 text-sm font-medium mb-1.5 sm:mb-2">Disabilities:</p>
-                                <div class="flex flex-wrap gap-1.5 sm:gap-2"> {{-- Responsive gap --}}
-                                    @php
-                                        // Ensure disability_type is treated as an array
-                                        $disabilities = is_string($participant->disability_type)
-                                                        ? (json_decode($participant->disability_type) ?? [])
-                                                        : ($participant->disability_type ?? []);
-                                    @endphp
-                                    @forelse($disabilities as $disability)
-                                        <span class="inline-flex items-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium bg-[#d0dbcc] text-[#3e4732] shadow-sm"> {{-- Responsive padding and text size --}}
-                                            {{ $disability }}
-                                        </span>
-                                    @empty
+                        {{-- Primary and Secondary Disability Chips --}}
+                        <div class="mb-3 sm:mb-4"> {{-- Responsive margin --}}
+                            <p class="text-gray-700 text-sm font-medium mb-1.5 sm:mb-2">Disabilities:</p>
+                            <div class="flex flex-wrap gap-1.5 sm:gap-2"> {{-- Responsive gap --}}
+                                @if($participant->primary_disability)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-semibold bg-[#d0dbcc] text-[#3e4732] shadow-sm">
+                                        Primary: {{ $participant->primary_disability }}
+                                    </span>
+                                @endif
+                                @php
+                                    $secondaryDisabilities = is_string($participant->secondary_disabilities)
+                                                            ? (json_decode($participant->secondary_disabilities) ?? [])
+                                                            : ($participant->secondary_disabilities ?? []);
+                                @endphp
+                                @forelse($secondaryDisabilities as $disability)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-xs font-medium bg-[#e1e7dd] text-[#3e4732] shadow-sm">
+                                        {{ $disability }}
+                                    </span>
+                                @empty
+                                    @if(empty($participant->primary_disability))
                                         <span class="text-gray-500 text-xs sm:text-sm">None specified</span>
-                                    @endforelse
-                                </div>
+                                    @endif
+                                @endforelse
                             </div>
-                        @endif
+                        </div>
 
                         <div class="mt-auto flex flex-wrap gap-2 sm:gap-3 pt-4 sm:pt-5 border-t border-gray-200"> {{-- Responsive gap and padding --}}
                             <a href="{{ route('sc.participants.show', $participant) }}" class="flex-grow sm:flex-none inline-flex justify-center items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-[#33595a] text-white text-xs font-semibold rounded-md hover:bg-opacity-90 transition-colors duration-200 shadow-sm">

@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str; // Import Str facade for code generation
-use Illuminate\Validation\ValidationException; // Import ValidationException
-use Illuminate\Support\Facades\Storage; // Import Storage facade for file deletion
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 
 class SupportCoordinatorDashboardController extends Controller
 {
@@ -19,71 +19,78 @@ class SupportCoordinatorDashboardController extends Controller
         $this->middleware(['auth', 'role:coordinator']);
     }
 
-
     public function index()
     {
         $coordinator = Auth::user();
 
         // Quick Links Data (Counts)
-        // Ensure these counts are specific to the current coordinator's managed participants
-        $totalParticipants = $coordinator->participantManaged()->count();
-        $participantsWithoutAccommodation = $coordinator->participantManaged()->where('has_accommodation', false)->count();
-        $participantsLookingForAccommodation = $coordinator->participantManaged()->where('is_looking_hm', true)->count();
+        $totalParticipants = $coordinator->participantsAdded()->count();
 
-        // Chart Data: Participants With and Without Accommodations (for current coordinator)
-        $accommodationCounts = $coordinator->participantManaged()
-            ->select(
-                DB::raw("SUM(CASE WHEN has_accommodation = 1 THEN 1 ELSE 0 END) as with_accommodation"),
-                DB::raw("SUM(CASE WHEN has_accommodation = 0 THEN 1 ELSE 0 END) as without_accommodation")
-            )
-            ->first();
+        // # of no current accommodation (where current living situation is not SIL or SDA accommodation)
+        $noCurrentSilSdaAccommodation = $coordinator->participantsAdded()
+            ->where('current_living_situation', '!=', 'SIL or SDA accommodation')
+            ->count();
+        
+        $participantsLookingForAccommodation = $coordinator->participantsAdded()->where('move_in_availability', '!=', 'Just exploring options')->count(); // Using schema field for looking for accommodation
 
         // Chart Data: Participants Per State (for current coordinator)
-        $participantsPerState = $coordinator->participantManaged()
+        $participantsPerState = $coordinator->participantsAdded()
             ->select('state', DB::raw('count(*) as total'))
+            ->whereNotNull('state')
+            ->where('state', '!=', '')
             ->groupBy('state')
             ->orderBy('total', 'desc')
             ->get();
 
         // Chart Data: Participants Per Suburb (Top 10, for current coordinator)
-        $participantsPerSuburb = $coordinator->participantManaged()
+        $participantsPerSuburb = $coordinator->participantsAdded()
             ->select('suburb', DB::raw('count(*) as total'))
+            ->whereNotNull('suburb')
+            ->where('suburb', '!=', '')
             ->groupBy('suburb')
             ->orderBy('total', 'desc')
-            ->limit(10) // Limit to top 10 for readability
+            ->limit(10)
             ->get();
 
-        // Chart Data: Participants Per Accommodation Needs (Top 10 current type, for current coordinator)
-        $participantsPerAccommodationType = $coordinator->participantManaged()
-            ->select('accommodation_type', DB::raw('count(*) as total'))
-            ->whereNotNull('accommodation_type')
-            ->where('accommodation_type', '!=', '')
-            ->groupBy('accommodation_type')
+        // Chart Data: Participants Per Primary Disability (for current coordinator)
+        $participantsPerPrimaryDisability = $coordinator->participantsAdded()
+            ->select('primary_disability', DB::raw('count(*) as total'))
+            ->whereNotNull('primary_disability')
+            ->where('primary_disability', '!=', '')
+            ->groupBy('primary_disability')
             ->orderBy('total', 'desc')
-            ->limit(10) // Limit to top 10
+            ->limit(10)
             ->get();
 
-        // Chart Data: Participants Per Disability (for current coordinator)
-        // This assumes disability_type is stored as JSON array or comma-separated string
-        $allDisabilities = $coordinator->participantManaged()->pluck('disability_type')->filter()->flatMap(function ($disabilitiesArray) {
-            // Because of model casting, $disabilitiesArray is ALREADY a PHP array.
-            // No need for json_decode() or explode().
-            return $disabilitiesArray;
-        })->map(fn($item) => trim($item))->filter()->toArray();
+        // Chart Data: Participants Per Age Range (for current coordinator)
+        $participantsPerAgeRange = $coordinator->participantsAdded()
+            ->select(
+                DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 18 AND 25 THEN 1 ELSE 0 END) as age_18_25"),
+                DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 26 AND 35 THEN 1 ELSE 0 END) as age_26_35"),
+                DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 36 AND 50 THEN 1 ELSE 0 END) as age_36_50"),
+                DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) > 50 THEN 1 ELSE 0 END) as age_51_plus"),
+                DB::raw("SUM(CASE WHEN date_of_birth IS NULL THEN 1 ELSE 0 END) as age_unknown")
+            )
+            ->first();
 
-        $disabilityCounts = array_count_values($allDisabilities);
-        arsort($disabilityCounts); // Sort by count, descending
-        $topDisabilities = array_slice($disabilityCounts, 0, 10, true); // Get top 10
+        // Chart Data: Participants Per Gender (for current coordinator)
+        $participantsPerGender = $coordinator->participantsAdded()
+            ->select('gender_identity', DB::raw('count(*) as total'))
+            ->whereNotNull('gender_identity')
+            ->where('gender_identity', '!=', '')
+            ->groupBy('gender_identity')
+            ->orderBy('total', 'desc')
+            ->get();
 
         return view('supcoor.dashboard', compact(
             'totalParticipants',
-            'participantsWithoutAccommodation',
+            'noCurrentSilSdaAccommodation',
             'participantsLookingForAccommodation',
-            'accommodationCounts',
             'participantsPerState',
             'participantsPerSuburb',
-            'participantsPerAccommodationType',
-            'topDisabilities'
+            'participantsPerPrimaryDisability',
+            'participantsPerAgeRange',
+            'participantsPerGender'
         ));
     }
 
@@ -95,7 +102,7 @@ class SupportCoordinatorDashboardController extends Controller
         $coordinator = Auth::user();
 
         // Start with the participants managed by the current coordinator
-        $query = $coordinator->participantManaged();
+        $query = $coordinator->participantsAdded();
 
         // --- Search and Filter Logic ---
 
@@ -104,20 +111,17 @@ class SupportCoordinatorDashboardController extends Controller
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('first_name', 'like', '%' . $search . '%')
-                  ->orWhere('last_name', 'like', '%' . $search . '%')
-                  ->orWhere('middle_name', 'like', '%' . $search . '%')
-                  ->orWhere('specific_disability', 'like', '%' . $search . '%');
+                    ->orWhere('last_name', 'like', '%' . $search . '%')
+                    ->orWhere('middle_name', 'like', '%' . $search . '%')
+                    ->orWhere('specific_disability', 'like', '%' . $search . '%')
+                    ->orWhere('primary_disability', 'like', '%' . $search . '%')
+                    ->orWhere('secondary_disability', 'like', '%' . $search . '%');
             });
         }
 
-        // Filter by Disability Type
-        if ($request->filled('disability_type')) {
-            $disabilityType = $request->input('disability_type');
-            // Assuming disability_type is stored as a JSON array or comma-separated string
-            // For JSON array:
-            $query->whereRaw('JSON_CONTAINS(disability_type, ?)', [json_encode($disabilityType)]);
-            // If it's stored as a comma-separated string, you'd use:
-            // $query->where('disability_type', 'like', '%' . $disabilityType . '%');
+        // Filter by Primary Disability
+        if ($request->filled('primary_disability')) {
+            $query->where('primary_disability', $request->input('primary_disability'));
         }
 
         // Filter by State
@@ -132,28 +136,22 @@ class SupportCoordinatorDashboardController extends Controller
 
         // --- End Search and Filter Logic ---
 
-        $participants = $query->paginate(10); // Paginate the results
+        $participants = $query->paginate(10);
 
         // For the filter dropdowns:
-        $disabilityTypes = [
-            'Physical Disability', 'Intellectual Disability', 'Sensory Disability',
-            'Psychosocial Disability', 'Autism Spectrum Disorder', 'Neurological Disability',
-            'Other'
-        ];
+        $primaryDisabilityTypes = Participant::distinct()->pluck('primary_disability')->filter()->sort()->toArray();
 
-        // Fetch suburbs for the current selected state for the filter dropdown
         $suburbsForFilter = [];
         if ($request->filled('state')) {
             $suburbsForFilter = DB::table('participants')
-                                  ->where('state', $request->input('state'))
-                                  ->distinct()
-                                  ->orderBy('suburb')
-                                  ->pluck('suburb')
-                                  ->toArray();
+                ->where('state', $request->input('state'))
+                ->distinct()
+                ->orderBy('suburb')
+                ->pluck('suburb')
+                ->toArray();
         }
 
-
-        return view('supcoor.participants.index', compact('participants', 'disabilityTypes', 'suburbsForFilter'));
+        return view('supcoor.participants.index', compact('participants', 'primaryDisabilityTypes', 'suburbsForFilter'));
     }
 
     public function viewUnassignedParticipants(Request $request)
@@ -169,23 +167,22 @@ class SupportCoordinatorDashboardController extends Controller
             $query->where('suburb', $request->suburb);
         }
 
-        // This assumes 'accommodation_needed' is the field storing the array of required accommodation types.
-        // If your database field is actually `accommodation_type` and it stores a single string,
-        // change `accommodation_needed` to `accommodation_type` below.
-        if ($request->filled('accommodation_type')) {
-            $query->whereJsonContains('accommodation_needed', $request->accommodation_type);
+        if ($request->filled('current_living_situation')) {
+            $query->where('current_living_situation', $request->current_living_situation);
         }
 
-        if ($request->filled('disability_type')) {
-            $query->whereJsonContains('disability_type', $request->disability_type);
+        if ($request->filled('primary_disability')) {
+            $query->where('primary_disability', $request->primary_disability);
         }
 
         // Search by Participant Code Name or text within Disability Type
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
-                $q->where('code_name', 'like', '%' . $searchTerm . '%')
-                  ->orWhereJsonContains('disability_type', $searchTerm);
+                $q->where('participant_code_name', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('primary_disability', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('secondary_disability', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('specific_disability', 'like', '%' . $searchTerm . '%');
             });
         }
 
@@ -195,48 +192,41 @@ class SupportCoordinatorDashboardController extends Controller
         $states = Participant::withoutSupportCoordinator()->distinct()->pluck('state')->sort()->filter()->toArray();
         $suburbs = [];
         if ($request->filled('state')) {
-             $suburbs = Participant::withoutSupportCoordinator()
-                                   ->where('state', $request->input('state'))
-                                   ->distinct()
-                                   ->orderBy('suburb')
-                                   ->pluck('suburb')
-                                   ->filter()
-                                   ->toArray();
+            $suburbs = Participant::withoutSupportCoordinator()
+                ->where('state', $request->input('state'))
+                ->distinct()
+                ->orderBy('suburb')
+                ->pluck('suburb')
+                ->filter()
+                ->toArray();
         } else {
-             $suburbs = Participant::withoutSupportCoordinator()->distinct()->pluck('suburb')->sort()->filter()->toArray();
+            $suburbs = Participant::withoutSupportCoordinator()->distinct()->pluck('suburb')->sort()->filter()->toArray();
         }
 
-
-        // Predefined list for accommodation types (assuming they are fixed options)
-        $accommodationTypes = [
-            'Supported Independent Living (SIL)',
-            'Improved Livability',
-            'Fully Accessible',
-            'High Physical Support',
-            'Robust',
-            'Community Participation'
-            // Add any other types your system might have for "accommodation_needed"
+        // Predefined list for current living situation types
+        $currentLivingSituations = [
+            'SIL or SDA accommodation',
+            'Group home',
+            'With family',
+            'Living alone',
+            'Other'
         ];
 
-        // Dynamically collect ALL unique disability types from unassigned participants
-        $allDisabilities = Participant::withoutSupportCoordinator()
-                            ->pluck('disability_type')
-                            ->filter()
-                            ->flatMap(function ($disabilities) {
-                                return $disabilities; // Already an array due to model casting
-                            })
-                            ->unique()
-                            ->sort()
-                            ->values()
-                            ->toArray();
-
+        // Dynamically collect ALL unique primary disability types from unassigned participants
+        $primaryDisabilityTypes = Participant::withoutSupportCoordinator()
+            ->distinct()
+            ->pluck('primary_disability')
+            ->filter()
+            ->sort()
+            ->values()
+            ->toArray();
 
         return view('supcoor.unassigned_participants', [
             'participants' => $participants,
             'states' => $states,
             'suburbs' => $suburbs,
-            'accommodationTypes' => $accommodationTypes, // Predefined list of options
-            'disabilityTypes' => $allDisabilities,      // Dynamically collected unique types
+            'currentLivingSituations' => $currentLivingSituations,
+            'primaryDisabilityTypes' => $primaryDisabilityTypes,
             'filters' => $request->all(),
         ]);
     }
@@ -246,40 +236,19 @@ class SupportCoordinatorDashboardController extends Controller
      */
     public function sendMessage(Request $request, Participant $participant)
     {
-        // Important: Ensure the support coordinator is not messaging an *assigned* participant unless allowed.
-        // For unassigned, no check needed here specific to the coordinator's managed list.
-        // If you want to prevent sending message to participants that already have a support coordinator,
-        // you might add:
-        // if ($participant->support_coordinator_id !== null) {
-        //    return response()->json(['message' => 'Participant is already assigned to a coordinator.'], 403);
-        // }
-
-
         $request->validate([
             'message_subject' => 'required|string|max:255',
             'message_body' => 'required|string',
         ]);
 
-        // --- Messaging Logic Placeholder ---
-        // This is where you integrate your actual messaging system.
-        // Example with Laravel Notifications (you'd create a ParticipantMessage notification):
-        // $coordinator = Auth::user();
-        // $participant->notify(new \App\Notifications\ParticipantMessage($request->message_subject, $request->message_body, $coordinator->id));
-
-        // Example with a messages table:
         DB::table('messages')->insert([
-            'sender_id' => Auth::id(), // ID of the logged-in Support Coordinator
+            'sender_id' => Auth::id(),
             'recipient_id' => $participant->id,
             'subject' => $request->message_subject,
             'body' => $request->message_body,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        // Make sure you have a 'messages' table with sender_id, recipient_id, subject, body columns.
-        // You might want to add polymorphic relations if User and Participant can both be senders/recipients.
-        // Or simply add a type column (e.g., sender_type = 'coordinator', recipient_type = 'participant').
-        // For simplicity, assuming direct user_id to participant_id.
-        // --- End Messaging Logic Placeholder ---
 
         return response()->json(['message' => 'Message sent successfully!'], 200);
     }
@@ -290,18 +259,54 @@ class SupportCoordinatorDashboardController extends Controller
      */
     public function createParticipant()
     {
-        // For 'disability_type', you might want to pass options to the view
-        $disabilityTypes = [
+        $primaryDisabilities = [
             'Physical Disability', 'Intellectual Disability', 'Sensory Disability',
             'Psychosocial Disability', 'Autism Spectrum Disorder', 'Neurological Disability',
             'Other'
         ];
-        $accommodationTypes = [
+        $currentLivingSituations = [
             'Private Rental', 'Living with Family', 'Shared Accommodation',
             'Supported Independent Living (SIL)', 'Specialist Disability Accommodation (SDA)',
             'Group Home', 'Boarding House', 'Homeless/Unstable'
         ];
-        return view('supcoor.participants.create', compact('disabilityTypes', 'accommodationTypes'));
+        $genderIdentities = ['Female', 'Male', 'Non-binary', 'Prefer not to say', 'Other'];
+        $ndisPlanManagers = ['Self-managed', 'Plan-managed', 'NDIA-managed', 'Not sure'];
+        $silFundingStatuses = ['Yes', 'No', 'Not sure'];
+        $contactMethods = ['Phone', 'Email', 'Either'];
+        $preferredHousemateNumbers = ['1', '2', '3+', 'No preference'];
+        $accessibilityNeeds = ['Fully accessible', 'Some modifications required', 'No specific needs'];
+        $petPreferences = ['Have pets', 'Can live with pets', 'Do not want to live with pets'];
+        $moveInAvailabilities = ['ASAP', 'Within 1–3 months', 'Within 3–6 months', 'Just exploring options'];
+        $aboriginalTorresStraitIslanderOptions = ['Yes', 'No', 'Prefer not to say'];
+        $medicationAdminHelpOptions = ['Yes', 'No', 'Sometimes'];
+        $behaviourSupportPlanStatuses = ['Yes', 'No', 'In development'];
+        $preferredContactMatchMethods = ['Phone', 'Email', 'Via support coordinator', 'Other'];
+
+        // Assuming fixed options for other JSON fields for UI selection.
+        // In a real application, you might load these from a config or database.
+        $pronounOptions = ['She / Her', 'He / Him', 'They / Them', 'Other'];
+        $dailyLivingSupportNeedsOptions = [
+            'Personal care', 'Medication management', 'Meal preparation',
+            'Household tasks', 'Community access', 'Transport', 'Financial management', 'Other'
+        ];
+        $housematePreferencesOptions = ['Male', 'Female', 'Mixed', 'No preference', 'Other'];
+        $goodHomeEnvironmentLooksLikeOptions = [
+            'Quiet', 'Social', 'Organized', 'Relaxed', 'Structured', 'Independent', 'Supportive', 'Other'
+        ];
+        $selfDescriptionOptions = [
+            'Quiet', 'Social', 'Independent', 'Needs support', 'Organized', 'Relaxed', 'Active', 'Creative', 'Other'
+        ];
+
+
+        return view('supcoor.participants.create', compact(
+            'primaryDisabilities', 'currentLivingSituations', 'genderIdentities',
+            'ndisPlanManagers', 'silFundingStatuses', 'contactMethods',
+            'preferredHousemateNumbers', 'accessibilityNeeds', 'petPreferences',
+            'moveInAvailabilities', 'aboriginalTorresStraitIslanderOptions',
+            'medicationAdminHelpOptions', 'behaviourSupportPlanStatuses',
+            'preferredContactMatchMethods', 'pronounOptions', 'dailyLivingSupportNeedsOptions',
+            'housematePreferencesOptions', 'goodHomeEnvironmentLooksLikeOptions', 'selfDescriptionOptions'
+        ));
     }
 
     /**
@@ -312,77 +317,121 @@ class SupportCoordinatorDashboardController extends Controller
         $coordinator = Auth::user();
 
         $rules = [
-            // Core Participant Information
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
-            'birthday' => ['nullable', 'date'],
-            'gender' => ['nullable', 'string', 'max:50'],
+            'participant_email' => ['nullable', 'email', 'max:255'],
+            'participant_phone' => ['nullable', 'string', 'max:255'],
+            'participant_contact_method' => ['nullable', Rule::in(['Phone', 'Email', 'Either'])],
+            'is_participant_best_contact' => ['boolean'],
 
-            // Disability and Accommodation Details
-            'disability_type' => ['nullable', 'array'],
-            'disability_type.*' => ['string', 'max:255'], // Validate each item in the array
+            'date_of_birth' => ['nullable', 'date'],
+            'gender_identity' => ['nullable', Rule::in(['Female', 'Male', 'Non-binary', 'Prefer not to say', 'Other'])],
+            'gender_identity_other' => ['nullable', 'string', 'max:255'],
+            'pronouns' => ['nullable', 'array'],
+            'pronouns_other' => ['nullable', 'string', 'max:255'],
+            'languages_spoken' => ['nullable', 'array'],
+            'aboriginal_torres_strait_islander' => ['nullable', Rule::in(['Yes', 'No', 'Prefer not to say'])],
+
+            'sil_funding_status' => ['nullable', Rule::in(['Yes', 'No', 'Not sure'])],
+            'ndis_plan_review_date' => ['nullable', 'date'],
+            'ndis_plan_manager' => ['nullable', Rule::in(['Self-managed', 'Plan-managed', 'NDIA-managed', 'Not sure'])],
+            'has_support_coordinator' => ['boolean'],
+
+            'daily_living_support_needs' => ['nullable', 'array'],
+            'daily_living_support_needs_other' => ['nullable', 'string', 'max:1000'],
+            'primary_disability' => ['nullable', 'string', 'max:255'],
+            'secondary_disability' => ['nullable', 'string', 'max:255'],
             'specific_disability' => ['nullable', 'string', 'max:1000'],
-            'accommodation_type' => ['nullable', 'string', 'max:255'],
-            'approved_accommodation_type' => ['nullable', Rule::in(['SDA', 'SIL'])],
-            'behavior_of_concern' => ['nullable', 'string', 'max:1000'],
+            'estimated_support_hours_sil_level' => ['nullable', 'string', 'max:255'],
+            'night_support_type' => ['nullable', Rule::in(['Active overnight', 'Sleepover', 'None'])],
+            'uses_assistive_technology_mobility_aids' => ['boolean'],
+            'assistive_technology_mobility_aids_list' => ['nullable', 'string', 'max:1000'],
 
-            // Address Details
+            'medical_conditions_relevant' => ['nullable', 'string', 'max:1000'],
+            'medication_administration_help' => ['nullable', Rule::in(['Yes', 'No', 'Sometimes'])],
+            'behaviour_support_plan_status' => ['nullable', Rule::in(['Yes', 'No', 'In development'])],
+            'behaviours_of_concern_housemates' => ['nullable', 'string', 'max:1000'],
+
+            'preferred_sil_locations' => ['nullable', 'array'],
+            'housemate_preferences' => ['nullable', 'array'],
+            'housemate_preferences_other' => ['nullable', 'string', 'max:1000'],
+            'preferred_number_of_housemates' => ['nullable', Rule::in(['1', '2', '3+', 'No preference'])],
+            'accessibility_needs_in_home' => ['nullable', Rule::in(['Fully accessible', 'Some modifications required', 'No specific needs'])],
+            'accessibility_needs_details' => ['nullable', 'string', 'max:1000'],
+            'pets_in_home_preference' => ['nullable', Rule::in(['Have pets', 'Can live with pets', 'Do not want to live with pets'])],
+            'own_pet_type' => ['nullable', 'string', 'max:255'],
+            'good_home_environment_looks_like' => ['nullable', 'array'],
+            'good_home_environment_looks_like_other' => ['nullable', 'string', 'max:1000'],
+
+            'self_description' => ['nullable', 'array'],
+            'self_description_other' => ['nullable', 'string', 'max:1000'],
+            'smokes' => ['boolean'],
+            'deal_breakers_housemates' => ['nullable', 'string', 'max:1000'],
+            'cultural_religious_practices' => ['nullable', 'string', 'max:1000'],
+            'interests_hobbies' => ['nullable', 'string', 'max:1000'],
+
+            'move_in_availability' => ['nullable', Rule::in(['ASAP', 'Within 1–3 months', 'Within 3–6 months', 'Just exploring options'])],
+            'current_living_situation' => ['nullable', Rule::in(['SIL or SDA accommodation', 'Group home', 'With family', 'Living alone', 'Other'])],
+            'current_living_situation_other' => ['nullable', 'string', 'max:1000'],
+            'contact_for_suitable_match' => ['boolean'],
+            'preferred_contact_method_match' => ['nullable', Rule::in(['Phone', 'Email', 'Via support coordinator', 'Other'])],
+            'preferred_contact_method_match_other' => ['nullable', 'string', 'max:1000'],
+
             'street_address' => ['required', 'string', 'max:255'],
             'suburb' => ['required', 'string', 'max:255'],
             'state' => ['required', 'string', 'max:255'],
             'post_code' => ['required', 'string', 'max:10'],
 
-            // Funding and Looking Status
-            'is_looking_hm' => ['boolean'],
-            'has_accommodation' => ['boolean'],
-            'funding_amount_support_coor' => ['nullable', 'numeric', 'min:0'],
-            'funding_amount_accommodation' => ['nullable', 'numeric', 'min:0'],
-
-            // Health Report / Assessment
             'health_report_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:2048'],
-            'health_report_text' => ['nullable', 'string', 'max:5000'], // This is the column for the text
-            // 'assessment_path' is not in the blade, assuming it's removed or not yet implemented
-            // 'assessment_path' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:2048'],
+            'health_report_text' => ['nullable', 'string', 'max:5000'],
         ];
 
-        // Custom validation for 'Other' disability type
-        if ($request->filled('disability_type') && in_array('Other', $request->input('disability_type'))) {
+        if ($request->filled('primary_disability') && $request->input('primary_disability') === 'Other') {
             $rules['specific_disability'] = ['required', 'string', 'max:1000'];
+        }
+        if ($request->filled('gender_identity') && $request->input('gender_identity') === 'Other') {
+            $rules['gender_identity_other'] = ['required', 'string', 'max:255'];
+        }
+        if ($request->filled('current_living_situation') && $request->input('current_living_situation') === 'Other') {
+            $rules['current_living_situation_other'] = ['required', 'string', 'max:1000'];
+        }
+        if ($request->has('uses_assistive_technology_mobility_aids') && $request->input('uses_assistive_technology_mobility_aids')) {
+            $rules['assistive_technology_mobility_aids_list'] = ['required', 'string', 'max:1000'];
+        }
+        if ($request->has('pets_in_home_preference') && $request->input('pets_in_home_preference') === 'Have pets') {
+            $rules['own_pet_type'] = ['required', 'string', 'max:255'];
+        }
+        if ($request->has('contact_for_suitable_match') && $request->input('contact_for_suitable_match') && $request->input('preferred_contact_method_match') === 'Other') {
+            $rules['preferred_contact_method_match_other'] = ['required', 'string', 'max:1000'];
         }
 
         $validatedData = $request->validate($rules);
 
-        // Handle boolean checkboxes
-        $validatedData['is_looking_hm'] = $request->has('is_looking_hm');
-        $validatedData['has_accommodation'] = $request->has('has_accommodation');
+        // Handle boolean checkboxes explicitly based on schema
+        $validatedData['is_participant_best_contact'] = $request->has('is_participant_best_contact');
+        $validatedData['has_support_coordinator'] = $request->has('has_support_coordinator');
+        $validatedData['uses_assistive_technology_mobility_aids'] = $request->has('uses_assistive_technology_mobility_aids');
+        $validatedData['smokes'] = $request->has('smokes');
+        $validatedData['contact_for_suitable_match'] = $request->has('contact_for_suitable_match');
+        
+        // Handle JSON fields
+        $validatedData['pronouns'] = json_encode($request->input('pronouns'));
+        $validatedData['languages_spoken'] = json_encode($request->input('languages_spoken'));
+        $validatedData['daily_living_support_needs'] = json_encode($request->input('daily_living_support_needs'));
+        $validatedData['preferred_sil_locations'] = json_encode($request->input('preferred_sil_locations'));
+        $validatedData['housemate_preferences'] = json_encode($request->input('housemate_preferences'));
+        $validatedData['good_home_environment_looks_like'] = json_encode($request->input('good_home_environment_looks_like'));
+        $validatedData['self_description'] = json_encode($request->input('self_description'));
 
-        // Assign who added the participant
         $validatedData['added_by_user_id'] = $coordinator->id;
-        $validatedData['support_coordinator_id'] = $coordinator->id; // Link to the current coordinator
+        $validatedData['support_coordinator_id'] = $coordinator->id;
 
-        // Initialize health report path to null (if no file is uploaded)
-        $validatedData['health_report_path'] = null; // Default to null, will be overridden if file is present
-
-        // Handle health_report_file upload
+        $validatedData['health_report_path'] = null;
         if ($request->hasFile('health_report_file')) {
             $filePath = $request->file('health_report_file')->store('health_reports', 'public');
             $validatedData['health_report_path'] = $filePath;
         }
-
-        // The 'health_report_text' from the request is directly passed to the corresponding column.
-        // It's already in $validatedData because it was in the $rules array.
-        // No need for a separate `if ($request->filled('health_report_text'))` check for storing to $validatedData,
-        // as `validate()` already handles populating it, and it will be null if not provided.
-
-        // Handle assessment_path if it's uploaded (if you re-add this to the blade)
-        // if ($request->hasFile('assessment_path')) {
-        //     $assessmentFilePath = $request->file('assessment_path')->store('assessments', 'public');
-        //     $validatedData['assessment_path'] = $assessmentFilePath;
-        // } else {
-        //     $validatedData['assessment_path'] = null;
-        // }
-
 
         $participant = Participant::create($validatedData);
 
@@ -397,7 +446,6 @@ class SupportCoordinatorDashboardController extends Controller
      */
     public function showParticipant(Participant $participant)
     {
-        // Ensure the participant belongs to the logged-in coordinator
         if ($participant->support_coordinator_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
@@ -410,23 +458,55 @@ class SupportCoordinatorDashboardController extends Controller
      */
     public function editParticipant(Participant $participant)
     {
-        // Ensure the participant belongs to the logged-in coordinator
         if ($participant->support_coordinator_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        $disabilityTypes = [
+        $primaryDisabilities = [
             'Physical Disability', 'Intellectual Disability', 'Sensory Disability',
             'Psychosocial Disability', 'Autism Spectrum Disorder', 'Neurological Disability',
             'Other'
         ];
-        $accommodationTypes = [
+        $currentLivingSituations = [
             'Private Rental', 'Living with Family', 'Shared Accommodation',
             'Supported Independent Living (SIL)', 'Specialist Disability Accommodation (SDA)',
             'Group Home', 'Boarding House', 'Homeless/Unstable'
         ];
+        $genderIdentities = ['Female', 'Male', 'Non-binary', 'Prefer not to say', 'Other'];
+        $ndisPlanManagers = ['Self-managed', 'Plan-managed', 'NDIA-managed', 'Not sure'];
+        $silFundingStatuses = ['Yes', 'No', 'Not sure'];
+        $contactMethods = ['Phone', 'Email', 'Either'];
+        $preferredHousemateNumbers = ['1', '2', '3+', 'No preference'];
+        $accessibilityNeeds = ['Fully accessible', 'Some modifications required', 'No specific needs'];
+        $petPreferences = ['Have pets', 'Can live with pets', 'Do not want to live with pets'];
+        $moveInAvailabilities = ['ASAP', 'Within 1–3 months', 'Within 3–6 months', 'Just exploring options'];
+        $aboriginalTorresStraitIslanderOptions = ['Yes', 'No', 'Prefer not to say'];
+        $medicationAdminHelpOptions = ['Yes', 'No', 'Sometimes'];
+        $behaviourSupportPlanStatuses = ['Yes', 'No', 'In development'];
+        $preferredContactMatchMethods = ['Phone', 'Email', 'Via support coordinator', 'Other'];
 
-        return view('supcoor.participants.edit', compact('participant', 'disabilityTypes', 'accommodationTypes'));
+        $pronounOptions = ['She / Her', 'He / Him', 'They / Them', 'Other'];
+        $dailyLivingSupportNeedsOptions = [
+            'Personal care', 'Medication management', 'Meal preparation',
+            'Household tasks', 'Community access', 'Transport', 'Financial management', 'Other'
+        ];
+        $housematePreferencesOptions = ['Male', 'Female', 'Mixed', 'No preference', 'Other'];
+        $goodHomeEnvironmentLooksLikeOptions = [
+            'Quiet', 'Social', 'Organized', 'Relaxed', 'Structured', 'Independent', 'Supportive', 'Other'
+        ];
+        $selfDescriptionOptions = [
+            'Quiet', 'Social', 'Independent', 'Needs support', 'Organized', 'Relaxed', 'Active', 'Creative', 'Other'
+        ];
+
+        return view('supcoor.participants.edit', compact(
+            'participant', 'primaryDisabilities', 'currentLivingSituations', 'genderIdentities',
+            'ndisPlanManagers', 'silFundingStatuses', 'contactMethods',
+            'preferredHousemateNumbers', 'accessibilityNeeds', 'petPreferences',
+            'moveInAvailabilities', 'aboriginalTorresStraitIslanderOptions',
+            'medicationAdminHelpOptions', 'behaviourSupportPlanStatuses',
+            'preferredContactMatchMethods', 'pronounOptions', 'dailyLivingSupportNeedsOptions',
+            'housematePreferencesOptions', 'goodHomeEnvironmentLooksLikeOptions', 'selfDescriptionOptions'
+        ));
     }
 
     /**
@@ -434,7 +514,6 @@ class SupportCoordinatorDashboardController extends Controller
      */
     public function updateParticipant(Request $request, Participant $participant)
     {
-        // Ensure the participant belongs to the logged-in coordinator
         if ($participant->support_coordinator_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
@@ -443,60 +522,119 @@ class SupportCoordinatorDashboardController extends Controller
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
             'middle_name' => ['nullable', 'string', 'max:255'],
-            'birthday' => ['nullable', 'date'],
-            'gender' => ['nullable', 'string', 'max:50'],
-            'disability_type' => ['nullable', 'array'],
-            'disability_type.*' => ['string', 'max:255'],
+            'participant_email' => ['nullable', 'email', 'max:255'],
+            'participant_phone' => ['nullable', 'string', 'max:255'],
+            'participant_contact_method' => ['nullable', Rule::in(['Phone', 'Email', 'Either'])],
+            'is_participant_best_contact' => ['boolean'],
+
+            'date_of_birth' => ['nullable', 'date'],
+            'gender_identity' => ['nullable', Rule::in(['Female', 'Male', 'Non-binary', 'Prefer not to say', 'Other'])],
+            'gender_identity_other' => ['nullable', 'string', 'max:255'],
+            'pronouns' => ['nullable', 'array'],
+            'pronouns_other' => ['nullable', 'string', 'max:255'],
+            'languages_spoken' => ['nullable', 'array'],
+            'aboriginal_torres_strait_islander' => ['nullable', Rule::in(['Yes', 'No', 'Prefer not to say'])],
+
+            'sil_funding_status' => ['nullable', Rule::in(['Yes', 'No', 'Not sure'])],
+            'ndis_plan_review_date' => ['nullable', 'date'],
+            'ndis_plan_manager' => ['nullable', Rule::in(['Self-managed', 'Plan-managed', 'NDIA-managed', 'Not sure'])],
+            'has_support_coordinator' => ['boolean'],
+
+            'daily_living_support_needs' => ['nullable', 'array'],
+            'daily_living_support_needs_other' => ['nullable', 'string', 'max:1000'],
+            'primary_disability' => ['nullable', 'string', 'max:255'],
+            'secondary_disability' => ['nullable', 'string', 'max:255'],
             'specific_disability' => ['nullable', 'string', 'max:1000'],
-            'accommodation_type' => ['nullable', 'string', 'max:255'],
-            'approved_accommodation_type' => ['nullable', Rule::in(['SDA', 'SIL'])],
-            'behavior_of_concern' => ['nullable', 'string', 'max:1000'],
+            'estimated_support_hours_sil_level' => ['nullable', 'string', 'max:255'],
+            'night_support_type' => ['nullable', Rule::in(['Active overnight', 'Sleepover', 'None'])],
+            'uses_assistive_technology_mobility_aids' => ['boolean'],
+            'assistive_technology_mobility_aids_list' => ['nullable', 'string', 'max:1000'],
+
+            'medical_conditions_relevant' => ['nullable', 'string', 'max:1000'],
+            'medication_administration_help' => ['nullable', Rule::in(['Yes', 'No', 'Sometimes'])],
+            'behaviour_support_plan_status' => ['nullable', Rule::in(['Yes', 'No', 'In development'])],
+            'behaviours_of_concern_housemates' => ['nullable', 'string', 'max:1000'],
+
+            'preferred_sil_locations' => ['nullable', 'array'],
+            'housemate_preferences' => ['nullable', 'array'],
+            'housemate_preferences_other' => ['nullable', 'string', 'max:1000'],
+            'preferred_number_of_housemates' => ['nullable', Rule::in(['1', '2', '3+', 'No preference'])],
+            'accessibility_needs_in_home' => ['nullable', Rule::in(['Fully accessible', 'Some modifications required', 'No specific needs'])],
+            'accessibility_needs_details' => ['nullable', 'string', 'max:1000'],
+            'pets_in_home_preference' => ['nullable', Rule::in(['Have pets', 'Can live with pets', 'Do not want to live with pets'])],
+            'own_pet_type' => ['nullable', 'string', 'max:255'],
+            'good_home_environment_looks_like' => ['nullable', 'array'],
+            'good_home_environment_looks_like_other' => ['nullable', 'string', 'max:1000'],
+
+            'self_description' => ['nullable', 'array'],
+            'self_description_other' => ['nullable', 'string', 'max:1000'],
+            'smokes' => ['boolean'],
+            'deal_breakers_housemates' => ['nullable', 'string', 'max:1000'],
+            'cultural_religious_practices' => ['nullable', 'string', 'max:1000'],
+            'interests_hobbies' => ['nullable', 'string', 'max:1000'],
+
+            'move_in_availability' => ['nullable', Rule::in(['ASAP', 'Within 1–3 months', 'Within 3–6 months', 'Just exploring options'])],
+            'current_living_situation' => ['nullable', Rule::in(['SIL or SDA accommodation', 'Group home', 'With family', 'Living alone', 'Other'])],
+            'current_living_situation_other' => ['nullable', 'string', 'max:1000'],
+            'contact_for_suitable_match' => ['boolean'],
+            'preferred_contact_method_match' => ['nullable', Rule::in(['Phone', 'Email', 'Via support coordinator', 'Other'])],
+            'preferred_contact_method_match_other' => ['nullable', 'string', 'max:1000'],
+
             'street_address' => ['required', 'string', 'max:255'],
             'suburb' => ['required', 'string', 'max:255'],
             'state' => ['required', 'string', 'max:255'],
             'post_code' => ['required', 'string', 'max:10'],
-            'is_looking_hm' => ['boolean'],
-            'has_accommodation' => ['boolean'],
-            'funding_amount_support_coor' => ['nullable', 'numeric', 'min:0'],
-            'funding_amount_accommodation' => ['nullable', 'numeric', 'min:0'],
-            // Health Report / Assessment
+
             'health_report_file' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:2048'],
-            'health_report_text' => ['nullable', 'string', 'max:5000'], // This is the column for the text
+            'health_report_text' => ['nullable', 'string', 'max:5000'],
         ];
 
-        // Custom validation for 'Other' disability type
-        if ($request->filled('disability_type') && in_array('Other', $request->input('disability_type'))) {
+        if ($request->filled('primary_disability') && $request->input('primary_disability') === 'Other') {
             $rules['specific_disability'] = ['required', 'string', 'max:1000'];
+        }
+        if ($request->filled('gender_identity') && $request->input('gender_identity') === 'Other') {
+            $rules['gender_identity_other'] = ['required', 'string', 'max:255'];
+        }
+        if ($request->filled('current_living_situation') && $request->input('current_living_situation') === 'Other') {
+            $rules['current_living_situation_other'] = ['required', 'string', 'max:1000'];
+        }
+        if ($request->has('uses_assistive_technology_mobility_aids') && $request->input('uses_assistive_technology_mobility_aids')) {
+            $rules['assistive_technology_mobility_aids_list'] = ['required', 'string', 'max:1000'];
+        }
+        if ($request->has('pets_in_home_preference') && $request->input('pets_in_home_preference') === 'Have pets') {
+            $rules['own_pet_type'] = ['required', 'string', 'max:255'];
+        }
+        if ($request->has('contact_for_suitable_match') && $request->input('contact_for_suitable_match') && $request->input('preferred_contact_method_match') === 'Other') {
+            $rules['preferred_contact_method_match_other'] = ['required', 'string', 'max:1000'];
         }
 
         $validatedData = $request->validate($rules);
 
         // Handle boolean checkboxes
-        $validatedData['is_looking_hm'] = $request->has('is_looking_hm');
-        $validatedData['has_accommodation'] = $request->has('has_accommodation');
+        $validatedData['is_participant_best_contact'] = $request->has('is_participant_best_contact');
+        $validatedData['has_support_coordinator'] = $request->has('has_support_coordinator');
+        $validatedData['uses_assistive_technology_mobility_aids'] = $request->has('uses_assistive_technology_mobility_aids');
+        $validatedData['smokes'] = $request->has('smokes');
+        $validatedData['contact_for_suitable_match'] = $request->has('contact_for_suitable_match');
 
-        // Handle health_report_file upload and existing file deletion
+        // Handle JSON fields (encode arrays to JSON strings for storage)
+        $validatedData['pronouns'] = json_encode($request->input('pronouns'));
+        $validatedData['languages_spoken'] = json_encode($request->input('languages_spoken'));
+        $validatedData['daily_living_support_needs'] = json_encode($request->input('daily_living_support_needs'));
+        $validatedData['preferred_sil_locations'] = json_encode($request->input('preferred_sil_locations'));
+        $validatedData['housemate_preferences'] = json_encode($request->input('housemate_preferences'));
+        $validatedData['good_home_environment_looks_like'] = json_encode($request->input('good_home_environment_looks_like'));
+        $validatedData['self_description'] = json_encode($request->input('self_description'));
+
         if ($request->hasFile('health_report_file')) {
-            // Delete old file if it exists
             if ($participant->health_report_path) {
                 Storage::disk('public')->delete($participant->health_report_path);
             }
             $filePath = $request->file('health_report_file')->store('health_reports', 'public');
             $validatedData['health_report_path'] = $filePath;
         } else {
-            // If no new file is uploaded, retain the existing file path.
-            // This ensures the health_report_path isn't nullified unless a new file is provided.
-            // If you wanted to allow clearing the file without uploading a new one,
-            // you'd need a specific checkbox for "Clear File".
-            unset($validatedData['health_report_path']); // Unset so it's not included in update, keeping existing value
+            unset($validatedData['health_report_path']);
         }
-
-
-        // The 'health_report_text' from the request is directly passed to the corresponding column.
-        // It's already in $validatedData because it was in the $rules array.
-        // It will be null if the field was empty in the request.
-        // No explicit line needed here like `$validatedData['health_report_text'] = $request->input('health_report_text');`
-        // as it's already present in $validatedData from the `validate()` call.
 
         $participant->update($validatedData);
 
@@ -508,19 +646,13 @@ class SupportCoordinatorDashboardController extends Controller
      */
     public function destroyParticipant(Participant $participant)
     {
-        // Ensure the participant belongs to the logged-in coordinator
         if ($participant->support_coordinator_id !== Auth::id()) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Delete associated health report file if it exists
         if ($participant->health_report_path) {
             Storage::disk('public')->delete($participant->health_report_path);
         }
-        // If there are other files like 'assessment_path', delete them too
-        // if ($participant->assessment_path) {
-        //     Storage::disk('public')->delete($participant->assessment_path);
-        // }
 
         $participant->delete();
 
