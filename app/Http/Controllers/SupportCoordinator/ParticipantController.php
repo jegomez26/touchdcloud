@@ -26,6 +26,14 @@ class ParticipantController extends Controller
         return view('supcoor.participants.create.basic-details', compact('participant'));
     }
 
+    public function show(Participant $participant)
+    {
+        $participant->load('participantContact'); // Eager load the contact details
+
+        $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
+        return view('supcoor.participants.show', compact('participant', 'profileCompletionPercentage'));
+    }
+
     /**
      * Store a newly created participant in storage.
      * This method handles the form submission from the 'create' view.
@@ -386,9 +394,9 @@ class ParticipantController extends Controller
             $filteredLocations = array_filter($validated['preferred_sil_locations'], function($location) {
                 return !empty($location['state']) && !empty($location['suburb']);
             });
-            $participant->preferred_sil_locations = json_encode(array_values($filteredLocations));
+            $participant->preferred_sil_locations = (array_values($filteredLocations));
         } else {
-            $participant->preferred_sil_locations = null;
+            $participant->preferred_sil_locations = [];
         }
         unset($validated['preferred_sil_locations']); // Remove after processing
 

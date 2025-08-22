@@ -175,35 +175,48 @@ class SupportCoordinatorDashboardController extends Controller
             $query->where('primary_disability', $request->primary_disability);
         }
 
-        // Search by Participant Code Name or text within Disability Type
+        // Search by Participant Code Name, disability fields, or current living situation
         if ($request->filled('search')) {
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('participant_code_name', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('primary_disability', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('secondary_disability', 'like', '%' . $searchTerm . '%')
-                    ->orWhere('specific_disability', 'like', '%' . $searchTerm . '%');
+                  ->orWhere('primary_disability', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('secondary_disability', 'like', '%' . $searchTerm . '%') // Assuming secondary_disability exists
+                  ->orWhere('specific_disability', 'like', '%' . $searchTerm . '%') // Assuming specific_disability exists
+                  ->orWhere('current_living_situation', 'like', '%' . $searchTerm . '%'); // Added current living situation to search
             });
         }
 
         $participants = $query->paginate(10);
 
-        // Get unique filter options from UNASSIGNED participants
-        $states = Participant::withoutSupportCoordinator()->distinct()->pluck('state')->sort()->filter()->toArray();
+        // --- Get unique filter options from ALL unassigned participants for dropdowns ---
+        // These are distinct values from participants that are currently unassigned.
+
+        $states = Participant::withoutSupportCoordinator()
+            ->distinct()
+            ->pluck('state')
+            ->filter() // Remove any null or empty string states
+            ->sort()
+            ->values() // Re-index the array
+            ->toArray();
+
         $suburbs = [];
         if ($request->filled('state')) {
             $suburbs = Participant::withoutSupportCoordinator()
                 ->where('state', $request->input('state'))
                 ->distinct()
-                ->orderBy('suburb')
                 ->pluck('suburb')
-                ->filter()
+                ->filter() // Remove any null or empty string suburbs
+                ->sort()
+                ->values() // Re-index the array
                 ->toArray();
-        } else {
-            $suburbs = Participant::withoutSupportCoordinator()->distinct()->pluck('suburb')->sort()->filter()->toArray();
         }
+        // If no state is selected, we don't load all suburbs to avoid a massive list.
+        // The Blade's Alpine.js `loadSuburbsForFilter` function handles loading all for the selected state.
+        // The initial $suburbs passed here is primarily for when a state filter IS applied and page reloads.
 
-        // Predefined list for current living situation types
+        // Predefined list for current living situation types for the dropdown
+        // It's good to have a fixed list for this type of categorisation.
         $currentLivingSituations = [
             'SIL or SDA accommodation',
             'Group home',
@@ -216,19 +229,34 @@ class SupportCoordinatorDashboardController extends Controller
         $primaryDisabilityTypes = Participant::withoutSupportCoordinator()
             ->distinct()
             ->pluck('primary_disability')
-            ->filter()
+            ->filter() // Remove any null or empty primary disabilities
             ->sort()
-            ->values()
+            ->values() // Re-index the array
             ->toArray();
 
         return view('supcoor.unassigned_participants', [
             'participants' => $participants,
             'states' => $states,
-            'suburbs' => $suburbs,
+            'suburbs' => $suburbs, // This will be the filtered suburbs if a state is selected, otherwise empty initially for dynamic load
             'currentLivingSituations' => $currentLivingSituations,
             'primaryDisabilityTypes' => $primaryDisabilityTypes,
-            'filters' => $request->all(),
+            'filters' => $request->all(), // Pass all request parameters back to re-populate filters
         ]);
+    }
+
+    public function getSuburbsByState($state)
+    {
+        // Ensure you're only getting suburbs for unassigned participants if that's the intention
+        $suburbs = Participant::withoutSupportCoordinator()
+            ->where('state', $state)
+            ->distinct()
+            ->pluck('suburb')
+            ->filter()
+            ->sort()
+            ->values()
+            ->toArray();
+
+        return response()->json($suburbs);
     }
 
     /**

@@ -13,7 +13,7 @@ use App\Http\Controllers\ParticipantMessageController;
 use App\Http\Controllers\SupportCoordinatorDashboardController; // Use alias
 use App\Http\Controllers\SupportCoordinator\ParticipantController as SupportCoordinatorParticipantController; // Use alias
 use App\Http\Controllers\ProviderAccommodationController;
-use App\Http\Controllers\SupportCoordinator\CoordinatorMessageController; // Use alias
+use App\Http\Controllers\CoordinatorMessageController; // Use alias
 use Illuminate\Support\Facades\Auth;
 
 /*

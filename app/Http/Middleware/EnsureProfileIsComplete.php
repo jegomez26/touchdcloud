@@ -23,10 +23,10 @@ class EnsureProfileIsComplete
             // 2. Check the 'profile_completed' flag on the user
             //    AND make sure they are NOT already on the profile completion page
             if (!$user->profile_completed &&
-            $request->route()->getName() !== 'profile.complete.show' &&
+            $request->route()->getName() !== 'indiv.profile.basic-details' &&
             $request->route()->getName() !== 'home') // <--- Make sure 'home' is here
             {
-                return redirect()->route('profile.complete.show')->with('error', 'Please complete your profile to access all features.');
+                return redirect()->route('indiv.profile.basic-details')->with('error', 'Please complete your profile to access all features.');
             }
         }
 
