@@ -39,7 +39,7 @@ class AuthenticatedSessionController extends Controller
 
         // 2. --- Then, check Profile Completion (ONLY if email is verified) ---
         if ($user && $user->role === 'participant' && !$user->isProfileComplete()) {
-            return redirect()->route('profile.complete.show');
+            return redirect()->route('indiv.profile.basic-details');
         }
 
         // 3. --- Default Redirection Based on Role ---

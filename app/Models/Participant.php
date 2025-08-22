@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Carbon\Carbon; 
 
 class Participant extends Model
 {
@@ -136,5 +138,20 @@ class Participant extends Model
     public function participantContact()
     {
         return $this->hasOne(ParticipantContact::class, 'participant_id');
+    }
+
+    public static function scopeWithoutSupportCoordinator(Builder $query): Builder // <--- Added 'static' here
+    {
+        return $query->where('has_support_coordinator', 0);
+        // OR if you also want to check if support_coordinator_id is NULL:
+        // return $query->where('has_support_coordinator', 0)->orWhereNull('support_coordinator_id');
+    }
+
+    public function getAgeAttribute()
+    {
+        if ($this->date_of_birth) {
+            return Carbon::parse($this->date_of_birth)->age;
+        }
+        return null;
     }
 }

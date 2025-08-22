@@ -2,7 +2,7 @@
 
 @section('main-content') {{-- Start the main-content section --}}
     <h2 class="font-semibold text-2xl md:text-3xl text-[#33595a] leading-tight mb-6 md:mb-8">
-        {{ __('View Participants Looking for SC') }}
+        {{ __('View Participants Without Support Coordinator') }} {{-- Updated title for clarity --}}
     </h2>
 
     <div class="bg-white shadow-lg rounded-xl p-4 sm:p-6 lg:p-8" x-data="participantModal()"> {{-- Responsive padding: smaller on mobile, larger on desktop --}}
@@ -10,8 +10,8 @@
         <div class="mb-6 md:mb-8 bg-gray-50 p-4 sm:p-6 rounded-lg shadow-inner border border-gray-100"
              x-data="{
                  openFilters: false,
-                 selectedAccommodationType: {{ json_encode(request('accommodation_type', '')) }},
-                 selectedDisabilityType: {{ json_encode(request('disability_type', '')) }},
+                 selectedCurrentLivingSituation: {{ json_encode(request('current_living_situation', '')) }},
+                 selectedPrimaryDisability: {{ json_encode(request('primary_disability', '')) }},
                  selectedState: {{ json_encode(request('state', '')) }},
                  currentSuburb: {{ json_encode(request('suburb', '')) }}
              }"
@@ -26,7 +26,7 @@
                 <div class="flex flex-col md:flex-row items-end gap-3 md:gap-4">
                     <div class="flex-grow w-full">
                         <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Search Participants</label>
-                        <input type="text" name="search" id="search" placeholder="Disability, location..."
+                        <input type="text" name="search" id="search" placeholder="Code Name, Disability, Living Situation..."
                                value="{{ request('search') }}"
                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 placeholder-gray-400 p-2.5 text-base">
                     </div>
@@ -47,31 +47,31 @@
                 </div>
 
                 <div x-show="openFilters" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 -translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-                     x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
-                     class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 border-t border-gray-200 pt-5 mt-5">
+                    x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-2"
+                    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 border-t border-gray-200 pt-5 mt-5">
 
-                    {{-- Accommodation Type Filter --}}
+                    {{-- Current Living Situation Filter --}}
                     <div>
-                        <label for="accommodation_type" class="block text-sm font-medium text-gray-700 mb-1">Accommodation Type</label>
-                        <select id="accommodation_type" name="accommodation_type"
-                                x-model="selectedAccommodationType"
+                        <label for="current_living_situation" class="block text-sm font-medium text-gray-700 mb-1">Current Living Situation</label>
+                        <select id="current_living_situation" name="current_living_situation"
+                                x-model="selectedCurrentLivingSituation"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 p-2.5 text-base">
-                            <option value="">All Accommodation Types</option>
-                            @foreach($accommodationTypes as $type)
-                                <option value="{{ $type }}">{{ $type }}</option>
+                            <option value="">All Living Situations</option>
+                            @foreach($currentLivingSituations as $situation)
+                                <option value="{{ $situation }}" {{ request('current_living_situation') == $situation ? 'selected' : '' }}>{{ $situation }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    {{-- Disability Type Filter --}}
+                    {{-- Primary Disability Filter --}}
                     <div>
-                        <label for="disability_type" class="block text-sm font-medium text-gray-700 mb-1">Disability Type</label>
-                        <select id="disability_type" name="disability_type"
-                                x-model="selectedDisabilityType"
+                        <label for="primary_disability" class="block text-sm font-medium text-gray-700 mb-1">Primary Disability</label>
+                        <select id="primary_disability" name="primary_disability"
+                                x-model="selectedPrimaryDisability"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 p-2.5 text-base">
-                            <option value="">All Disability Types</option>
-                            @foreach($disabilityTypes as $type)
-                                <option value="{{ $type }}">{{ $type }}</option>
+                            <option value="">All Primary Disabilities</option>
+                            @foreach($primaryDisabilityTypes as $type)
+                                <option value="{{ $type }}" {{ request('primary_disability') == $type ? 'selected' : '' }}>{{ $type }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -84,14 +84,9 @@
                                 @change="loadSuburbsForFilter(selectedState, currentSuburb)"
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 p-2.5 text-base">
                             <option value="">All States</option>
-                            <option value="ACT">ACT</option>
-                            <option value="NSW">NSW</option>
-                            <option value="NT">NT</option>
-                            <option value="QLD">QLD</option>
-                            <option value="SA">SA</option>
-                            <option value="TAS">TAS</option>
-                            <option value="VIC">VIC</option>
-                            <option value="WA">WA</option>
+                            @foreach($states as $stateOption)
+                                <option value="{{ $stateOption }}" {{ request('state') == $stateOption ? 'selected' : '' }}>{{ $stateOption }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -103,13 +98,28 @@
                                 class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 p-2.5 text-base"
                                 :disabled="!selectedState">
                             <option value="">All Suburbs</option>
-                            {{-- Options will be loaded dynamically by Alpine.js/JavaScript --}}
-                            @if(request('state') && !empty($suburbsForFilter))
-                                @foreach($suburbsForFilter as $suburb)
-                                    <option value="{{ $suburb }}" {{ request('suburb') == $suburb ? 'selected' : '' }}>{{ $suburb }}</option>
+                            @if(request('state') && !empty($suburbs))
+                                @foreach($suburbs as $suburbOption)
+                                    <option value="{{ $suburbOption }}" {{ request('suburb') == $suburbOption ? 'selected' : '' }}>{{ $suburbOption }}</option>
                                 @endforeach
                             @endif
                         </select>
+                    </div>
+
+                    {{-- Min Age Filter --}}
+                    <div>
+                        <label for="min_age" class="block text-sm font-medium text-gray-700 mb-1">Min Age</label>
+                        <input type="number" name="min_age" id="min_age" placeholder="e.g., 18"
+                                value="{{ request('min_age') }}"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 placeholder-gray-400 p-2.5 text-base min-w-0">
+                    </div>
+
+                    {{-- Max Age Filter --}}
+                    <div>
+                        <label for="max_age" class="block text-sm font-medium text-gray-700 mb-1">Max Age</label>
+                        <input type="number" name="max_age" id="max_age" placeholder="e.g., 65"
+                                value="{{ request('max_age') }}"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 placeholder-gray-400 p-2.5 text-base min-w-0">
                     </div>
 
                     <div class="col-span-full flex flex-col sm:flex-row justify-end gap-3 pt-2 sm:pt-0">
@@ -136,7 +146,7 @@
                 @foreach ($participants as $participant)
                     <div class="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-gray-100 flex items-start text-left transform transition-transform duration-200 hover:scale-[1.02] hover:shadow-lg">
                         {{-- Profile Avatar on the left --}}
-                        <div class="flex-shrink-0 mr-4 mt-1"> {{-- Added mt-1 to slightly align with text --}}
+                        <div class="flex-shrink-0 mr-4 mt-1">
                             @if($participant->profile_avatar_url)
                                 <img src="{{ asset('storage/' . $participant->profile_avatar_url) }}" alt="Participant Avatar" class="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-3 border-[#cc8e45] shadow-md">
                             @else
@@ -144,6 +154,7 @@
                                     $avatarPath = 'images/general.png'; // Default
                                     $randomMale = rand(1, 2);
                                     $randomFemale = rand(1, 2);
+                                    // Make sure 'gender' attribute exists on your Participant model or adjust logic
                                     if ($participant->gender === 'Male') {
                                         $avatarPath = 'images/male' . $randomMale . '.png';
                                     } elseif ($participant->gender === 'Female') {
@@ -180,33 +191,35 @@
                             </p>
 
                             {{-- Looking for Housemate --}}
-                            @if($participant->is_looking_hm)
+                            @if(isset($participant->is_looking_hm) && $participant->is_looking_hm)
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#cc8e45] text-white mb-2 shadow-sm">
                                     Looking for Housemate
                                 </span>
                             @endif
 
-                            {{-- Accommodation Type Chips (Assumed 'accommodation_type' from model is what they are looking for) --}}
-                            @if($participant->accommodation_type)
+                            {{-- Current Living Situation Chips --}}
+                            @if($participant->current_living_situation)
                                 <div class="flex flex-wrap gap-2 mb-2">
-                                    <strong class="font-semibold text-[#33595a] text-sm">Accommodation Needed:</strong>
-                                    @php
-                                        // If accommodation_type is a single string but you want it as a chip
-                                        $accommodationDisplay = $participant->accommodation_type;
-                                        // If it's a JSON array and cast to array in model:
-                                        // $accommodationTypes = is_array($participant->accommodation_type) ? $participant->accommodation_type : [$participant->accommodation_type];
-                                    @endphp
+                                    <strong class="font-semibold text-[#33595a] text-sm">Living Situation:</strong>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#d0dbcc] text-[#3e4732] border border-[#d0dbcc] shadow-sm">
-                                        {{ $accommodationDisplay }}
+                                        {{ $participant->current_living_situation }}
                                     </span>
                                 </div>
                             @endif
 
-
-                            {{-- Disability Type Chips --}}
-                            @if($participant->disability_type && is_array($participant->disability_type) && count($participant->disability_type) > 0)
+                            {{-- Primary Disability Type Chips --}}
+                            @if($participant->primary_disability)
                                 <div class="flex flex-wrap items-center gap-2 mb-4">
-                                    <strong class="font-semibold text-[#33595a] text-sm">Disability:</strong>
+                                    <strong class="font-semibold text-[#33595a] text-sm">Primary Disability:</strong>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#d0dbcc] text-[#3e4732] border border-[#d0dbcc] shadow-sm">
+                                        {{ $participant->primary_disability }}
+                                    </span>
+                                </div>
+                            @endif
+
+                            @if(isset($participant->disability_type) && is_array($participant->disability_type) && count($participant->disability_type) > 0)
+                                <div class="flex flex-wrap items-center gap-2 mb-4">
+                                    <strong class="font-semibold text-[#33595a] text-sm">Other Disabilities:</strong>
                                     @foreach($participant->disability_type as $type)
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#d0dbcc] text-[#3e4732] border border-[#d0dbcc] shadow-sm">
                                             {{ $type }}
@@ -214,11 +227,11 @@
                                     @endforeach
                                 </div>
                             @endif
-                            @if($participant->specific_disability)
+                            @if($participant->secondary_disability)
                                 <div class="flex flex-wrap items-center gap-2 mb-4">
-                                    <strong class="font-semibold text-[#33595a] text-sm">Specific Disability:</strong>
+                                    <strong class="font-semibold text-[#33595a] text-sm">Secondary Disability:</strong>
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#d0dbcc] text-[#3e4732] border border-[#d0dbcc] shadow-sm">
-                                        {{ $participant->specific_disability }}
+                                        {{ $participant->secondary_disability }}
                                     </span>
                                 </div>
                             @endif
@@ -274,14 +287,6 @@
                                 </h3>
                                 <div class="mt-4">
                                     <form @submit.prevent="sendMessage">
-                                        {{-- REMOVE THIS BLOCK (Subject Field) --}}
-                                        {{--
-                                        <div class="mb-4">
-                                            <label for="message_subject" class="block text-sm font-medium text-gray-700">Subject</label>
-                                            <input type="text" x-model="messageSubject" id="message_subject" required
-                                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] sm:text-sm p-2.5">
-                                        </div>
-                                        --}}
                                         <div class="mb-4">
                                             <label for="message_body" class="block text-sm font-medium text-gray-700">Message</label>
                                             <textarea x-model="messageBody" id="message_body" rows="5" required
@@ -322,7 +327,6 @@
             open: false,
             participantId: null,
             participantCodeName: '',
-            // messageSubject: '', // REMOVE THIS LINE
             messageBody: '',
             errorMessage: '',
             successMessage: '',
@@ -330,7 +334,6 @@
             openModal(id, name) {
                 this.participantId = id;
                 this.participantCodeName = name;
-                // this.messageSubject = ''; // REMOVE THIS LINE
                 this.messageBody = '';
                 this.errorMessage = '';
                 this.successMessage = '';
@@ -340,7 +343,6 @@
                 this.open = false;
                 this.participantId = null;
                 this.participantCodeName = '';
-                // this.messageSubject = ''; // REMOVE THIS LINE
                 this.messageBody = '';
                 this.errorMessage = '';
                 this.successMessage = '';
@@ -356,7 +358,6 @@
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
                     },
                     body: JSON.stringify({
-                        // message_subject: this.messageSubject, // REMOVE THIS LINE
                         message_body: this.messageBody
                     })
                 })
@@ -368,7 +369,6 @@
                 })
                 .then(data => {
                     this.successMessage = data.message || 'Message sent successfully!';
-                    // this.messageSubject = ''; // REMOVE THIS LINE
                     this.messageBody = '';
                     setTimeout(() => {
                         this.closeModal();

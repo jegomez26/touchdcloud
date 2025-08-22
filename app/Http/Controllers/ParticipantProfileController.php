@@ -102,20 +102,27 @@ class ParticipantProfileController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role === 'participant') {
-            // This is the key part: eager load the participantContact relationship
-            return Participant::where('user_id', $user->id)
-                            ->with('participantContact') // <--- Make sure this line exists!
-                            ->firstOrFail(); // Ensures a participant is found or throws 404
-        } elseif ($user->is_representative) {
+        if ($user->is_representative) {
             $participant = $user->participantsRepresented()
                                 ->with('participantContact') // <--- Make sure this line exists!
                                 ->first(); // Assuming a representative manages one participant for this profile flow
             if (!$participant) {
-                throw new \Exception("No participant record found for this representative.");
+                $participant = new Participant();
+                // Optionally, pre-fill some fields if the representative IS the participant they are adding
+                // or if you want to link the new participant creation to the representative's ID.
+                // Example if representative is filling out *their own* participant profile:
+                // $participant->user_id = $user->id;
+                // Or if they are adding a *new* participant:
+                $participant->representative_user_id = $user->id;
             }
             return $participant;
         }
+        elseif ($user->role === 'participant') {
+            // This is the key part: eager load the participantContact relationship
+            return Participant::where('user_id', $user->id)
+                            ->with('participantContact') // <--- Make sure this line exists!
+                            ->firstOrFail(); // Ensures a participant is found or throws 404
+        } 
 
         // Fallback for unexpected roles/scenarios
         abort(403, 'Unauthorized access or participant record missing.');
@@ -226,54 +233,56 @@ class ParticipantProfileController extends Controller
      */
     public function basicDetails()
     {
-        $user = Auth::user(); // Get the authenticated user
-        $participant = null; // Initialize participant outside try-catch
+        $user = Auth::user();
 
-        try {
-            $participant = $this->getParticipant();
-        } catch (ModelNotFoundException $e) {
-            // If getParticipant() indicates no participant (for a representative accessing directly),
-            // redirect them to the initial setup flow.
-            return redirect()->route('indiv.dashboard')->with('error', $e->getMessage());
-        }
+        // 1. Retrieve the participant (and create if necessary, as per previous fix)
+        // Ensure this logic is robust. If $user->participant could be null initially,
+        // you might need to create it here or rely on the `updateBasicDetails` method
+        // to create it on first save. For a 'show' method, it's safer to ensure
+        // $participant is always an instance, even if new.
+        $participant = $user->participant ?? new Participant(['user_id' => $user->id]);
 
-        // Call calculateProfileCompletion to get the percentage
-        $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-
-        // Pre-fill initial data on the view itself if the fields are empty on the participant model
-        // This is important for subsequent visits to the form after initial creation
+        // 2. Handle pre-filling for *new* participants/forms
+        // This block applies *only* if the participant record doesn't exist yet,
+        // or if its essential fields are empty (e.g., a partial save).
         if (!$participant->exists || empty($participant->first_name)) {
-            if($user->is_representative) {
-                $participantContact = $participant->participantContact ?? new ParticipantContact();
-
-                if (empty($participantContact->full_name)) {
-                    $participantContact->full_name = $user->first_name . ' ' . $user->last_name;
-                    $participantContact->phone_number = $user->phone_number;
-                    $participantContact->email_address = $user->email;
-                    $participantContact->relationship_to_participant = $user->relationship_to_participant;
-
-                    // Important: If a new ParticipantContact was created *in memory* here,
-                    // and the form doesn't save it (e.g., if 'is_participant_best_contact' is true),
-                    // it won't be persisted. This pre-fill is mainly for the view.
-                    // Actual saving/updating happens in updateBasicDetails.
-                }
-                // Set the relation for the view, whether it's existing or newly prepared
-                $participant->setRelation('participantContact', $participantContact);
-
-            }
-            elseif ($user->role === 'participant') {
+            if ($user->role === 'participant' && !$user->is_representative) {
+                // Participant filling their own details for the first time
                 $participant->first_name = $user->first_name;
                 $participant->last_name = $user->last_name;
                 $participant->participant_email = $user->email;
+                $participant->participant_phone = $user->phone_number; // Assuming user has this
             }
-            // For representatives, participant's name/email are not pre-filled by user registration data
-            // (as they are filling for someone else).
+            // Representative is creating a *new* participant record.
+            // No default participant details from user here, as they're for a new participant.
+            // The form will simply be empty for participant details.
         }
 
+        // 3. Handle pre-filling for the *contact person* details,
+        // which may or may not be the representative themselves.
+        // This is separate from participant details and depends on 'is_participant_best_contact'.
+        $participantContact = $participant->participantContact;
 
+        if (!$participantContact) { // If no contact person record exists for this participant
+            $participantContact = new ParticipantContact();
+            // Pre-fill contact person with representative's info if representative and no existing contact
+            if ($user->is_representative) {
+                $participantContact->full_name = $user->first_name . ' ' . $user->last_name;
+                $participantContact->phone_number = $user->phone_number;
+                $participantContact->email_address = $user->email;
+                $participantContact->relationship_to_participant = $user->relationship_to_to_participant; // Corrected property name if it exists on User
+                // Ensure the relationship_to_participant is a valid value for the enum/dropdown in participant_contacts
+            }
+        }
+        // Attach the participantContact to the participant model for easy access in the view
+        $participant->setRelation('participantContact', $participantContact);
 
-        // Pass the participant and the completion percentage to the view
-        return view('indiv.profile.basic-details', compact('participant', 'profileCompletionPercentage', 'user'));
+        $profileCompletionPercentage = $this->calculateProfileCompletion($participant); 
+        // Now, regardless of whether it's a new or existing participant,
+        // the $participant object (and its $participantContact relation)
+        // contains either the existing data OR the pre-filled new data.
+        // Pass $participant to the view.
+        return view('indiv.profile.basic-details', compact('participant', 'user', 'profileCompletionPercentage'));
     }
 
     /**
@@ -283,12 +292,9 @@ class ParticipantProfileController extends Controller
      */
     public function updateBasicDetails(Request $request): RedirectResponse
     {
-        $participant = $this->getParticipant();
-        $user = Auth::user(); // Get the authenticated user
+        $user = Auth::user();
 
-        // Determine if participant is the best contact for conditional validation
-        $isParticipantBestContact = $request->has('is_participant_best_contact');
-
+        // Validate participant details first, including the required fields
         $validatedParticipant = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -296,31 +302,55 @@ class ParticipantProfileController extends Controller
             'participant_email' => 'nullable|email|max:255',
             'participant_phone' => 'nullable|string|max:20',
             'participant_contact_method' => 'nullable|in:Phone,Email,Either',
-            'is_participant_best_contact' => 'nullable|boolean', // Use boolean for checkbox
+            'is_participant_best_contact' => 'nullable|boolean',
 
-            // New Address Fields
             'street_address' => 'nullable|string|max:255',
             'state' => ['nullable', Rule::in(['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'])],
             'suburb' => 'nullable|string|max:255',
-            'post_code' => 'nullable|string|max:10', // Corrected from 'post_code'
+            'post_code' => 'nullable|string|max:10',
 
-            // Basic Demographics
             'date_of_birth' => 'nullable|date',
             'gender_identity' => 'nullable|in:Female,Male,Non-binary,Prefer not to say,Other',
             'gender_identity_other' => 'nullable|string|max:255',
             'pronouns' => 'nullable|array',
-            'pronouns.*' => 'string|max:255', // Validate each item in the array
-            'pronouns_other_text' => 'nullable|string|max:255', // Add validation for the "other" text input
+            'pronouns.*' => 'string|max:255',
+            'pronouns_other_text' => 'nullable|string|max:255',
             'languages_spoken' => 'nullable|array',
-            'languages_spoken.*' => 'string|max:255', // Validate each item in the array
-            'languages_other_text' => 'nullable|string|max:255', // Add validation for the "other" text input
+            'languages_spoken.*' => 'string|max:255',
+            'languages_other_text' => 'nullable|string|max:255',
             'aboriginal_torres_strait_islander' => 'nullable|in:Yes,No,Prefer not to say',
         ]);
 
-        // Validate contact person details only if 'is_participant_best_contact' is false
+        // Attempt to retrieve participant, or create if not found
+        $participant = $user->participant;
+
+        if (!$participant) {
+            // If no participant exists for this user, create one.
+            // 🔑 IMPORTANT: Populate required fields from validated data
+            $participant = new Participant([
+                'user_id' => $user->id,
+                'first_name' => $validatedParticipant['first_name'],
+                'last_name' => $validatedParticipant['last_name'],
+                'added_by_user_id' => $user->id,
+                // Add any other fields that are NOT NULL and don't have defaults in your DB
+            ]);
+
+            // Generate participant_code_name immediately for new participants
+            do {
+                $code = 'PA' . Str::random(5);
+            } while (Participant::where('participant_code_name', $code)->exists());
+            $participant->participant_code_name = strtoupper($code);
+
+            $participant->save(); // Save the new participant to get an ID
+        }
+
+        // Determine if participant is the best contact for conditional validation
+        $isParticipantBestContact = $request->has('is_participant_best_contact');
+
+        // ... (rest of your contact validation code and participant processing logic) ...
         $validatedContact = $request->validate([
             'contact_full_name' => 'nullable|string|max:255',
-            'contact_relationship' => ['nullable', Rule::in(['Family member', 'Carer', 'Public Guardian', 'Support Worker', 'Other'])], // Use Rule::in for consistency with select options
+            'contact_relationship' => ['nullable', Rule::in(['Family member', 'Carer', 'Public Guardian', 'Support Worker', 'Other'])],
             'contact_organisation' => 'nullable|string|max:255',
             'contact_phone' => 'nullable|string|max:20',
             'contact_email' => 'nullable|email|max:255',
@@ -328,55 +358,50 @@ class ParticipantProfileController extends Controller
             'contact_consent' => ['nullable', Rule::in(['Yes', 'No', 'Consent pending or unsure'])],
         ]);
 
-        // --- Participant Code Name Generation ---
-        // Generate participant_code_name if it doesn't already exist
+        // --- Participant Code Name Generation (only for existing participants that might not have it) ---
+        // This block is now mostly redundant if you generate it during new participant creation
+        // However, if older participants exist without a code, this can still run on update.
         if (empty($participant->participant_code_name)) {
             do {
-                $code = 'PA' . Str::random(5); // Generate 'PA' + 5 random alphanumeric chars
-            } while (Participant::where('participant_code_name', $code)->exists()); // Ensure uniqueness
-
-            $validatedParticipant['participant_code_name'] = strtoupper($code); // Store it in uppercase
+                $code = 'PA' . Str::random(5);
+            } while (Participant::where('participant_code_name', $code)->exists());
+            $validatedParticipant['participant_code_name'] = strtoupper($code);
         }
         // --- End Participant Code Name Generation ---
 
         // Process participant specific data
-        // Convert checkbox value to boolean
         $validatedParticipant['is_participant_best_contact'] = $isParticipantBestContact;
 
-        // Handle 'Other' for gender identity
         if (isset($validatedParticipant['gender_identity']) && $validatedParticipant['gender_identity'] !== 'Other') {
             $validatedParticipant['gender_identity_other'] = null;
         }
 
-        // Process pronouns: If 'Other' is selected and custom text is provided, merge them
         $processedPronouns = $validatedParticipant['pronouns'] ?? [];
         if (in_array('Other', $processedPronouns) && !empty($validatedParticipant['pronouns_other_text'])) {
-            $processedPronouns = array_diff($processedPronouns, ['Other']); // Remove 'Other'
-            $processedPronouns[] = $validatedParticipant['pronouns_other_text']; // Add the custom text
+            $processedPronouns = array_diff($processedPronouns, ['Other']);
+            $processedPronouns[] = $validatedParticipant['pronouns_other_text'];
         }
-        $validatedParticipant['pronouns'] = json_encode(array_values(array_unique(array_filter($processedPronouns)))); // Ensure unique values, filter empty, and re-index
+        $validatedParticipant['pronouns'] = json_encode(array_values(array_unique(array_filter($processedPronouns))));
 
-        // Process languages_spoken: If 'Other' is selected and custom text is provided, merge them
         $processedLanguages = $validatedParticipant['languages_spoken'] ?? [];
         if (in_array('Other', $processedLanguages) && !empty($validatedParticipant['languages_other_text'])) {
-            $processedLanguages = array_diff($processedLanguages, ['Other']); // Remove 'Other'
-            $processedLanguages[] = $validatedParticipant['languages_other_text']; // Add the custom text
+            $processedLanguages = array_diff($processedLanguages, ['Other']);
+            $processedLanguages[] = $validatedParticipant['languages_other_text'];
         }
-        $validatedParticipant['languages_spoken'] = json_encode(array_values(array_unique(array_filter($processedLanguages)))); // Ensure unique values, filter empty, and re-index
+        $validatedParticipant['languages_spoken'] = json_encode(array_values(array_unique(array_filter($processedLanguages))));
 
-        // Remove the 'other_text' fields from the participant array before updating, as they are now merged into the JSON arrays
         unset($validatedParticipant['pronouns_other_text']);
         unset($validatedParticipant['languages_other_text']);
 
-
+        // Update the participant with all validated data
         $participant->update($validatedParticipant);
 
-        // Process contact person data based on the 'is_participant_best_contact' checkbox
+        // Process contact person data
         if (!$isParticipantBestContact) {
             $participant->participantContact()->updateOrCreate(
                 ['participant_id' => $participant->id],
                 [
-                    'full_name' => $validatedContact['contact_full_name'] ?? null, // Null coalescing for safety with nullable rule
+                    'full_name' => $validatedContact['contact_full_name'] ?? null,
                     'relationship_to_participant' => $validatedContact['contact_relationship'] ?? null,
                     'organisation' => $validatedContact['contact_organisation'] ?? null,
                     'phone_number' => $validatedContact['contact_phone'] ?? null,
@@ -386,20 +411,15 @@ class ParticipantProfileController extends Controller
                 ]
             );
         } else {
-            // If the participant IS the best contact, delete any existing associated contact person details
             $participant->participantContact()->delete();
         }
 
         // --- NEW LOGIC TO UPDATE user->profile_completed ---
-        // After updating the participant details, re-check if basic details are complete
         if ($this->isBasicDetailsComplete($participant)) {
-            // Check if the profile_completed flag is already true to avoid unnecessary updates
             if (!$user->profile_completed) {
                 $user->update(['profile_completed' => true]);
             }
         } else {
-            // If basic details are somehow incomplete after the update (e.g., due to validation changes),
-            // ensure the profile_completed flag is false. This is a good fallback.
             if ($user->profile_completed) {
                 $user->update(['profile_completed' => false]);
             }
@@ -407,7 +427,7 @@ class ParticipantProfileController extends Controller
         // --- END NEW LOGIC ---
 
         return redirect()->route('indiv.profile.basic-details')
-                         ->with('success', 'Basic details updated successfully!');
+            ->with('success', 'Basic details updated successfully!');
     }
     
     /**
@@ -415,7 +435,8 @@ class ParticipantProfileController extends Controller
      */
     public function ndisDetails()
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
         return view('indiv.profile.ndis-support-needs', compact('participant', 'profileCompletionPercentage'));
     }
@@ -425,7 +446,8 @@ class ParticipantProfileController extends Controller
      */
     public function updateNdisDetails(Request $request)
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
 
         // The requestData[1] === null part seems unusual for typical form submissions.
         // It's removed unless there's a specific frontend reason for it.
@@ -481,7 +503,8 @@ class ParticipantProfileController extends Controller
      */
     public function healthSafety()
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
         return view('indiv.profile.health-safety', compact('participant', 'profileCompletionPercentage'));
     }
@@ -491,7 +514,8 @@ class ParticipantProfileController extends Controller
      */
     public function updateHealthSafety(Request $request)
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
         
         $validated = $request->validate([
             'medical_conditions_relevant' => 'nullable|string',
@@ -518,7 +542,8 @@ class ParticipantProfileController extends Controller
      */
     public function livingPreferences()
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
         return view('indiv.profile.living-preferences', compact('participant', 'profileCompletionPercentage'));
     }
@@ -528,7 +553,8 @@ class ParticipantProfileController extends Controller
      */
     public function updateLivingPreferences(Request $request)
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
 
         $validated = $request->validate([
             'preferred_sil_locations' => 'nullable|array',
@@ -593,7 +619,8 @@ class ParticipantProfileController extends Controller
      */
     public function compatibilityPersonality()
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
         return view('indiv.profile.compatibility-personality', compact('participant', 'profileCompletionPercentage'));
     }
@@ -603,7 +630,8 @@ class ParticipantProfileController extends Controller
      */
     public function updateCompatibilityPersonality(Request $request)
     {
-        $participant = $this->getParticipant(); // Fetch the participant
+        $user = Auth::user();
+        $participant = $user->participant;
 
         $validated = $request->validate([
             'self_description' => 'nullable|array',
@@ -645,7 +673,8 @@ class ParticipantProfileController extends Controller
      */
     public function availability()
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
         return view('indiv.profile.availability', compact('participant', 'profileCompletionPercentage'));
     }
@@ -655,7 +684,8 @@ class ParticipantProfileController extends Controller
      */
     public function updateAvailability(Request $request)
     {
-        $participant = $this->getParticipant();
+        $user = Auth::user();
+        $participant = $user->participant;
         
         $validated = $request->validate([
             'move_in_availability' => 'nullable|in:ASAP,Within 1–3 months,Within 3–6 months,Just exploring options',

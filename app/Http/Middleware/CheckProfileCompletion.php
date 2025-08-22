@@ -23,9 +23,9 @@ class CheckProfileCompletion
             // Assuming your User model has a 'profile_completed' boolean column
             if (!$user->profile_completed) {
                 // Prevent infinite redirect loop if already on the completion page
-                if ($request->route()->getName() !== 'profile.complete.show' &&
+                if ($request->route()->getName() !== 'indiv.profile.basic-details' &&
                     $request->route()->getName() !== 'profile.complete') { // Allow POST to complete
-                    return redirect()->route('profile.complete.show')
+                    return redirect()->route('indiv.profile.basic-details')
                                      ->with('error', 'Please complete your profile.');
                 }
             }
