@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Provider; // Ensure you import your Provider model
+use App\Models\Participant; // Ensure you import your Participant model
+use Illuminate\Support\Facades\DB;
 
 class ProviderDashboardController extends Controller
 {
@@ -24,6 +26,62 @@ class ProviderDashboardController extends Controller
             abort(404);
         }
         return view('company.edit-profile', compact('provider')); // Create provider/edit-profile.blade.php
+    }
+
+    public function listParticipants(Request $request)
+    {
+        $provider = Auth::user();
+
+        // Start with the participants managed by the current coordinator
+        $query = $provider->participantsAdded();
+
+        // --- Search and Filter Logic ---
+
+        // Search by name (first, last, or middle) or specific disability
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%')
+                    ->orWhere('middle_name', 'like', '%' . $search . '%')
+                    ->orWhere('primary_disability', 'like', '%' . $search . '%')
+                    ->orWhere('secondary_disability', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Filter by Primary Disability
+        if ($request->filled('primary_disability')) {
+            $query->where('primary_disability', $request->input('primary_disability'));
+        }
+
+        // Filter by State
+        if ($request->filled('state')) {
+            $query->where('state', $request->input('state'));
+        }
+
+        // Filter by Suburb (only if state is also selected)
+        if ($request->filled('suburb') && $request->filled('state')) {
+            $query->where('suburb', $request->input('suburb'));
+        }
+
+        // --- End Search and Filter Logic ---
+
+        $participants = $query->paginate(10);
+
+        // For the filter dropdowns:
+        $primaryDisabilityTypes = Participant::distinct()->pluck('primary_disability')->filter()->sort()->toArray();
+
+        $suburbsForFilter = [];
+        if ($request->filled('state')) {
+            $suburbsForFilter = DB::table('participants')
+                ->where('state', $request->input('state'))
+                ->distinct()
+                ->orderBy('suburb')
+                ->pluck('suburb')
+                ->toArray();
+        }
+
+        return view('company.participants.index', compact('participants', 'primaryDisabilityTypes', 'suburbsForFilter'));
     }
 
     public function updateProfile(Request $request)

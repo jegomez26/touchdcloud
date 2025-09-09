@@ -555,10 +555,9 @@
 
             // --- Flatpickr Initialization ---
             // Initialize all inputs with the 'flatpickr-input' class
-            flatpickr(".flatpickr-input", { // Changed selector to class
+            flatpickr("#date_of_birth-input", {
                 dateFormat: "Y-m-d",
                 maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
-                // defaultDate is now automatically handled by the input's 'value' attribute
             });
             // --- End Flatpickr Initialization ---
         });

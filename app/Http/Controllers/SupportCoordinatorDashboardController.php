@@ -113,7 +113,6 @@ class SupportCoordinatorDashboardController extends Controller
                 $q->where('first_name', 'like', '%' . $search . '%')
                     ->orWhere('last_name', 'like', '%' . $search . '%')
                     ->orWhere('middle_name', 'like', '%' . $search . '%')
-                    ->orWhere('specific_disability', 'like', '%' . $search . '%')
                     ->orWhere('primary_disability', 'like', '%' . $search . '%')
                     ->orWhere('secondary_disability', 'like', '%' . $search . '%');
             });
@@ -182,7 +181,6 @@ class SupportCoordinatorDashboardController extends Controller
                 $q->where('participant_code_name', 'like', '%' . $searchTerm . '%')
                   ->orWhere('primary_disability', 'like', '%' . $searchTerm . '%')
                   ->orWhere('secondary_disability', 'like', '%' . $searchTerm . '%') // Assuming secondary_disability exists
-                  ->orWhere('specific_disability', 'like', '%' . $searchTerm . '%') // Assuming specific_disability exists
                   ->orWhere('current_living_situation', 'like', '%' . $searchTerm . '%'); // Added current living situation to search
             });
         }
@@ -370,7 +368,6 @@ class SupportCoordinatorDashboardController extends Controller
             'daily_living_support_needs_other' => ['nullable', 'string', 'max:1000'],
             'primary_disability' => ['nullable', 'string', 'max:255'],
             'secondary_disability' => ['nullable', 'string', 'max:255'],
-            'specific_disability' => ['nullable', 'string', 'max:1000'],
             'estimated_support_hours_sil_level' => ['nullable', 'string', 'max:255'],
             'night_support_type' => ['nullable', Rule::in(['Active overnight', 'Sleepover', 'None'])],
             'uses_assistive_technology_mobility_aids' => ['boolean'],
@@ -415,9 +412,6 @@ class SupportCoordinatorDashboardController extends Controller
             'health_report_text' => ['nullable', 'string', 'max:5000'],
         ];
 
-        if ($request->filled('primary_disability') && $request->input('primary_disability') === 'Other') {
-            $rules['specific_disability'] = ['required', 'string', 'max:1000'];
-        }
         if ($request->filled('gender_identity') && $request->input('gender_identity') === 'Other') {
             $rules['gender_identity_other'] = ['required', 'string', 'max:255'];
         }
@@ -572,7 +566,6 @@ class SupportCoordinatorDashboardController extends Controller
             'daily_living_support_needs_other' => ['nullable', 'string', 'max:1000'],
             'primary_disability' => ['nullable', 'string', 'max:255'],
             'secondary_disability' => ['nullable', 'string', 'max:255'],
-            'specific_disability' => ['nullable', 'string', 'max:1000'],
             'estimated_support_hours_sil_level' => ['nullable', 'string', 'max:255'],
             'night_support_type' => ['nullable', Rule::in(['Active overnight', 'Sleepover', 'None'])],
             'uses_assistive_technology_mobility_aids' => ['boolean'],
@@ -617,9 +610,6 @@ class SupportCoordinatorDashboardController extends Controller
             'health_report_text' => ['nullable', 'string', 'max:5000'],
         ];
 
-        if ($request->filled('primary_disability') && $request->input('primary_disability') === 'Other') {
-            $rules['specific_disability'] = ['required', 'string', 'max:1000'];
-        }
         if ($request->filled('gender_identity') && $request->input('gender_identity') === 'Other') {
             $rules['gender_identity_other'] = ['required', 'string', 'max:255'];
         }

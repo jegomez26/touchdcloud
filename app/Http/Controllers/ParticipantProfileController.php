@@ -446,6 +446,8 @@ class ParticipantProfileController extends Controller
      */
     public function updateNdisDetails(Request $request)
     {
+        dd(Auth::user());
+
         $user = Auth::user();
         $participant = $user->participant;
 
@@ -468,6 +470,7 @@ class ParticipantProfileController extends Controller
             'uses_assistive_technology_mobility_aids' => 'nullable|boolean', // Assuming checkbox, storing boolean
             'assistive_technology_mobility_aids_list' => 'nullable|string',
         ]);
+
 
         // Convert has_support_coordinator checkbox to boolean
         $validated['has_support_coordinator'] = $request->has('has_support_coordinator');

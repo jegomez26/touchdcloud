@@ -153,13 +153,14 @@ class RegisteredUserController extends Controller
             'organisation_name' => ['required', 'string', 'max:255'], // Renamed from company_name
             'abn' => ['required', 'string', 'digits:11', 'unique:providers,abn'],
             'ndis_registration_number' => ['nullable', 'string', 'max:255'], // New field
-            'provider_types' => ['required', 'array', Rule::in(['SIL Provider', 'SDA Provider', 'Both'])], // New field, expects array
+            'provider_types' => ['required', 'string', Rule::in(['SIL Provider', 'SDA Provider', 'Both'])], // New field, expects array
             'provider_types.*' => ['string'], // Validate each item in the array
 
             'main_contact_name' => ['required', 'string', 'max:255'], // Renamed from first_name/last_name combination
+            'main_contact_last_name' => ['required', 'string', 'max:255'], // Renamed from first_name/last_name combination
             'main_contact_role_title' => ['nullable', 'string', 'max:255'], // New field
             'phone_number' => ['required', 'string', 'max:20'], // Renamed from contact_phone
-            'email_address' => ['required', 'string', 'email', 'max:255', 'unique:providers,email_address'], // Renamed from email, unique to providers table
+            'email' => ['required', 'string', 'email', 'max:255',  'unique:' . User::class], // Renamed from email, unique to providers table
             'website' => ['nullable', 'url', 'max:255'], // New field
 
             'office_address' => ['nullable', 'string', 'max:255'], // Renamed from address
@@ -178,8 +179,6 @@ class RegisteredUserController extends Controller
             'staff_training_areas.*' => ['string'], // Validate each item in the array
             'staff_training_areas_other' => ['nullable', 'string'], // New field
 
-            // User authentication details for the *person registering*
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:' . User::class], // This is for the User model
             'password' => [
                 'required',
                 'confirmed',
@@ -192,7 +191,7 @@ class RegisteredUserController extends Controller
         // Create the User account for the individual managing the provider account
         $user = User::create([
             'first_name' => $request->main_contact_name, // Use main_contact_name for user's first name if not separate fields
-            'last_name' => $request->input('main_contact_last_name', ''), // Assuming you might add a separate last name for the contact, otherwise it's empty
+            'last_name' => $request->main_contact_last_name, // Assuming you might add a separate last name for the contact, otherwise it's empty
             'email' => $request->email, // This is the user's login email
             'role' => 'provider',
             'password' => Hash::make($request->password),
@@ -208,11 +207,11 @@ class RegisteredUserController extends Controller
                 'organisation_name' => $request->organisation_name,
                 'abn' => $request->abn,
                 'ndis_registration_number' => $request->ndis_registration_number,
-                'provider_types' => json_encode($request->provider_types), // Store as JSON string
-                'main_contact_name' => $request->main_contact_name,
+                'provider_types' => $request->provider_types, // Store as JSON string
+                'main_contact_name' => $request->main_contact_name . ' ' . $request->main_contact_last_name,
                 'main_contact_role_title' => $request->main_contact_role_title,
                 'phone_number' => $request->phone_number,
-                'email_address' => $request->email_address, // This is the provider's contact email, distinct from the user's login email
+                'email_address' => $request->email, // This is the provider's contact email, distinct from the user's login email
                 'website' => $request->website,
                 'office_address' => $request->office_address,
                 'office_suburb' => $request->office_suburb,
@@ -241,6 +240,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('verification.notice'));
+        return redirect()->route('provider.dashboard');
     }
 }

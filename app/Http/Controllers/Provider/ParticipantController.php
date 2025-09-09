@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\SupportCoordinator;
+namespace App\Http\Controllers\Provider;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -23,7 +23,7 @@ class ParticipantController extends Controller
         $participant = new Participant();
 
 
-        return view('supcoor.participants.create.basic-details', compact('participant'));
+        return view('company.participants.create.basic-details', compact('participant'));
     }
 
     public function show(Participant $participant)
@@ -31,7 +31,7 @@ class ParticipantController extends Controller
         $participant->load('participantContact'); // Eager load the contact details
 
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('supcoor.participants.show', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.show', compact('participant', 'profileCompletionPercentage'));
     }
 
     /**
@@ -139,7 +139,7 @@ class ParticipantController extends Controller
         }
 
         // Redirect to a list of participants or the newly created participant's details
-        return redirect()->route('sc.participants.profile.basic-details', $participant->id)->with('success', 'Participant created successfully! 🎉');
+        return redirect()->route('provider.participants.profile.basic-details', $participant->id)->with('success', 'Participant created successfully! 🎉');
     }
 
     public function showBasicDetails(Participant $participant)
@@ -147,7 +147,7 @@ class ParticipantController extends Controller
         // This method will be used to display the form for editing basic details.
         // The $participant is automatically injected by Route Model Binding.
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('supcoor.participants.create.basic-details', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.basic-details', compact('participant', 'profileCompletionPercentage'));
     }
 
     public function updateBasicDetails(Request $request, Participant $participant): RedirectResponse
@@ -234,7 +234,7 @@ class ParticipantController extends Controller
             $participant->participantContact()->delete();
         }
 
-        return redirect()->route('sc.participants.profile.basic-details', $participant->id)
+        return redirect()->route('provider.participants.profile.basic-details', $participant->id)
                          ->with('success', 'Basic details updated successfully!');
     }
 
@@ -252,7 +252,7 @@ class ParticipantController extends Controller
         // However, if you want to reuse the logic, you can.
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant); // Reuse if calculateProfileCompletion is available/relevant
 
-        return view('supcoor.participants.create.ndis-support-needs', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.ndis-support-needs', compact('participant', 'profileCompletionPercentage'));
     }
 
     // Example: Update NDIS Details for a SPECIFIC participant
@@ -272,9 +272,11 @@ class ParticipantController extends Controller
             'secondary_disability' => 'nullable|string|max:255',
             'estimated_support_hours_sil_level' => 'nullable|string|max:50',
             'night_support_type' => 'nullable|in:Active overnight,Sleepover,None',
-            'uses_assistive_technology_mobility_aids' => 'nullable|boolean',
+            'uses_assistive_technology_mobility_aids' => 'nullable|string',
             'assistive_technology_mobility_aids_list' => 'nullable|string',
         ]);
+
+        
 
         $validated['has_support_coordinator'] = $request->has('has_support_coordinator');
         $validated['uses_assistive_technology_mobility_aids'] = $request->has('uses_assistive_technology_mobility_aids');
@@ -295,7 +297,7 @@ class ParticipantController extends Controller
 
         $participant->update($validated);
 
-        return redirect()->route('sc.participants.profile.ndis-support-needs', $participant->id) // Redirect to the participant's NDIS page
+        return redirect()->route('provider.participants.profile.ndis-support-needs', $participant->id) // Redirect to the participant's NDIS page
                          ->with('success', 'NDIS details updated successfully for ' . $participant->first_name . '!');
     }
 
@@ -304,7 +306,7 @@ class ParticipantController extends Controller
     public function showHealthSafety(Participant $participant)
     {
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('supcoor.participants.create.health-safety', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.health-safety', compact('participant', 'profileCompletionPercentage'));
     }
 
     public function updateHealthSafety(Request $request, Participant $participant): RedirectResponse
@@ -322,7 +324,7 @@ class ParticipantController extends Controller
 
         $participant->update($validated);
 
-        return redirect()->route('sc.participants.profile.health-safety', $participant->id)
+        return redirect()->route('provider.participants.profile.health-safety', $participant->id)
                          ->with('success', 'Health and safety information updated successfully for ' . $participant->first_name . '!');
     }
 
@@ -332,7 +334,7 @@ class ParticipantController extends Controller
     public function healthSafety(Participant $participant)
     {
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('supcoor.participants.create.health-safety', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.health-safety', compact('participant', 'profileCompletionPercentage'));
     }
 
     /**
@@ -341,7 +343,7 @@ class ParticipantController extends Controller
     public function showLivingPreferences (Participant $participant)
     {
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('supcoor.participants.create.living-preferences', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.living-preferences', compact('participant', 'profileCompletionPercentage'));
     }
 
     /**
@@ -404,7 +406,7 @@ class ParticipantController extends Controller
         // The remaining validated fields can be updated directly
         $participant->update($validated);
 
-        return redirect()->route('sc.participants.profile.living-preferences', $participant->id)
+        return redirect()->route('provider.participants.profile.living-preferences', $participant->id)
             ->with('success', 'Living preferences updated successfully!'); // Changed 'success' to 'status'
     }
 
@@ -414,7 +416,7 @@ class ParticipantController extends Controller
     public function showCompatibilityPersonality (Participant $participant)
     {
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('supcoor.participants.create.compatibility-personality', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.compatibility-personality', compact('participant', 'profileCompletionPercentage'));
     }
 
     /**
@@ -454,7 +456,7 @@ class ParticipantController extends Controller
         // Update other fields directly
         $participant->update($validated);
 
-        return redirect()->route('sc.participants.profile.compatibility-personality', $participant->id)
+        return redirect()->route('provider.participants.profile.compatibility-personality', $participant->id)
                          ->with('success', 'Compatibility & Personality updated successfully!'); // Changed 'success' to 'status'
     }
 
@@ -464,7 +466,7 @@ class ParticipantController extends Controller
     public function showAvailability(Participant $participant)
     {
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('supcoor.participants.create.availability', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.availability', compact('participant', 'profileCompletionPercentage'));
     }
 
     /**
@@ -500,7 +502,7 @@ class ParticipantController extends Controller
 
         $participant->update($validated);
 
-        return redirect()->route('sc.participants.profile.availability', $participant->id)
+        return redirect()->route('provider.participants.profile.availability', $participant->id)
                          ->with('success', 'Availability updated successfully!'); // Changed 'success' to 'status'
     }
 

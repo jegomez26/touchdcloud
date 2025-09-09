@@ -1,4 +1,5 @@
-@extends('supcoor.sc-db') {{-- Extend your sc-db layout --}}
+@extends('company.provider-db') 
+
 
 @section('main-content') {{-- Start the main-content section --}}
     {{-- The new div to control form width --}}
@@ -9,7 +10,7 @@
                     {{ __('Edit Participant: ') }} {{ $participant->first_name }} {{ $participant->last_name }}
                 </h2>
 
-                <form method="POST" action="{{ route('sc.participants.update', $participant) }}"
+                <form method="POST" action="{{ route('provider.participants.update', $participant) }}"
                     enctype="multipart/form-data" {{-- Added for file uploads --}}
                     x-data="{
                         selectedDisabilities: {{ json_encode(old('disability_type', $participant->disability_type ?? [])) }},
@@ -101,6 +102,7 @@
                         <x-input-error :messages="$errors->get('disability_type.*')" class="mt-2" />
                     </div>
 
+                    
 
                     <div class="mb-4">
                         <x-input-label for="accommodation_type" :value="__('Current or Looking for Accommodation Type')" />
@@ -255,7 +257,7 @@
                     </div>
 
                     <div class="flex items-center justify-end mt-4">
-                        <a href="{{ route('sc.participants.list') }}" class="inline-flex items-center px-4 py-2 bg-[#8B8171] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-opacity-90 focus:bg-opacity-90 active:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#8B8171] focus:ring-offset-2 transition ease-in-out duration-150 mr-4">
+                        <a href="{{ route('provider.participants.list') }}" class="inline-flex items-center px-4 py-2 bg-[#8B8171] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-opacity-90 focus:bg-opacity-90 active:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#8B8171] focus:ring-offset-2 transition ease-in-out duration-150 mr-4">
                             {{ __('Cancel') }}
                         </a>
                         <button type="submit" class="ms-4 inline-flex items-center px-4 py-2 bg-[#cc8e45] border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-opacity-90 focus:bg-opacity-90 active:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#cc8e45] focus:ring-offset-2 transition ease-in-out duration-150">

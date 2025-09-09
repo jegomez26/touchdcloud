@@ -105,10 +105,13 @@ class CoordinatorMessageController extends Controller
 
         // Determine the receiver based on the conversation type and sender role
         $receiverUser = null;
-        if ($conversation->type === 'sc_to_participant') {
+        if ($conversation->participant_id && $conversation->participant && $conversation->participant->user) {
             $receiverUser = $conversation->participant->user;
+        } elseif ($conversation->support_coordinator_id && $conversation->supportCoordinator) {
+            $receiverUser = $conversation->supportCoordinator->user;
+        } elseif ($conversation->provider_id && $conversation->provider) {
+            $receiverUser = $conversation->provider->user;
         }
-        // Add more conditions if you have other conversation types (e.g., sc_to_provider)
 
         if (!$receiverUser) {
             return response()->json(['message' => 'Could not determine recipient for this conversation type.'], 400);

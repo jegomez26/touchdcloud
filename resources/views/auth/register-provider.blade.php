@@ -107,15 +107,15 @@
                                 <x-input-label :value="__('Are you a:')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-2" />
                                 <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-2 sm:space-y-0">
                                     <label class="inline-flex items-center">
-                                        <input type="radio" name="provider_types[]" value="SIL Provider" class="rounded-full border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre" {{ in_array('SIL Provider', old('provider_types', [])) ? 'checked' : '' }}>
+                                        <input type="radio" name="provider_types" value="SIL Provider" class="rounded-full border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre" >
                                         <span class="ml-2 text-sm text-custom-dark-olive">SIL Provider</span>
                                     </label>
                                     <label class="inline-flex items-center">
-                                        <input type="radio" name="provider_types[]" value="SDA Provider" class="rounded-full border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre" {{ in_array('SDA Provider', old('provider_types', [])) ? 'checked' : '' }}>
+                                        <input type="radio" name="provider_types" value="SDA Provider" class="rounded-full border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre" >
                                         <span class="ml-2 text-sm text-custom-dark-olive">SDA Provider</span>
                                     </label>
                                     <label class="inline-flex items-center">
-                                        <input type="radio" name="provider_types[]" value="Both" class="rounded-full border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre" {{ in_array('Both', old('provider_types', [])) ? 'checked' : '' }}>
+                                        <input type="radio" name="provider_types" value="Both" class="rounded-full border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre" >
                                         <span class="ml-2 text-sm text-custom-dark-olive">Both</span>
                                     </label>
                                 </div>
@@ -194,9 +194,14 @@
                         <div class="space-y-4">
                             <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                                 <div class="flex-1">
-                                    <x-input-label for="main_contact_name" :value="__('Representative Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                                    <x-input-label for="main_contact_name" :value="__('Representative First Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                                     <x-text-input type="text" name="main_contact_name" id="main_contact_name" class="block w-full" :value="old('main_contact_name')" required autocomplete="name" />
                                     <x-input-error :messages="$errors->get('main_contact_name')" class="mt-1" />
+                                </div>
+                                <div class="flex-1">
+                                    <x-input-label for="main_contact_last_name" :value="__('Representative Last Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
+                                    <x-text-input type="text" name="main_contact_last_name" id="main_contact_last_name" class="block w-full" :value="old('main_contact_last_name')" required autocomplete="name" />
+                                    <x-input-error :messages="$errors->get('main_contact_last_name')" class="mt-1" />
                                 </div>
                                 <div class="flex-1">
                                     <x-input-label for="main_contact_role_title" :value="__('Role/Title')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />

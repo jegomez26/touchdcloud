@@ -385,16 +385,16 @@
                 <a href="{{ route('provider.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
                 </a>
-                <a href="#" data-section="my-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{ route('provider.participants.list') }}" data-section="my-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> My Participants
                 </a>
                 <a href="{{ route('provider.accommodations.list') }}" data-section="my-accommodations" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home mr-3"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> My Accommodations
                 </a>
-                <a href="#" data-section="match-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{ route('provider.participants.matching.index') }}" data-section="match-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-pull-request-draft"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v6"/><path d="M12 15V9"/><path d="M6 9v4"/><path d="M12 6h-.01"/><path d="M18 6h-.01"/></svg> Match Participants
                 </a>
-                <a href="#" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{ route('provider.messages.index') }}" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
                 </a>
             </nav>
@@ -419,14 +419,57 @@
                 <a href="{{ route('provider.accommodations.list') }}" data-section="my-accommodations" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home mr-3"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> My Accommodations
                 </a>
-                <a href="#" data-section="match-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
+                <a href="{{ route('provider.participants.matching.index') }}" data-section="match-participants" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-git-pull-request-draft"><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v6"/><path d="M12 15V9"/><path d="M6 9v4"/><path d="M12 6h-.01"/><path d="M18 6h-.01"/></svg> Match Participants
                 </a>
                 <a href="#" data-section="messages" class="sidebar-link flex items-center w-full py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-[#3e4732] hover:bg-[#e1e7dd] hover:text-[#33595a]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>  Messages
                 </a>
             </nav>
         </aside>
+
+        @if (session('success'))
+        <div id="success-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-out">
+            <div class="bg-custom-white rounded-lg shadow-2xl p-8 max-w-sm w-full relative transform -translate-y-4 scale-95 transition-all duration-300 ease-out">
+                <button type="button" class="absolute top-3 right-3 text-text-light hover:text-text-dark focus:outline-none close-overlay">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="text-center">
+                    <div class="flex items-center justify-center text-custom-green mb-4">
+                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-text-dark mb-2">Success!</h3>
+                    <p class="text-text-light text-sm">{{ session('success') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div id="error-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 transition-opacity duration-300 ease-out">
+            <div class="bg-custom-white rounded-lg shadow-2xl p-8 max-w-sm w-full relative transform -translate-y-4 scale-95 transition-all duration-300 ease-out">
+                <button type="button" class="absolute top-3 right-3 text-text-light hover:text-text-dark focus:outline-none close-overlay">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                <div class="text-center">
+                    <div class="flex items-center justify-center text-[#ef4444] mb-4">
+                        <svg class="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 14l2-2m0 0l2-2m-2 2L8 6m0 0l-2 2m2 2l-2 2m8-8l2 2m0 0l2 2m-2-2l-2 2m2-2l2-2M6 8l2-2m0 0l2 2M6 8l-2 2" />
+                            <circle cx="12" cy="12" r="10" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-text-dark mb-2">Oops!</h3>
+                    <p class="text-text-light text-sm">{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
 
         <main class="flex-1 p-4 md:p-8 overflow-y-auto md:ml-72 pt-20 md:pt-8">
             <div class="max-w-full mx-auto">
@@ -542,13 +585,88 @@
                 });
             });
 
+            // --- Overlay Handling ---
+            /**
+             * Shows an overlay by removing 'hidden', 'opacity-0', 'pointer-events-none'
+             * and updating transform classes.
+             * @param {HTMLElement} overlayElement - The overlay element to show.
+             */
+            function showOverlay(overlayElement) {
+                if (overlayElement) {
+                    overlayElement.classList.remove('hidden', 'opacity-0', 'pointer-events-none');
+                    overlayElement.classList.add('active'); // Keeping 'active' for consistency with original script, though it wasn't used for transitions here.
+                    // Small delay to allow 'hidden' to be removed before transition
+                    setTimeout(() => {
+                        overlayElement.querySelector('div').classList.remove('-translate-y-4', 'scale-95');
+                        overlayElement.querySelector('div').classList.add('translate-y-0', 'scale-100'); // Assuming these are the "visible" states
+                    }, 10);
+                }
+            }
+
+            /**
+             * Hides an overlay by adding 'opacity-0', 'pointer-events-none' and
+             * updating transform classes, then adding 'hidden' after transition.
+             * @param {HTMLElement} overlayElement - The overlay element to hide.
+             */
+            function hideOverlay(overlayElement) {
+                if (overlayElement) {
+                    overlayElement.classList.remove('active'); // Remove active state
+                    overlayElement.classList.add('opacity-0', 'pointer-events-none');
+                    overlayElement.querySelector('div').classList.remove('translate-y-0', 'scale-100');
+                    overlayElement.querySelector('div').classList.add('-translate-y-4', 'scale-95');
+
+                    overlayElement.addEventListener('transitionend', function handler() {
+                        overlayElement.classList.add('hidden');
+                        overlayElement.removeEventListener('transitionend', handler);
+                    }, {
+                        once: true
+                    });
+                }
+            }
+
+            // Close overlays when close button is clicked
+            document.querySelectorAll('.close-overlay').forEach(button => {
+                button.addEventListener('click', function() {
+                    const overlay = this.closest('[id$="-overlay"]');
+                    hideOverlay(overlay);
+                });
+            });
+
+            // Get success and error overlay elements
+            const successOverlay = document.getElementById('success-overlay');
+            const errorOverlay = document.getElementById('error-overlay');
+
+            // Show overlays if session messages exist (Blade syntax)
+            if (successOverlay && '{{ session("success") }}') {
+                showOverlay(successOverlay);
+            }
+            if (errorOverlay && '{{ session("error") }}') {
+                showOverlay(errorOverlay);
+            }
+
+            // Close by clicking outside overlay content
+            if (successOverlay) {
+                successOverlay.addEventListener('click', function(event) {
+                    if (event.target === successOverlay) {
+                        hideOverlay(successOverlay);
+                    }
+                });
+            }
+            if (errorOverlay) {
+                errorOverlay.addEventListener('click', function(event) {
+                    if (event.target === errorOverlay) {
+                        hideOverlay(errorOverlay);
+                    }
+                });
+            }
+            // --- End Overlay Handling ---
+
 
             // --- Flatpickr Initialization ---
             // Initialize all inputs with the 'flatpickr-input' class
-            flatpickr(".flatpickr-input", { // Changed selector to class
+            flatpickr("#date_of_birth-input", {
                 dateFormat: "Y-m-d",
                 maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
-                // defaultDate is now automatically handled by the input's 'value' attribute
             });
             // --- End Flatpickr Initialization ---
         });

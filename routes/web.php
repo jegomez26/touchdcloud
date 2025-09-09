@@ -12,6 +12,7 @@ use App\Http\Controllers\ProviderDashboardController;
 use App\Http\Controllers\ParticipantMessageController;
 use App\Http\Controllers\SupportCoordinatorDashboardController; // Use alias
 use App\Http\Controllers\SupportCoordinator\ParticipantController as SupportCoordinatorParticipantController; // Use alias
+use App\Http\Controllers\Provider\ParticipantController as ProviderParticipantController; // Use alias
 use App\Http\Controllers\ProviderAccommodationController;
 use App\Http\Controllers\CoordinatorMessageController; // Use alias
 use Illuminate\Support\Facades\Auth;
@@ -165,9 +166,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $user->loadMissing('provider');
             if ($user->provider && $user->provider->status === 'verified') {
                 return redirect()->route('provider.dashboard');
-            } else {
-                 // Example for provider pending approval view
-                return redirect()->route('provider.account.pending-approval');
             }
         }
         return view('home'); // Fallback if role is not recognized
@@ -256,12 +254,43 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- Provider Routes ---
     Route::prefix('provider')->middleware('role:provider')->name('provider.')->group(function () {
-        // Pending Approval View for Providers (add if you have one, similar to coordinator)
-        Route::get('/account/pending-approval', function () {
-            return view('auth.provider-pending-approval'); // Create this view if it doesn't exist
-        })->name('account.pending-approval');
+        
 
         Route::get('/', [ProviderDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('participants', [ProviderDashboardController::class, 'listParticipants'])->name('participants.list');
+        Route::get('participants/create', [ProviderParticipantController::class, 'create'])->name('participants.create');
+        Route::post('participants', [ProviderParticipantController::class, 'store'])->name('participants.store');
+        Route::get('participants/{participant}', [ProviderParticipantController::class, 'show'])->name('participants.show');
+        Route::get('participants/{participant}/edit', [ProviderParticipantController::class, 'showBasicDetails'])->name('participants.edit');
+        Route::put('participants/{participant}', [ProviderParticipantController::class, 'update'])->name('participants.update');
+        Route::delete('participants/{participant}', [ProviderParticipantController::class, 'destroy'])->name('participants.destroy');
+
+        // Participant Profile Editing by Support Coordinators (for specific sections of existing participants)
+        // These routes allow a SC to edit sections of a participant's profile, identified by {participant}
+        Route::prefix('participants/{participant}/profile')->name('participants.profile.')->group(function () {
+            Route::get('basic-details', [ProviderParticipantController::class, 'showBasicDetails'])->name('basic-details');
+            Route::put('basic-details', [ProviderParticipantController::class, 'updateBasicDetails'])->name('basic-details.update');
+
+            Route::get('ndis-support-needs', [ProviderParticipantController::class, 'showNdisDetails'])->name('ndis-support-needs');
+            Route::put('ndis-support-needs', [ProviderParticipantController::class, 'updateNdisDetails'])->name('ndis-support-needs.update');
+
+            Route::get('health-safety', [ProviderParticipantController::class, 'showHealthSafety'])->name('health-safety');
+            Route::put('health-safety', [ProviderParticipantController::class, 'updateHealthSafety'])->name('health-safety.update');
+
+            Route::get('living-preferences', [ProviderParticipantController::class, 'showLivingPreferences'])->name('living-preferences');
+            Route::put('living-preferences', [ProviderParticipantController::class, 'updateLivingPreferences'])->name('living-preferences.update');
+
+            Route::get('compatibility-personality', [ProviderParticipantController::class, 'showCompatibilityPersonality'])->name('compatibility-personality');
+            Route::put('compatibility-personality', [ProviderParticipantController::class, 'updateCompatibilityPersonality'])->name('compatibility-personality.update');
+
+            Route::get('availability', [ProviderParticipantController::class, 'showAvailability'])->name('availability');
+            Route::put('availability', [ProviderParticipantController::class, 'updateAvailability'])->name('availability.update');
+
+            Route::get('emergency-contact', [ProviderParticipantController::class, 'showEmergencyContact'])->name('emergency-contact');
+            Route::put('emergency-contact', [ProviderParticipantController::class, 'updateEmergencyContact'])->name('emergency-contact.update');
+        });
+
 
         // User Profile Management (Breeze default profile routes, if providers can edit their User profile)
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -280,6 +309,21 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/accommodations/{accommodation}/edit', [ProviderAccommodationController::class, 'edit'])->name('accommodations.edit');
         Route::put('/accommodations/{accommodation}', [ProviderAccommodationController::class, 'update'])->name('accommodations.update');
         Route::delete('/accommodations/{accommodation}', [ProviderAccommodationController::class, 'destroy'])->name('accommodations.destroy');
+
+        // Participant Matching by Providers
+        Route::get('/participants-matching', [App\Http\Controllers\Provider\ParticipantMatchingController::class, 'index'])->name('participants.matching.index');
+        Route::get('/participants-matching/{participant}', [App\Http\Controllers\Provider\ParticipantMatchingController::class, 'show'])->name('participants.matching.show');
+        Route::get('/participants-matching/{participant}/find-matches', [App\Http\Controllers\Provider\ParticipantMatchingController::class, 'findMatches'])->name('participants.matching.find');
+
+        // Provider messaging to participant owner (SC/Provider/Participant)
+        Route::post('/participants/{participant}/messages/send-to-owner', [App\Http\Controllers\Provider\ProviderMessageController::class, 'sendToOwner'])->name('participants.messages.sendToOwner');
+
+        // Provider messaging inbox
+        Route::prefix('messages')->name('messages.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Provider\ProviderMessageController::class, 'index'])->name('index');
+            Route::get('{conversation}', [App\Http\Controllers\Provider\ProviderMessageController::class, 'show'])->name('show');
+            Route::post('{conversation}/reply', [App\Http\Controllers\Provider\ProviderMessageController::class, 'reply'])->name('reply');
+        });
     });
 
 });
