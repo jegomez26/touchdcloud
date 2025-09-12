@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Accommodation;
+use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -16,7 +16,7 @@ class ProviderAccommodationController extends Controller
     {
         $providerId = Auth::user()->provider->id;
 
-        $query = Accommodation::where('provider_id', $providerId);
+        $query = Property::where('provider_id', $providerId);
 
         // Apply Search Filter
         if ($request->filled('search')) {
@@ -138,7 +138,7 @@ class ProviderAccommodationController extends Controller
             'is_available_for_hm' => 'boolean',
             'amenities' => 'nullable|array',
             'amenities.*' => 'string|max:255',
-            'photos' => 'nullable|array|max:5', // Max 5 photos
+            'photos' => 'nullable|array|max:10', // Max 10 photos
             'photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:1024', // Max 1MB per photo (1024 KB)
             'status' => ['required', 'string', Rule::in(['available', 'occupied', 'draft', 'archived'])],
             'total_vacancies' => 'required|integer|min:0',
@@ -148,18 +148,33 @@ class ProviderAccommodationController extends Controller
         // Handle amenities (ensure it's stored as JSON)
         $validatedData['amenities'] = json_encode($validatedData['amenities'] ?? []);
 
-        // Handle photo uploads
+        // Create accommodation first to get the ID
+        $accommodation = $provider->properties()->create($validatedData);
+
+        // Handle photo uploads with custom naming
         $photoPaths = [];
         if ($request->hasFile('photos')) {
-            foreach ($request->file('photos') as $photo) {
-                // Store in 'public/accommodations' folder
-                $path = $photo->store('accommodations', 'public');
+            foreach ($request->file('photos') as $index => $photo) {
+                // Create custom filename: provider_id-accommodation_id-suburb-state-index.extension
+                $providerId = $provider->id;
+                $accommodationId = $accommodation->id;
+                $suburb = str_replace(' ', '_', $validatedData['suburb']);
+                $state = $validatedData['state'];
+                $extension = $photo->getClientOriginalExtension();
+                $filename = "{$providerId}-{$accommodationId}-{$suburb}-{$state}-{$index}.{$extension}";
+                
+                // Store in 'public/accommodations' folder with custom name
+                $path = $photo->storeAs('accommodations', $filename, 'public');
                 $photoPaths[] = $path;
             }
+            
+            // Update the accommodation with photo paths
+            $accommodation->update(['photos' => json_encode($photoPaths)]);
         }
-        $validatedData['photos'] = json_encode($photoPaths);
 
-        $accommodation = $provider->accommodations()->create($validatedData);
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Accommodation created successfully.', 'accommodation' => $accommodation]);
+        }
 
         return redirect()->route('provider.accommodations.show', $accommodation)
                          ->with('status', 'Accommodation created successfully.');
@@ -168,7 +183,7 @@ class ProviderAccommodationController extends Controller
     /**
      * Show the form for editing the specified accommodation.
      */
-    public function edit(Accommodation $accommodation)
+    public function edit(Property $accommodation)
     {
         // Ensure the authenticated provider owns this accommodation
         if ($accommodation->provider_id !== Auth::user()->provider->id) {
@@ -214,7 +229,7 @@ class ProviderAccommodationController extends Controller
     /**
      * Update the specified accommodation in storage.
      */
-    public function update(Request $request, Accommodation $accommodation)
+    public function update(Request $request, Property $accommodation)
     {
         // Ensure the authenticated provider owns this accommodation
         if ($accommodation->provider_id !== Auth::user()->provider->id) {
@@ -246,7 +261,7 @@ class ProviderAccommodationController extends Controller
             'amenities.*' => 'string|max:255',
             'photos_to_keep' => 'nullable|array', // Array of paths of photos to keep
             'photos_to_keep.*' => 'string',
-            'new_photos' => 'nullable|array|max:' . (5 - count($request->input('photos_to_keep', []))), // Max new photos based on remaining slots
+            'new_photos' => 'nullable|array|max:' . (10 - count($request->input('photos_to_keep', []))), // Max new photos based on remaining slots
             'new_photos.*' => 'image|mimes:jpeg,png,jpg,gif|max:1024',
             'status' => ['required', 'string', Rule::in(['available', 'occupied', 'draft', 'archived'])],
             'total_vacancies' => 'required|integer|min:0',
@@ -270,10 +285,23 @@ class ProviderAccommodationController extends Controller
             }
         }
 
-        // Add new photos
+        // Add new photos with custom naming
         if ($request->hasFile('new_photos')) {
-            foreach ($request->file('new_photos') as $photo) {
-                $path = $photo->store('accommodations', 'public');
+            $provider = Auth::user()->provider;
+            $existingPhotoCount = count($finalPhotoPaths);
+            
+            foreach ($request->file('new_photos') as $index => $photo) {
+                // Create custom filename: provider_id-accommodation_id-suburb-state-index.extension
+                $providerId = $provider->id;
+                $accommodationId = $accommodation->id;
+                $suburb = str_replace(' ', '_', $validatedData['suburb']);
+                $state = $validatedData['state'];
+                $extension = $photo->getClientOriginalExtension();
+                $photoIndex = $existingPhotoCount + $index;
+                $filename = "{$providerId}-{$accommodationId}-{$suburb}-{$state}-{$photoIndex}.{$extension}";
+                
+                // Store in 'public/accommodations' folder with custom name
+                $path = $photo->storeAs('accommodations', $filename, 'public');
                 $finalPhotoPaths[] = $path;
             }
         }
@@ -281,11 +309,15 @@ class ProviderAccommodationController extends Controller
 
         $accommodation->update($validatedData);
 
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Accommodation updated successfully.', 'accommodation' => $accommodation]);
+        }
+
         return redirect()->route('provider.accommodations.show', $accommodation)
                          ->with('status', 'Accommodation updated successfully.');
     }
 
-    public function show(Accommodation $accommodation)
+    public function show(Property $accommodation)
     {
         // Ensure the authenticated provider owns this accommodation
         if (!Auth::user()->provider || $accommodation->provider_id !== Auth::user()->provider->id) {
@@ -301,6 +333,43 @@ class ProviderAccommodationController extends Controller
         return view('company.accommodations.show', compact('accommodation'));
     }
 
+    /**
+     * Remove the specified accommodation from storage.
+     */
+    public function destroy(Property $accommodation)
+    {
+        // Ensure the authenticated provider owns this accommodation
+        if ($accommodation->provider_id !== Auth::user()->provider->id) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized action.'], 403);
+            }
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            // Delete associated photos from storage
+            $photos = json_decode($accommodation->photos, true) ?? [];
+            foreach ($photos as $photoPath) {
+                Storage::disk('public')->delete($photoPath);
+            }
+
+            $accommodation->delete();
+
+            if (request()->ajax()) {
+                return response()->json(['success' => true, 'message' => 'Accommodation deleted successfully.']);
+            }
+
+            return redirect()->route('provider.accommodations.index')
+                             ->with('status', 'Accommodation deleted successfully.');
+        } catch (\Exception $e) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'An error occurred while deleting the accommodation.'], 500);
+            }
+
+            return redirect()->route('provider.accommodations.index')
+                             ->with('error', 'An error occurred while deleting the accommodation.');
+        }
+    }
 
     // Helper method to get Australian states
     protected function getAustralianStates()

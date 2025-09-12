@@ -10,16 +10,42 @@
             </a>
         </div>
 
+        {{-- Success/Error Messages --}}
         @if (session('status'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <strong class="font-bold">Success!</strong>
-                <span class="block sm:inline">{{ session('status') }}</span>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-4 flex items-center justify-between" role="alert">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="font-semibold">{{ session('status') }}</span>
+                </div>
+                <button onclick="this.parentElement.style.display='none'" class="text-green-700 hover:text-green-900">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4 flex items-center justify-between" role="alert">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="font-semibold">{{ session('error') }}</span>
+                </div>
+                <button onclick="this.parentElement.style.display='none'" class="text-red-700 hover:text-red-900">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
             </div>
         @endif
 
         {{-- Filter and Search Form --}}
         <div class="bg-white shadow-lg rounded-lg p-6 mb-6" x-data="accommodationFilters()">
-            <form action="{{ route('provider.accommodations.list') }}" method="GET">
+            <form action="{{ route('provider.accommodations.index') }}" method="GET">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     {{-- Search Input --}}
                     <div>
@@ -70,17 +96,12 @@
                         </select>
                     </div>
 
-                    {{-- Suburb Filter (populated dynamically by Alpine.js) --}}
+                    {{-- Suburb Filter --}}
                     <div>
                         <label for="suburb" class="block text-sm font-medium text-gray-700">Suburb</label>
-                        <select name="suburb" id="suburb" x-model="selectedSuburb"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] sm:text-base p-2.5"
-                                :disabled="suburbs.length === 0 && !selectedSuburb"> {{-- Disable if no suburbs and no current selection --}}
-                            <option value="">All Suburbs</option>
-                            <template x-for="suburb in suburbs" :key="suburb">
-                                <option :value="suburb" x-text="suburb"></option>
-                            </template>
-                        </select>
+                        <input type="text" name="suburb" id="suburb" placeholder="Enter suburb name"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] sm:text-base p-2.5"
+                               value="{{ request('suburb') }}">
                     </div>
                 </div>
 
@@ -89,7 +110,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search mr-2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                         Apply Filters
                     </button>
-                    <a href="{{ route('provider.accommodations.list') }}" class="bg-[#bcbabb] text-white px-6 py-2 rounded-md hover:bg-[#a09d9b] transition duration-300 flex items-center">
+                    <a href="{{ route('provider.accommodations.index') }}" class="bg-[#bcbabb] text-white px-6 py-2 rounded-md hover:bg-[#a09d9b] transition duration-300 flex items-center">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-ccw mr-2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.76 2.75M3 12v7M3 12h7"/></svg>
                         Reset Filters
                     </a>
@@ -99,118 +120,261 @@
         {{-- End Filter and Search Form --}}
 
         @if ($accommodations->isEmpty())
-            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
-                <strong class="font-bold">No Accommodations Found!</strong>
-                <span class="block sm:inline">Adjust your filters or add new accommodations.</span>
+            {{-- Empty State --}}
+            <div class="bg-white shadow-lg rounded-lg p-12 text-center">
+                <div class="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">No Accommodations Found</h3>
+                <p class="text-gray-600 mb-6">Get started by adding your first accommodation property.</p>
+                <a href="{{ route('provider.accommodations.create') }}" class="inline-flex items-center px-6 py-3 bg-[#33595a] text-white font-medium rounded-lg hover:bg-[#2c494a] transition duration-300">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Add Your First Accommodation
+                </a>
             </div>
         @else
-            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-[#f2f7ed]">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rent / Week</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vacancies</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($accommodations as $accommodation)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        @php
-                                            $photos = json_decode($accommodation->photos, true);
-                                            $firstPhoto = count($photos) > 0 ? $photos[0] : null;
-                                        @endphp
-                                        @if ($firstPhoto)
-                                            <img src="{{ asset('storage/' . $firstPhoto) }}" alt="{{ $accommodation->title }}" class="w-16 h-16 object-cover rounded-md shadow-sm">
-                                        @else
-                                            <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center text-gray-500 text-xs">No Image</div>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $accommodation->title }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $accommodation->type }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $accommodation->suburb }}, {{ $accommodation->state }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($accommodation->rent_per_week, 2) }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $accommodation->total_vacancies - $accommodation->current_occupancy }} / {{ $accommodation->total_vacancies }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                            @if($accommodation->status == 'available') bg-green-100 text-green-800
-                                            @elseif($accommodation->status == 'occupied') bg-red-100 text-red-800
-                                            @elseif($accommodation->status == 'draft') bg-gray-100 text-gray-800
-                                            @else bg-blue-100 text-blue-800 @endif">
-                                            {{ ucfirst($accommodation->status) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <a href="{{ route('provider.accommodations.show', $accommodation) }}" class="text-[#33595a] hover:text-[#2c494a] mr-3">View</a>
-                                        <a href="{{ route('provider.accommodations.edit', $accommodation) }}" class="text-[#cc8e45] hover:text-[#a67139] mr-3">Edit</a>
-                                        <form action="{{ route('provider.accommodations.destroy', $accommodation) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this accommodation?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-                <div class="px-6 py-4">
-                    {{ $accommodations->links() }}
-                </div>
+            {{-- Accommodations Grid --}}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach ($accommodations as $accommodation)
+                    @php
+                        $photos = json_decode($accommodation->photos, true);
+                        $firstPhoto = count($photos) > 0 ? $photos[0] : null;
+                    @endphp
+                    <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                        {{-- Image --}}
+                        <div class="h-48 bg-gray-200 relative">
+                            @if ($firstPhoto)
+                                <img src="{{ asset('storage/' . $firstPhoto) }}" alt="{{ $accommodation->title }}" class="w-full h-full object-cover">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-gray-500">
+                                    <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                </div>
+                            @endif
+                            {{-- Status Badge --}}
+                            <div class="absolute top-3 right-3">
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full
+                                    @if($accommodation->status == 'available') bg-green-100 text-green-800
+                                    @elseif($accommodation->status == 'occupied') bg-red-100 text-red-800
+                                    @elseif($accommodation->status == 'draft') bg-gray-100 text-gray-800
+                                    @else bg-blue-100 text-blue-800 @endif">
+                                    {{ ucfirst($accommodation->status) }}
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Content --}}
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $accommodation->title }}</h3>
+                            <p class="text-sm text-gray-600 mb-3">{{ $accommodation->type }}</p>
+                            <p class="text-sm text-gray-600 mb-3 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                {{ $accommodation->suburb }}, {{ $accommodation->state }}
+                            </p>
+                            
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="text-sm text-gray-600">
+                                    <span class="font-semibold text-lg text-[#33595a]">${{ number_format($accommodation->rent_per_week, 2) }}</span>
+                                    <span class="text-gray-500">/week</span>
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    <span class="font-semibold">{{ $accommodation->total_vacancies - $accommodation->current_occupancy }}</span>
+                                    <span class="text-gray-500">/ {{ $accommodation->total_vacancies }} vacancies</span>
+                                </div>
+                            </div>
+
+                            {{-- Actions --}}
+                            <div class="flex space-x-2">
+                                <a href="{{ route('provider.accommodations.show', $accommodation) }}" class="flex-1 bg-[#33595a] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#2c494a] transition duration-300 text-center">
+                                    View Details
+                                </a>
+                                <a href="{{ route('provider.accommodations.edit', $accommodation) }}" class="flex-1 bg-[#cc8e45] text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-[#a67139] transition duration-300 text-center">
+                                    Edit
+                                </a>
+                                <button onclick="confirmDelete({{ $accommodation->id }}, '{{ addslashes($accommodation->title) }}')" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition duration-300">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Pagination --}}
+            <div class="mt-8">
+                {{ $accommodations->links() }}
             </div>
         @endif
+    </div>
+
+    {{-- Delete Confirmation Modal --}}
+    <div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mt-4">Delete Accommodation</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500">
+                        Are you sure you want to delete "<span id="accommodationTitle" class="font-semibold"></span>"? This action cannot be undone.
+                    </p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <form id="deleteForm" method="POST" class="inline">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" onclick="closeDeleteModal()" class="bg-gray-500 text-white px-4 py-2 rounded-md mr-2 hover:bg-gray-600 transition duration-300">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Success Modal --}}
+    <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mt-4">Success!</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500" id="successMessage"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="closeSuccessModal()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Error Modal --}}
+    <div id="errorModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mt-4">Error</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500" id="errorMessage"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="closeErrorModal()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Alpine.js for dynamic suburb fetching --}}
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('accommodationFilters', () => ({
-                suburbs: [],
-                selectedSuburb: '{{ request('suburb') }}', // Pre-select based on current request
-
-                init() {
-                    // Fetch suburbs for the initially selected state on page load
-                    const initialState = document.getElementById('state').value;
-                    if (initialState) {
-                        this.fetchSuburbs(initialState, true); // true indicates initial load
-                    }
-                },
-
-                async fetchSuburbs(stateCode, isInitialLoad = false) {
-                    this.suburbs = []; // Clear current suburbs
-                    if (!isInitialLoad) {
-                        this.selectedSuburb = ''; // Clear selected suburb if state changes
-                    }
-
-                    if (!stateCode) {
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(`/get-suburbs/${stateCode}`);
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch suburbs.');
-                        }
-                        const data = await response.json();
-                        this.suburbs = data;
-
-                        // On initial load, try to set the selected suburb if it exists in the fetched list
-                        if (isInitialLoad && '{{ request('suburb') }}' && this.suburbs.includes('{{ request('suburb') }}')) {
-                             this.selectedSuburb = '{{ request('suburb') }}';
-                        }
-                    } catch (error) {
-                        console.error("Error fetching suburbs:", error);
-                        // Optionally show a user-friendly error message
-                    }
-                },
+                // No longer needed since we're using text input for suburb
             }));
+        });
+
+        // Modal functions
+        function confirmDelete(accommodationId, accommodationTitle) {
+            document.getElementById('accommodationTitle').textContent = accommodationTitle;
+            document.getElementById('deleteForm').action = `/provider/accommodations/${accommodationId}`;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+        }
+
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.remove('hidden');
+        }
+
+        // AJAX form submission for delete
+        document.getElementById('deleteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const formData = new FormData(form);
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                closeDeleteModal();
+                if (data.success) {
+                    showSuccessModal(data.message || 'Accommodation deleted successfully.');
+                    // Reload the page after a short delay
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    showErrorModal(data.message || 'An error occurred while deleting the accommodation.');
+                }
+            })
+            .catch(error => {
+                closeDeleteModal();
+                showErrorModal('An error occurred while deleting the accommodation.');
+                console.error('Error:', error);
+            });
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'deleteModal') {
+                closeDeleteModal();
+            }
+            if (e.target.id === 'successModal') {
+                closeSuccessModal();
+            }
+            if (e.target.id === 'errorModal') {
+                closeErrorModal();
+            }
         });
     </script>
 @endsection

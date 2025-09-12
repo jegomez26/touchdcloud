@@ -4,7 +4,7 @@
     <div class="container mx-auto px-4 py-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-[#3e4732]">Edit Accommodation: {{ $accommodation->title }}</h1>
-            <a href="{{ route('provider.accommodations.list') }}" class="bg-[#bcbabb] text-white px-6 py-2 rounded-md hover:bg-[#a09d9b] transition duration-300 flex items-center">
+            <a href="{{ route('provider.accommodations.index') }}" class="bg-[#bcbabb] text-white px-6 py-2 rounded-md hover:bg-[#a09d9b] transition duration-300 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
                 Back to List
             </a>
@@ -62,12 +62,7 @@
 
                     <div>
                         <label for="suburb" class="block text-sm font-medium text-gray-700">Suburb</label>
-                        <select name="suburb" id="suburb" x-model="selectedSuburb" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] sm:text-base p-2.5" required :disabled="suburbs.length === 0">
-                            <option value="">Select Suburb</option>
-                            <template x-for="suburb in suburbs" :key="suburb">
-                                <option :value="suburb" x-text="suburb"></option>
-                            </template>
-                        </select>
+                        <input type="text" name="suburb" id="suburb" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] sm:text-base p-2.5" value="{{ old('suburb', $accommodation->suburb) }}" required>
                         @error('suburb')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
@@ -143,7 +138,7 @@
 
                     {{-- Photo Management Section --}}
                     <div class="md:col-span-2">
-                        <label class="block text-sm font-medium text-gray-700">Photos (Max 5 total, 1MB each)</label>
+                        <label class="block text-sm font-medium text-gray-700">Photos (Max 10 total, 1MB each)</label>
 
                         {{-- Display Existing Photos --}}
                         <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" x-show="existingPhotos.length > 0">
@@ -208,59 +203,14 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('accommodationForm', () => ({
-                suburbs: [],
-                selectedSuburb: '{{ old('suburb', $accommodation->suburb) }}', // Retain old/current suburb selection
-                existingPhotos: @json($accommodation->photos ?? []), // Paths of current photos from DB
+                existingPhotos: {!! json_encode($accommodation->photos ?? []) !!}, // Paths of current photos from DB
                 uploadedPhotos: [], // Stores { file: File, preview: URL } for new uploads
                 photoErrors: [],
-                maxPhotos: 5,
+                maxPhotos: 10,
                 maxPhotoSizeKB: 1024, // 1MB
 
                 init() {
-                    // Fetch suburbs for the initially selected state (current accommodation's state)
-                    const initialState = document.getElementById('state').value;
-                    if (initialState) {
-                        this.fetchSuburbs(initialState, true); // true indicates initial load to set old/current suburb
-                    }
-                },
-
-                async fetchSuburbs(event, isInitialLoad = false) {
-                    let stateCode;
-                    if (isInitialLoad) {
-                        stateCode = event; // 'event' is actually the state code here
-                    } else {
-                        stateCode = event.target.value;
-                    }
-
-                    this.suburbs = [];
-                    // Only reset selectedSuburb if it's not an initial load,
-                    // or if the initial selected state has changed or has no matching suburb.
-                    if (!isInitialLoad || !this.suburbs.includes(this.selectedSuburb)) {
-                        this.selectedSuburb = '';
-                    }
-
-
-                    if (!stateCode) {
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(`/get-suburbs/${stateCode}`);
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch suburbs.');
-                        }
-                        const data = await response.json();
-                        this.suburbs = data;
-
-                        // If it's an initial load and old/current suburb exists in new list, set it
-                        const oldOrCurrentSuburb = '{{ old('suburb', $accommodation->suburb) }}';
-                        if (isInitialLoad && oldOrCurrentSuburb && this.suburbs.includes(oldOrCurrentSuburb)) {
-                             this.selectedSuburb = oldOrCurrentSuburb;
-                        }
-                    } catch (error) {
-                        console.error("Error fetching suburbs:", error);
-                        // Optionally show a user-friendly error message
-                    }
+                    // No longer need to fetch suburbs since we're using text input
                 },
 
                 currentTotalPhotos() {
@@ -277,19 +227,15 @@
                         return;
                     }
 
-                    let validFiles = [];
+                    // Clear previous new photos
+                    this.uploadedPhotos = [];
+                    
                     files.forEach(file => {
-                        if (this.currentTotalPhotos() >= this.maxPhotos) {
-                            this.photoErrors.push(`Cannot add more photos. Maximum of ${this.maxPhotos} photos reached.`);
-                            return; // Stop processing further files
-                        }
-
                         if (file.size > this.maxPhotoSizeKB * 1024) { // Convert KB to bytes
                             this.photoErrors.push(`Photo "${file.name}" exceeds the ${this.maxPhotoSizeKB / 1024}MB limit.`);
                         } else if (!file.type.match('image/jpeg|image/png|image/gif')) {
-                            this.photoErrors.push(`File "${file.name}" is not a valid image type (JPEG, PNG, GIF).`);
+                             this.photoErrors.push(`File "${file.name}" is not a valid image type (JPEG, PNG, GIF).`);
                         } else {
-                            validFiles.push(file);
                             const reader = new FileReader();
                             reader.onload = (e) => {
                                 this.uploadedPhotos.push({ file: file, preview: e.target.result });
@@ -297,21 +243,6 @@
                             reader.readAsDataURL(file);
                         }
                     });
-
-                    // Update the FileList object for the input field to only include valid files
-                    const dataTransfer = new DataTransfer();
-                    validFiles.forEach(item => dataTransfer.items.add(item)); // Add actual file objects
-                    event.target.files = dataTransfer.files;
-
-                     // Clear the input value if no valid files were added or if max was reached
-                    if (validFiles.length === 0 && files.length > 0) {
-                         event.target.value = '';
-                    }
-
-                    // Re-evaluate errors for exceeding max photos if some were valid but others put it over
-                    if (this.currentTotalPhotos() > this.maxPhotos) {
-                        this.photoErrors.push(`You can upload a maximum of ${this.maxPhotos} photos total.`);
-                    }
                 },
 
                 removeExistingPhoto(index) {
@@ -321,14 +252,12 @@
 
                 removeNewPhoto(index) {
                     this.uploadedPhotos.splice(index, 1);
-
-                    // Update the FileList object for the new_photos input field after removal
+                    
+                    // Update the file input to reflect the removed photo
                     const input = document.getElementById('new_photos');
                     const dataTransfer = new DataTransfer();
                     this.uploadedPhotos.forEach(item => dataTransfer.items.add(item.file));
                     input.files = dataTransfer.files;
-
-                    this.photoErrors = this.photoErrors.filter(error => !error.includes('maximum of')); // Clear related errors
                 }
             }));
         });

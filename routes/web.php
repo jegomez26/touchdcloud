@@ -302,7 +302,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/my-profile', [ProviderDashboardController::class, 'updateProfile'])->name('my-profile.update');
 
         // Accommodation Management by Providers
-        Route::get('/accommodations', [ProviderAccommodationController::class, 'index'])->name('accommodations.list');
+        Route::get('/accommodations', [ProviderAccommodationController::class, 'index'])->name('accommodations.index');
         Route::get('/accommodations/create', [ProviderAccommodationController::class, 'create'])->name('accommodations.create');
         Route::post('/accommodations', [ProviderAccommodationController::class, 'store'])->name('accommodations.store');
         Route::get('/accommodations/{accommodation}', [ProviderAccommodationController::class, 'show'])->name('accommodations.show');

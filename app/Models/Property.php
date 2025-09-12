@@ -31,9 +31,9 @@ class Property extends Model
 
     protected $casts = [
         'is_available_for_hm' => 'boolean',
-        'amenities' => 'array', // Cast to array for JSON column
-        'photos' => 'array',    // Cast to array for JSON column
-        'rent_per_week' => 'decimal:2', // Ensures it's cast to a decimal with 2 places
+        'amenities' => 'array',
+        'photos' => 'array',
+        'rent_per_week' => 'decimal:2',
     ];
 
     /**

@@ -4,14 +4,14 @@
     <div class="container mx-auto px-4 py-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-[#3e4732]">Add New Accommodation</h1>
-            <a href="{{ route('provider.accommodations.list') }}" class="bg-[#bcbabb] text-white px-6 py-2 rounded-md hover:bg-[#a09d9b] transition duration-300 flex items-center">
+            <a href="{{ route('provider.accommodations.index') }}" class="bg-[#bcbabb] text-white px-6 py-2 rounded-md hover:bg-[#a09d9b] transition duration-300 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left mr-2"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
                 Back to List
             </a>
         </div>
 
         <div class="bg-white shadow-lg rounded-lg p-6" x-data="accommodationForm()">
-            <form action="{{ route('provider.accommodations.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('provider.accommodations.store') }}" method="POST" enctype="multipart/form-data" id="accommodationForm">
                 @csrf
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -61,12 +61,7 @@
 
                     <div>
                         <label for="suburb" class="block text-sm font-medium text-gray-700">Suburb</label>
-                        <select name="suburb" id="suburb" x-model="selectedSuburb" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] sm:text-base p-2.5" required :disabled="suburbs.length === 0">
-                            <option value="">Select Suburb</option>
-                            <template x-for="suburb in suburbs" :key="suburb">
-                                <option :value="suburb" x-text="suburb"></option>
-                            </template>
-                        </select>
+                        <input type="text" name="suburb" id="suburb" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] sm:text-base p-2.5" value="{{ old('suburb') }}" required>
                         @error('suburb')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
@@ -142,7 +137,7 @@
 
                     {{-- Photo Upload Section --}}
                     <div class="md:col-span-2">
-                        <label for="photos" class="block text-sm font-medium text-gray-700">Photos (Max 5, 1MB each)</label>
+                        <label for="photos" class="block text-sm font-medium text-gray-700">Photos (Max 10, 1MB each)</label>
                         <input type="file" name="photos[]" id="photos" multiple
                                @change="handlePhotoUpload($event)"
                                accept="image/jpeg,image/png,image/gif"
@@ -156,7 +151,7 @@
                             </template>
                         </div>
 
-                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" x-show="uploadedPhotos.length > 0">
+                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4" x-show="uploadedPhotos.length > 0">
                             <template x-for="(photo, index) in uploadedPhotos" :key="index">
                                 <div class="relative w-full aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm">
                                     <img :src="photo.preview" alt="Photo preview" class="w-full h-full object-cover">
@@ -172,84 +167,96 @@
                 </div>
 
                 <div class="mt-8 flex justify-end">
-                    <button type="submit" class="bg-[#33595a] text-white px-8 py-3 rounded-md text-lg font-semibold hover:bg-[#2c494a] transition duration-300 shadow-md">
-                        Create Accommodation
+                    <button type="submit" id="submitBtn" class="bg-[#33595a] text-white px-8 py-3 rounded-md text-lg font-semibold hover:bg-[#2c494a] transition duration-300 shadow-md">
+                        <span id="submitText">Create Accommodation</span>
+                        <span id="submitSpinner" class="hidden">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Creating...
+                        </span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
+    {{-- Success Modal --}}
+    <div id="successModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mt-4">Success!</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500" id="successMessage">Accommodation created successfully!</p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="closeSuccessModal()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Error Modal --}}
+    <div id="errorModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                    <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mt-4">Error</h3>
+                <div class="mt-2 px-7 py-3">
+                    <p class="text-sm text-gray-500" id="errorMessage"></p>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button onclick="closeErrorModal()" class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-300">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('accommodationForm', () => ({
-                suburbs: [],
-                selectedSuburb: '{{ old('suburb') }}', // Retain old suburb selection
                 uploadedPhotos: [], // Stores { file: File, preview: URL }
                 photoErrors: [],
-                maxPhotos: 5,
+                maxPhotos: 10,
                 maxPhotoSizeKB: 1024, // 1MB
 
                 init() {
-                    // Fetch suburbs if a state was previously selected (for old('state') scenario)
-                    const oldState = document.getElementById('state').value;
-                    if (oldState) {
-                        this.fetchSuburbs(oldState, true); // true indicates initial load to set old('suburb')
-                    }
-                },
-
-                async fetchSuburbs(event, isInitialLoad = false) {
-                    let stateCode;
-                    if (isInitialLoad) {
-                        stateCode = event; // 'event' is actually the state code here
-                    } else {
-                        stateCode = event.target.value;
-                    }
-
-                    this.suburbs = [];
-                    this.selectedSuburb = ''; // Reset suburb selection
-
-                    if (!stateCode) {
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch(`/get-suburbs/${stateCode}`);
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch suburbs.');
-                        }
-                        const data = await response.json();
-                        this.suburbs = data;
-
-                        // If it's an initial load, try to set the old suburb value
-                        if (isInitialLoad && '{{ old('suburb') }}' && this.suburbs.includes('{{ old('suburb') }}')) {
-                             this.selectedSuburb = '{{ old('suburb') }}';
-                        }
-                    } catch (error) {
-                        console.error("Error fetching suburbs:", error);
-                        // Optionally show a user-friendly error message
-                    }
+                    // No longer need to fetch suburbs since we're using text input
                 },
 
                 handlePhotoUpload(event) {
                     this.photoErrors = [];
                     const files = Array.from(event.target.files);
 
-                    if (this.uploadedPhotos.length + files.length > this.maxPhotos) {
+                    if (files.length > this.maxPhotos) {
                         this.photoErrors.push(`You can upload a maximum of ${this.maxPhotos} photos.`);
                         event.target.value = ''; // Clear input
                         return;
                     }
 
-                    let validFiles = [];
+                    // Clear previous photos
+                    this.uploadedPhotos = [];
+                    
                     files.forEach(file => {
                         if (file.size > this.maxPhotoSizeKB * 1024) { // Convert KB to bytes
                             this.photoErrors.push(`Photo "${file.name}" exceeds the ${this.maxPhotoSizeKB / 1024}MB limit.`);
                         } else if (!file.type.match('image/jpeg|image/png|image/gif')) {
                              this.photoErrors.push(`File "${file.name}" is not a valid image type (JPEG, PNG, GIF).`);
-                        }
-                        else {
-                            validFiles.push(file);
+                        } else {
                             const reader = new FileReader();
                             reader.onload = (e) => {
                                 this.uploadedPhotos.push({ file: file, preview: e.target.result });
@@ -257,33 +264,94 @@
                             reader.readAsDataURL(file);
                         }
                     });
-
-                    // Update the FileList object for the input field
-                    const dataTransfer = new DataTransfer();
-                    this.uploadedPhotos.forEach(item => dataTransfer.items.add(item.file));
-                    event.target.files = dataTransfer.files;
-
-                    // Clear files that caused errors from the input
-                    // This is tricky with multiple files and validation; the easiest is to re-assign valid files.
-                    // However, Alpine.js handles reactivity, so if you push validFiles to uploadedPhotos,
-                    // the form submission will get the correct `files` array from `dataTransfer.files`
                 },
 
                 removePhoto(index) {
-                    const removedPhoto = this.uploadedPhotos.splice(index, 1);
-
-                    // Update the FileList object for the input field after removal
+                    this.uploadedPhotos.splice(index, 1);
+                    
+                    // Update the file input to reflect the removed photo
                     const input = document.getElementById('photos');
                     const dataTransfer = new DataTransfer();
                     this.uploadedPhotos.forEach(item => dataTransfer.items.add(item.file));
                     input.files = dataTransfer.files;
-
-                    // Clear any errors if the number of photos is now valid
-                    if (this.uploadedPhotos.length <= this.maxPhotos) {
-                        this.photoErrors = this.photoErrors.filter(error => !error.includes('maximum of'));
-                    }
                 }
             }));
+        });
+
+        // Modal functions
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        function closeErrorModal() {
+            document.getElementById('errorModal').classList.add('hidden');
+        }
+
+        function showSuccessModal(message) {
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function showErrorModal(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorModal').classList.remove('hidden');
+        }
+
+        // AJAX form submission
+        document.getElementById('accommodationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const form = this;
+            const formData = new FormData(form);
+            const submitBtn = document.getElementById('submitBtn');
+            const submitText = document.getElementById('submitText');
+            const submitSpinner = document.getElementById('submitSpinner');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            submitSpinner.classList.remove('hidden');
+            
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccessModal(data.message || 'Accommodation created successfully!');
+                    // Redirect after a short delay
+                    setTimeout(() => {
+                        window.location.href = '/provider/accommodations';
+                    }, 1500);
+                } else {
+                    showErrorModal(data.message || 'An error occurred while creating the accommodation.');
+                }
+            })
+            .catch(error => {
+                showErrorModal('An error occurred while creating the accommodation.');
+                console.error('Error:', error);
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                submitSpinner.classList.add('hidden');
+            });
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'successModal') {
+                closeSuccessModal();
+            }
+            if (e.target.id === 'errorModal') {
+                closeErrorModal();
+            }
         });
     </script>
 @endsection
