@@ -167,16 +167,9 @@
 
                         <div>
                             <x-input-label for="suburb" :value="__('Suburb') . ' *'" />
-                            <select id="suburb" name="suburb" class="block mt-1 w-full border-gray-300 focus:border-[#cc8e45] focus:ring-[#cc8e45] rounded-md shadow-sm bg-[#ffffff] text-[#3e4732]" required>
-                                <option value="">Select Suburb</option>
-                                {{-- Pre-populate if old state or participant's state and suburb exist --}}
-                                @php
-                                    $currentSuburb = old('suburb', $participant->suburb);
-                                @endphp
-                                @if($currentSuburb)
-                                    <option value="{{ $currentSuburb }}" selected>{{ $currentSuburb }}</option>
-                                @endif
-                            </select>
+                            <input type="text" id="suburb" name="suburb" value="{{ old('suburb', $participant->suburb) }}" 
+                                   class="block mt-1 w-full border-gray-300 focus:border-[#cc8e45] focus:ring-[#cc8e45] rounded-md shadow-sm bg-[#ffffff] text-[#3e4732]" 
+                                   placeholder="Enter suburb name" required>
                             <x-input-error :messages="$errors->get('suburb')" class="mt-2" />
                         </div>
 
@@ -279,62 +272,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Dynamic Suburb Dropdown Logic
-        const stateSelect = document.getElementById('state');
-        const suburbSelect = document.getElementById('suburb');
-
-        const loadSuburbs = (state, selectedSuburb = null) => {
-            suburbSelect.innerHTML = '<option value="">Loading Suburbs...</option>'; // Clear and add loading option
-            suburbSelect.disabled = true; // Disable until loaded
-
-            if (state) {
-                fetch(`/get-suburbs/${state}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.text().then(text => {
-                                throw new Error(`HTTP error! Status: ${response.status}, Message: ${text}`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        suburbSelect.innerHTML = '<option value="" disabled selected>Select Suburb</option>'; // Clear previous options
-                        if (data.length > 0) {
-                            data.forEach(suburb => {
-                                const option = document.createElement('option');
-                                option.value = suburb;
-                                option.textContent = suburb;
-                                if (suburb === selectedSuburb) {
-                                    option.selected = true;
-                                }
-                                suburbSelect.appendChild(option);
-                            });
-                        } else {
-                            suburbSelect.innerHTML = '<option value="">No suburbs found</option>';
-                        }
-                        suburbSelect.disabled = false; // Enable after loading
-                    })
-                    .catch(error => {
-                        console.error('Error fetching suburbs:', error);
-                        suburbSelect.innerHTML = '<option value="">Error loading suburbs</option>';
-                        suburbSelect.disabled = false; // Enable even on error
-                    });
-            } else {
-                suburbSelect.innerHTML = '<option value="">Select Suburb</option>'; // Reset if no state selected
-                suburbSelect.disabled = true; // Disable if no state selected
-            }
-        };
-
-        stateSelect.addEventListener('change', function() {
-            loadSuburbs(this.value, null); // When state changes, clear selected suburb
-        });
-
-        // Trigger loading suburbs on page load if a state is already selected
-        const initialSelectedState = stateSelect.value;
-        const initialSelectedSuburb = "{{ old('suburb', $participant->suburb) }}";
-        if (initialSelectedState) {
-            loadSuburbs(initialSelectedState, initialSelectedSuburb);
-        }
+        // Suburb is now a free text field, no JavaScript needed
     });
 </script>
 @endpush

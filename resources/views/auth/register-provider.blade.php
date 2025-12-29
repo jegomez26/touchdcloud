@@ -8,7 +8,7 @@
         <div class="relative w-full md:flex rounded-lg shadow-xl md:h-full md:max-h-[85vh] overflow-hidden" style="max-width: 1200px;">
 
             {{-- Left Column: Image and Text --}}
-            <div class="hidden md:flex flex-col w-full md:w-1/2 bg-custom-dark-teal p-6 lg:p-10 items-center justify-center text-white text-center h-full">
+            <div class="hidden md:flex flex-col w-full md:w-1/2 bg-[#2D4A80] p-6 lg:p-10 items-center justify-center text-white text-center h-full">
                 <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('{{ asset('images/provider_illustration_background.jpg') }}');">
                     <div class="absolute inset-0 bg-black opacity-50"></div>
                 </div>
@@ -39,7 +39,7 @@
                     </p>
                 </div>
 
-                <form method="POST" action="{{ route('register.provider.store') }}" class="space-y-6 sm:space-y-8" x-data="{
+                <form method="POST" action="{{ route('register.provider.store') }}" class="space-y-4 sm:space-y-6" x-data="{
                     // Alpine.js data for password visibility
                     password: '',
                     passwordConfirmation: '',
@@ -85,20 +85,32 @@
                         <div class="space-y-4">
                             <div>
                                 <x-input-label for="organisation_name" :value="__('Organisation Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                <x-text-input type="text" name="organisation_name" id="organisation_name" class="block w-full" :value="old('organisation_name')" required autocomplete="organization" />
-                                <x-input-error :messages="$errors->get('organisation_name')" class="mt-1" />
+                                <x-text-input type="text" name="organisation_name" id="organisation_name" 
+                                    class="block w-full px-3 py-2 rounded-md shadow-sm
+                                           text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                           {{ $errors->has('organisation_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                    :value="old('organisation_name')" required autocomplete="organization" />
+                                <x-input-error :messages="$errors->get('organisation_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                             </div>
 
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <x-input-label for="abn" :value="__('ABN (Australian Business Number)')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                    <x-text-input type="text" name="abn" id="abn" class="block w-full" :value="old('abn')" required autocomplete="off" />
-                                    <x-input-error :messages="$errors->get('abn')" class="mt-1" />
+                                    <x-text-input type="text" name="abn" id="abn" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('abn') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('abn')" required autocomplete="off" />
+                                    <x-input-error :messages="$errors->get('abn')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                                 <div>
                                     <x-input-label for="ndis_registration_number" :value="__('NDIS Registration Number (Optional)')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                    <x-text-input type="text" name="ndis_registration_number" id="ndis_registration_number" class="block w-full" :value="old('ndis_registration_number')" autocomplete="off" />
-                                    <x-input-error :messages="$errors->get('ndis_registration_number')" class="mt-1" />
+                                    <x-text-input type="text" name="ndis_registration_number" id="ndis_registration_number" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('ndis_registration_number') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('ndis_registration_number')" autocomplete="off" />
+                                    <x-input-error :messages="$errors->get('ndis_registration_number')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                             </div>
 
@@ -119,7 +131,7 @@
                                         <span class="ml-2 text-sm text-custom-dark-olive">Both</span>
                                     </label>
                                 </div>
-                                <x-input-error :messages="$errors->get('provider_types')" class="mt-1" />
+                                <x-input-error :messages="$errors->get('provider_types')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                             </div>
 
                             <hr class="my-4 border-custom-light-grey-green">
@@ -128,25 +140,35 @@
                                 <h4 class="text-md sm:text-lg font-bold text-custom-dark-teal">Operational Details</h4>
                                 <div>
                                     <x-input-label for="office_address" :value="__('Office Address')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                    <x-text-input type="text" name="office_address" id="office_address" class="block w-full" :value="old('office_address')" autocomplete="street-address" />
-                                    <x-input-error :messages="$errors->get('office_address')" class="mt-1" />
+                                    <x-text-input type="text" name="office_address" id="office_address" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('office_address') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('office_address')" autocomplete="street-address" />
+                                    <x-input-error :messages="$errors->get('office_address')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
                                         <x-input-label for="office_state" :value="__('State')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                                         <select name="office_state" id="office_state" x-model="selectedState"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150">
+                                            class="block w-full px-3 py-2 rounded-md shadow-sm
+                                                   text-sm sm:text-base bg-custom-white text-custom-dark-teal
+                                                   {{ $errors->has('office_state') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}
+                                                   focus:border-custom-ochre focus:ring-custom-ochre transition ease-in-out duration-150">
                                             <option value="" selected disabled>Select State</option>
                                             @foreach(['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'] as $stateAbbr)
                                                 <option value="{{ $stateAbbr }}">{{ $stateAbbr }}</option>
                                             @endforeach
                                         </select>
-                                        <x-input-error :messages="$errors->get('office_state')" class="mt-1" />
+                                        <x-input-error :messages="$errors->get('office_state')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                     </div>
                                     <div>
                                         <x-input-label for="office_suburb" :value="__('Suburb')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                                         <select name="office_suburb" id="office_suburb" x-model="selectedSuburb"
-                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150"
+                                            class="block w-full px-3 py-2 rounded-md shadow-sm
+                                                   text-sm sm:text-base bg-custom-white text-custom-dark-teal
+                                                   {{ $errors->has('office_suburb') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}
+                                                   focus:border-custom-ochre focus:ring-custom-ochre transition ease-in-out duration-150"
                                             x-bind:disabled="!selectedState">
                                             <option value="" selected disabled>Select Suburb</option>
                                             <template x-if="selectedState">
@@ -155,13 +177,17 @@
                                                 </template>
                                             </template>
                                         </select>
-                                        <x-input-error :messages="$errors->get('office_suburb')" class="mt-1" />
+                                        <x-input-error :messages="$errors->get('office_suburb')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                     </div>
                                 </div>
                                 <div>
                                     <x-input-label for="office_post_code" :value="__('Post Code')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                    <x-text-input type="text" name="office_post_code" id="office_post_code" class="block w-full" :value="old('office_post_code')" autocomplete="postal-code" />
-                                    <x-input-error :messages="$errors->get('office_post_code')" class="mt-1" />
+                                    <x-text-input type="text" name="office_post_code" id="office_post_code" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('office_post_code') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('office_post_code')" autocomplete="postal-code" />
+                                    <x-input-error :messages="$errors->get('office_post_code')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                             </div>
 
@@ -179,7 +205,7 @@
                                         </label>
                                     @endforeach
                                 </div>
-                                <x-input-error :messages="$errors->get('states_operated_in')" class="mt-1" />
+                                <x-input-error :messages="$errors->get('states_operated_in')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                             </div>
                         </div>
                     </div>
@@ -195,67 +221,99 @@
                             <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0">
                                 <div class="flex-1">
                                     <x-input-label for="main_contact_name" :value="__('Representative First Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                    <x-text-input type="text" name="main_contact_name" id="main_contact_name" class="block w-full" :value="old('main_contact_name')" required autocomplete="name" />
-                                    <x-input-error :messages="$errors->get('main_contact_name')" class="mt-1" />
+                                    <x-text-input type="text" name="main_contact_name" id="main_contact_name" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('main_contact_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('main_contact_name')" required autocomplete="name" />
+                                    <x-input-error :messages="$errors->get('main_contact_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                                 <div class="flex-1">
                                     <x-input-label for="main_contact_last_name" :value="__('Representative Last Name')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                    <x-text-input type="text" name="main_contact_last_name" id="main_contact_last_name" class="block w-full" :value="old('main_contact_last_name')" required autocomplete="name" />
-                                    <x-input-error :messages="$errors->get('main_contact_last_name')" class="mt-1" />
+                                    <x-text-input type="text" name="main_contact_last_name" id="main_contact_last_name" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('main_contact_last_name') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('main_contact_last_name')" required autocomplete="name" />
+                                    <x-input-error :messages="$errors->get('main_contact_last_name')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                                 <div class="flex-1">
                                     <x-input-label for="main_contact_role_title" :value="__('Role/Title')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                    <x-text-input type="text" name="main_contact_role_title" id="main_contact_role_title" class="block w-full" :value="old('main_contact_role_title')" autocomplete="organization-title" />
-                                    <x-input-error :messages="$errors->get('main_contact_role_title')" class="mt-1" />
+                                    <x-text-input type="text" name="main_contact_role_title" id="main_contact_role_title" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('main_contact_role_title') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('main_contact_role_title')" autocomplete="organization-title" />
+                                    <x-input-error :messages="$errors->get('main_contact_role_title')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <x-input-label for="email" :value="__('Email Address')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                                     {{-- This email will be used for the account --}}
-                                    <x-text-input type="email" name="email" id="email" class="block w-full" :value="old('email')" required autocomplete="email" />
-                                    <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                                    <x-text-input type="email" name="email" id="email" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('email') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('email')" required autocomplete="email" />
+                                    <x-input-error :messages="$errors->get('email')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                                 <div>
                                     <x-input-label for="phone_number" :value="__('Phone Number')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                    <x-text-input type="text" name="phone_number" id="phone_number" class="block w-full" :value="old('phone_number')" required autocomplete="tel" />
-                                    <x-input-error :messages="$errors->get('phone_number')" class="mt-1" />
+                                    <x-text-input type="text" name="phone_number" id="phone_number" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('phone_number') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        :value="old('phone_number')" required autocomplete="tel" />
+                                    <x-input-error :messages="$errors->get('phone_number')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                                 </div>
                             </div>
                             <div>
                                 <x-input-label for="website" :value="__('Website (Optional)')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
-                                <x-text-input type="url" name="website" id="website" class="block w-full" :value="old('website')" autocomplete="url" />
-                                <x-input-error :messages="$errors->get('website')" class="mt-1" />
+                                <x-text-input type="url" name="website" id="website" 
+                                    class="block w-full px-3 py-2 rounded-md shadow-sm
+                                           text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                           {{ $errors->has('website') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                    :value="old('website')" autocomplete="url" />
+                                <x-input-error :messages="$errors->get('website')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                             </div>
 
                             {{-- Password --}}
                             <div>
                                 <x-input-label for="password" :value="__('Password')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                                 <div class="relative">
-                                    <input id="password" x-ref="passwordInput" :type="passwordFieldType" name="password" x-model="password" required autocomplete="new-password" class="block w-full pr-10 {{ $errors->has('password') ? 'border-custom-ochre' : '' }} rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150" />
+                                    <input id="password" x-ref="passwordInput" :type="passwordFieldType" name="password" x-model="password" required autocomplete="new-password" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm pr-10
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               {{ $errors->has('password') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}
+                                               focus:border-custom-ochre focus:ring-custom-ochre transition ease-in-out duration-150" />
                                     <button type="button" @click="passwordFieldType = (passwordFieldType === 'password' ? 'text' : 'password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-custom-dark-teal focus:outline-none">
                                         <svg x-show="passwordFieldType === 'password'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.025m3.758-1.332A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.268 4.706M9.543 12.5a2.5 2.5 0 115 0 2.5 2.5 0 01-5 0z" /></svg>
                                         <svg x-show="passwordFieldType === 'text'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                     </button>
                                 </div>
-                                <x-input-error :messages="$errors->get('password')" class="mt-1" />
+                                <x-input-error :messages="$errors->get('password')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                             </div>
 
                             {{-- Confirm Password --}}
                             <div>
                                 <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="text-xs sm:text-sm font-semibold text-custom-dark-teal mb-1" />
                                 <div class="relative">
-                                    <input id="password_confirmation" x-ref="passwordConfirmationInput" :type="confirmPasswordFieldType" name="password_confirmation" x-model="passwordConfirmation" required autocomplete="new-password" class="block w-full pr-10 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-base p-2.5 transition ease-in-out duration-150" :class="{
-                                        'border-green-500': passwordsMatch && passwordConfirmation.length > 0,
-                                        'border-custom-ochre': !passwordsMatch && passwordConfirmation.length > 0,
-                                    }" />
+                                    <input id="password_confirmation" x-ref="passwordConfirmationInput" :type="confirmPasswordFieldType" name="password_confirmation" x-model="passwordConfirmation" required autocomplete="new-password" 
+                                        class="block w-full px-3 py-2 rounded-md shadow-sm pr-10
+                                               text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown
+                                               focus:border-custom-ochre focus:ring-custom-ochre transition ease-in-out duration-150" 
+                                        :class="{
+                                            'border-green-500': passwordsMatch && passwordConfirmation.length > 0,
+                                            'border-custom-ochre': !passwordsMatch && passwordConfirmation.length > 0,
+                                        }" />
                                     <button type="button" @click="confirmPasswordFieldType = (confirmPasswordFieldType === 'password' ? 'text' : 'password')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5 text-custom-dark-teal focus:outline-none">
                                         <svg x-show="confirmPasswordFieldType === 'password'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.025m3.758-1.332A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.268 4.706M9.543 12.5a2.5 2.5 0 115 0 2.5 2.5 0 01-5 0z" /></svg>
                                         <svg x-show="confirmPasswordFieldType === 'text'" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                                     </button>
                                 </div>
-                                <p x-show="!passwordsMatch && passwordConfirmation.length > 0" class="mt-1 text-custom-ochre text-xs sm:text-sm">Passwords do not match.</p>
-                                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
+                                <p x-show="!passwordsMatch && passwordConfirmation.length > 0" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm">Passwords do not match.</p>
+                                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                             </div>
                         </div>
                     </div>
@@ -279,7 +337,7 @@
                                         </label>
                                     @endforeach
                                 </div>
-                                <x-input-error :messages="$errors->get('sil_support_types')" class="mt-1" />
+                                <x-input-error :messages="$errors->get('sil_support_types')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                             </div>
 
                             <div>
@@ -298,7 +356,7 @@
                                         <span class="ml-2 text-sm text-custom-dark-olive">In partnership with external providers</span>
                                     </label>
                                 </div>
-                                <x-input-error :messages="$errors->get('clinical_team_involvement')" class="mt-1" />
+                                <x-input-error :messages="$errors->get('clinical_team_involvement')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                             </div>
                         </div>
                     </div>
@@ -310,17 +368,20 @@
                         <label for="terms_and_privacy" class="inline-flex items-center text-custom-dark-olive cursor-pointer">
                             <input id="terms_and_privacy" type="checkbox" name="terms_and_privacy" required class="rounded border-custom-light-grey-brown text-custom-ochre shadow-sm focus:ring-custom-ochre" {{ old('terms_and_privacy') ? 'checked' : '' }}>
                             <span class="ml-2 text-xs sm:text-sm">
-                                I agree to the <a href="{{ route('terms.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Terms of Service</a> and <a href="{{ route('policy.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Privacy Policy</a>.
+                                I agree to the <a href="{{ route('terms') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Terms of Service</a> and <a href="{{ route('policy') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Privacy Policy</a>.
                             </span>
                         </label>
-                        <x-input-error :messages="$errors->get('terms_and_privacy')" class="mt-1" />
+                        <x-input-error :messages="$errors->get('terms_and_privacy')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
                     </div>
 
                     <div class="flex items-center justify-end mt-6 sm:mt-8">
-                        <a class="underline text-xs sm:text-sm text-custom-dark-teal hover:text-custom-ochre" href="{{ route('login') }}">
+                        <a class="underline text-xs sm:text-sm text-custom-dark-teal hover:text-custom-ochre rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-ochre" href="{{ route('login') }}">
                             {{ __('Already registered?') }}
                         </a>
-                        <x-primary-button class="ms-3 sm:ms-4">
+                        <x-primary-button class="ms-3 sm:ms-4 py-1.5 px-4 sm:py-2 sm:px-6 rounded-md text-white
+                                                 bg-custom-ochre hover:bg-custom-ochre-darker
+                                                 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-custom-ochre
+                                                 font-semibold text-sm sm:text-base transition ease-in-out duration-150">
                             {{ __('Register') }}
                         </x-primary-button>
                     </div>

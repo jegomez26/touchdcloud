@@ -40,6 +40,7 @@ class Provider extends Model
         'plan',
         'provider_code_name',
         'provider_logo_path',
+        'last_participant_deletion_at',
     ];
 
     /**
@@ -52,6 +53,7 @@ class Provider extends Model
         'states_operated_in' => 'array',
         'sil_support_types' => 'array',
         'staff_training_areas' => 'array',
+        'last_participant_deletion_at' => 'datetime',
     ];
 
     /*
@@ -70,13 +72,32 @@ class Provider extends Model
 
     /**
      * Get the properties/listings associated with this provider.
-     * (Assuming you'll have a 'Property' or 'Listing' model in the future)
      */
     public function properties(): HasMany
     {
-        // Example: return $this->hasMany(Property::class, 'provider_id');
-        // You'll need to create a Property model and migration for this later.
-        return $this->hasMany(Property::class); // Placeholder
+        return $this->hasMany(Property::class);
+    }
+
+    /**
+     * Get the current active subscription for this provider.
+     */
+    public function currentSubscription(): BelongsTo
+    {
+        return $this->belongsTo(Subscription::class, 'user_id', 'user_id')
+                    ->where('stripe_status', 'active')
+                    ->orWhere('paypal_status', 'active')
+                    ->where(function($query) {
+                        $query->where('ends_at', '>', now())
+                              ->orWhereNull('ends_at');
+                    });
+    }
+
+    /**
+     * Get all subscriptions for this provider.
+     */
+    public function subscriptions(): HasMany
+    {
+        return $this->hasMany(Subscription::class, 'user_id', 'user_id');
     }
 
     /*

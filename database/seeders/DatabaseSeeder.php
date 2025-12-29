@@ -15,7 +15,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             SuperAdminSeeder::class,
-            ParticipantsTableSeeder::class,
+            // ParticipantsTableSeeder::class,
+            PlanSeeder::class,
         ]);
     }
 }

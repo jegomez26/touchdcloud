@@ -277,7 +277,7 @@
                                         {{ $errors->has('terms_and_privacy') ? 'border-custom-ochre' : '' }}"
                                 name="terms_and_privacy" {{ old('terms_and_privacy') ? 'checked' : '' }} required>
                             <span class="ml-2 text-xs sm:text-sm">
-                                I agree to the <a href="{{ route('terms.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Terms of Service</a> and <a href="{{ route('policy.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Privacy Policy</a>.
+                                I agree to the <a href="{{ route('terms') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Terms of Service</a> and <a href="{{ route('policy') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Privacy Policy</a>.
                             </span>
                         </label>
                         <x-input-error :messages="$errors->get('terms_and_privacy')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />

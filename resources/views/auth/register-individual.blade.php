@@ -214,7 +214,7 @@
                         <x-input-error :messages="$errors->get('password')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />
 
                         {{-- Password Criteria List --}}
-                        <ul class="text-xs sm:text-sm mt-2 space-y-1">
+                        <ul class="text-xs sm:text-sm mt-1 sm:mt-2 space-y-0.5 sm:space-y-1">
                             <li :class="hasMinLength ? 'text-green-600 font-semibold' : 'text-custom-ochre'">
                                 <span x-html="hasMinLength ? '&#10003;' : '&#10006;'"></span> At least 8 characters
                             </li>
@@ -284,7 +284,7 @@
                                           {{ $errors->has('terms_and_privacy') ? 'border-custom-ochre' : '' }}"
                                    name="terms_and_privacy" {{ old('terms_and_privacy') ? 'checked' : '' }} required>
                             <span class="ml-2 text-xs sm:text-sm">
-                                I agree to the <a href="{{ route('terms.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Terms of Service</a> and <a href="{{ route('policy.show') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Privacy Policy</a>.
+                                I agree to the <a href="{{ route('terms') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Terms of Service</a> and <a href="{{ route('policy') }}" target="_blank" class="underline text-custom-dark-teal hover:text-custom-ochre">Privacy Policy</a>.
                             </span>
                         </label>
                         <x-input-error :messages="$errors->get('terms_and_privacy')" class="mt-1 sm:mt-2 text-custom-ochre text-xs sm:text-sm" />

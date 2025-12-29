@@ -272,12 +272,12 @@ class ParticipantController extends Controller
             'secondary_disability' => 'nullable|string|max:255',
             'estimated_support_hours_sil_level' => 'nullable|string|max:50',
             'night_support_type' => 'nullable|in:Active overnight,Sleepover,None',
-            'uses_assistive_technology_mobility_aids' => 'nullable|boolean',
+            'uses_assistive_technology_mobility_aids' => 'nullable|in:0,1',
             'assistive_technology_mobility_aids_list' => 'nullable|string',
         ]);
 
         $validated['has_support_coordinator'] = $request->has('has_support_coordinator');
-        $validated['uses_assistive_technology_mobility_aids'] = $request->has('uses_assistive_technology_mobility_aids');
+        $validated['uses_assistive_technology_mobility_aids'] = $validated['uses_assistive_technology_mobility_aids'] == '1';
 
         $processedDailyLivingNeeds = $validated['daily_living_support_needs'] ?? [];
         if (in_array('Other', $processedDailyLivingNeeds) && !empty($validated['daily_living_support_needs_other'])) {

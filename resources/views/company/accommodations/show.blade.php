@@ -16,13 +16,6 @@
             </div>
         </div>
 
-        @if (session('status'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <strong class="font-bold">Success!</strong>
-                <span class="block sm:inline">{{ session('status') }}</span>
-            </div>
-        @endif
-
         <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
             <h2 class="text-2xl font-semibold text-[#3e4732] mb-4">{{ $accommodation->title }}</h2>
 
@@ -93,7 +86,7 @@
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         @foreach($accommodation->photos as $photoPath)
                             {{-- Adjust asset path based on where you store photos (e.g., storage/app/public/accommodations) --}}
-                            <img src="{{ asset('storage/' . $photoPath) }}" alt="{{ $accommodation->title }} Photo" class="w-full h-32 object-cover rounded-lg shadow-md">
+                            <img src="{{ accommodation_image_url($photoPath) }}" alt="{{ $accommodation->title }} Photo" class="w-full h-32 object-cover rounded-lg shadow-md">
                         @endforeach
                     </div>
                 @else
@@ -102,4 +95,17 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Check for session messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('status'))
+                window.modalManager.success('{{ session('status') }}');
+            @endif
+            
+            @if (session('error'))
+                window.modalManager.error('{{ session('error') }}');
+            @endif
+        });
+    </script>
 @endsection

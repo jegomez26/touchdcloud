@@ -64,8 +64,31 @@ class CoordinatorMessageController extends Controller
                      ->whereNull('read_at')
                      ->update(['read_at' => now()]);
 
+        $participantName = trim(($conversation->participant->first_name ?? '') . ' ' . ($conversation->participant->last_name ?? ''));
+        
+        // Get matching participant info
+        $matchingParticipantName = '';
+        if ($conversation->matchingForParticipant) {
+            $matchingParticipantName = trim(($conversation->matchingForParticipant->first_name ?? '') . ' ' . ($conversation->matchingForParticipant->last_name ?? ''));
+        }
+        
         return response()->json([
-            'conversation' => $conversation->load('participant.user'), // Load participant for display
+            'conversation' => [
+                'id' => $conversation->id,
+                'type' => $conversation->type,
+                'participant_name' => $participantName,
+                'participant_code' => $conversation->participant->participant_code_name,
+                'participant_id' => $conversation->participant_id,
+                'matching_for_participant_name' => $matchingParticipantName,
+                'matching_for_participant_id' => $conversation->matching_for_participant_id,
+                'provider_code' => optional($conversation->provider)->provider_code_name,
+                'provider_id' => $conversation->provider_id,
+                'provider_code_name' => optional($conversation->provider)->provider_code_name,
+                'support_coordinator_code' => optional($conversation->supportCoordinator)->sup_coor_code_name,
+                'support_coordinator_id' => $conversation->support_coordinator_id,
+                'coordinator_code_name' => optional($conversation->supportCoordinator)->sup_coor_code_name,
+                'last_message_at' => optional($conversation->last_message_at)?->toIso8601String(),
+            ],
             'messages' => $messages->map(function($message) use ($user) {
                 // Map to simplify data for frontend and add a 'is_sender' flag
                 return [

@@ -227,6 +227,35 @@
     </div>
 
     <script>
+        // Message handling functions
+        function showMessage(type, message) {
+            if (type === 'success') {
+                window.modalManager.success(message);
+            } else if (type === 'error') {
+                window.modalManager.error(message);
+            }
+        }
+
+        function hideMessage(messageId) {
+            // This function is kept for compatibility but now uses the modal manager
+            if (messageId === 'success-message') {
+                window.modalManager.hide('success-modal');
+            } else if (messageId === 'error-message') {
+                window.modalManager.hide('error-modal');
+            }
+        }
+
+        // Check for session messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('status'))
+                window.modalManager.success('{{ session('status') }}');
+            @endif
+            
+            @if (session('error'))
+                window.modalManager.error('{{ session('error') }}');
+            @endif
+        });
+
         document.addEventListener('alpine:init', () => {
             Alpine.data('accommodationForm', () => ({
                 uploadedPhotos: [], // Stores { file: File, preview: URL }
@@ -323,17 +352,17 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showSuccessModal(data.message || 'Accommodation created successfully!');
+                    showMessage('success', data.message || 'Accommodation created successfully!');
                     // Redirect after a short delay
                     setTimeout(() => {
                         window.location.href = '/provider/accommodations';
                     }, 1500);
                 } else {
-                    showErrorModal(data.message || 'An error occurred while creating the accommodation.');
+                    showMessage('error', data.message || 'An error occurred while creating the accommodation.');
                 }
             })
             .catch(error => {
-                showErrorModal('An error occurred while creating the accommodation.');
+                showMessage('error', 'An error occurred while creating the accommodation.');
                 console.error('Error:', error);
             })
             .finally(() => {

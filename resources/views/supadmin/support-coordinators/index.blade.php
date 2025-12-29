@@ -22,6 +22,41 @@
         </div>
     @endif
 
+    <!-- Quick Info Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div class="bg-custom-white shadow-lg rounded-xl p-6 text-center border border-custom-light-grey-green">
+            <div class="w-16 h-16 bg-custom-light-cream rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-users-cog text-custom-dark-teal text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-custom-dark-teal">{{ $totalCoordinators }}</h3>
+            <p class="text-custom-dark-olive">Total Coordinators</p>
+        </div>
+        
+        <div class="bg-custom-white shadow-lg rounded-xl p-6 text-center border border-custom-light-grey-green">
+            <div class="w-16 h-16 bg-custom-light-cream rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check-circle text-custom-green text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-custom-green">{{ $verifiedCoordinators }}</h3>
+            <p class="text-custom-dark-olive">Verified</p>
+        </div>
+        
+        <div class="bg-custom-white shadow-lg rounded-xl p-6 text-center border border-custom-light-grey-green">
+            <div class="w-16 h-16 bg-custom-light-cream rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-hourglass-half text-custom-ochre text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-custom-ochre">{{ $pendingCount }}</h3>
+            <p class="text-custom-dark-olive">Pending Approval</p>
+        </div>
+        
+        <div class="bg-custom-white shadow-lg rounded-xl p-6 text-center border border-custom-light-grey-green">
+            <div class="w-16 h-16 bg-custom-light-cream rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-calendar-day text-custom-dark-teal text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-custom-dark-teal">{{ $newThisWeekCount }}</h3>
+            <p class="text-custom-dark-olive">New This Week</p>
+        </div>
+    </div>
+
     <div class="bg-custom-white shadow-lg rounded-xl p-6 mb-10 border border-custom-light-grey-green">
         <h2 class="text-2xl font-bold text-custom-dark-teal mb-6 pb-3 border-b border-custom-light-grey-green">
             <i class="fas fa-hourglass-half mr-2 text-custom-ochre"></i> Pending Approval ({{ $pendingCoordinators->count() }})
@@ -173,6 +208,7 @@
                             Status <span x-text="getSortIcon('status')"></span>
                         </th>
                         <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-custom-dark-teal uppercase tracking-wider">Notes</th>
+                        <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-custom-dark-teal uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-custom-light-grey-green">
@@ -193,11 +229,45 @@
                                 </span>
                             </td>
                             <td x-text="coordinator.notes || 'N/A'" class="px-6 py-4 whitespace-normal text-sm text-gray-700"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                                <div class="flex items-center justify-center space-x-2">
+                                    {{-- Activation/Deactivation buttons --}}
+                                    <template x-if="coordinator.is_active === true">
+                                        <form :action="`/superadmin/support-coordinators/${coordinator.id}/deactivate`" method="POST" class="inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="_method" value="PUT">
+                                            <button type="button" 
+                                                    class="bg-red-500 text-white px-3 py-1 rounded text-xs hover:bg-red-600 transition-colors"
+                                                    @click="showDelete(`Are you sure you want to deactivate ${coordinator.first_name} ${coordinator.last_name}? This will prevent them from logging in.`, () => this.closest('form').submit())"
+                                                    title="Deactivate Account">
+                                                Deactivate
+                                            </button>
+                                        </form>
+                                    </template>
+                                    <template x-if="coordinator.is_active === false">
+                                        <form :action="`/superadmin/support-coordinators/${coordinator.id}/activate`" method="POST" class="inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                            <input type="hidden" name="_method" value="PUT">
+                                            <button type="button" 
+                                                    class="bg-green-500 text-white px-3 py-1 rounded text-xs hover:bg-green-600 transition-colors"
+                                                    @click="showConfirm(`Are you sure you want to activate ${coordinator.first_name} ${coordinator.last_name}? They will be able to log in again.`, () => this.closest('form').submit())"
+                                                    title="Activate Account">
+                                                Activate
+                                            </button>
+                                        </form>
+                                    </template>
+                                    <template x-if="coordinator.is_active === null || coordinator.is_active === undefined">
+                                        <span class="bg-gray-400 text-white px-3 py-1 rounded text-xs" title="No user account associated">
+                                            No User
+                                        </span>
+                                    </template>
+                                </div>
+                            </td>
                         </tr>
                     </template>
                     <template x-if="filteredAndSortedCoordinators.length === 0">
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-gray-500">No matching support coordinators found.</td>
+                            <td colspan="6" class="px-6 py-4 text-center text-gray-500">No matching support coordinators found.</td>
                         </tr>
                     </template>
                 </tbody>
@@ -265,6 +335,7 @@ $initialAllCoordinatorsData = $allCoordinators->map(function($c) {
         'company_name' => $c->company_name,
         'status' => str_replace('_', ' ', $c->status),
         'notes' => $c->verification_notes,
+        'is_active' => $c->user ? $c->user->is_active : false,
     ];
 })->values()->toArray(); // Ensure it's a simple numerically indexed array
 
@@ -276,6 +347,7 @@ $allCoordinatorsDataForJsErrorHandling = $allCoordinators->map(function($c) {
         'company_name' => $c->company_name,
         'status' => str_replace('_', ' ', $c->status),
         'notes' => $c->verification_notes,
+        'is_active' => $c->user ? $c->user->is_active : false,
     ];
 })->keyBy('id')->toArray(); // Key by ID for easy lookup, then convert to array
 ?>

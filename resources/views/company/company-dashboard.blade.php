@@ -277,6 +277,9 @@
                                 <button data-action="profile" class="block px-4 py-2 text-sm text-[var(--color-text-dark)] hover:bg-gray-100 hover:text-[var(--color-main-accent)] w-full text-left transition-colors duration-150 rounded-md">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user inline-block mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
                                 </button>
+                                <button data-action="subscription" class="block px-4 py-2 text-sm text-[var(--color-text-dark)] hover:bg-gray-100 hover:text-[var(--color-main-accent)] w-full text-left transition-colors duration-150 rounded-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-credit-card inline-block mr-2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" x2="23" y1="10" y2="10"/></svg> Manage Subscription
+                                </button>
                                 <button data-action="settings" class="block px-4 py-2 text-sm text-[var(--color-text-dark)] hover:bg-gray-100 hover:text-[var(--color-main-accent)] w-full text-left transition-colors duration-150 rounded-md">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings inline-block mr-2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
                                 </button>
@@ -292,7 +295,25 @@
 
             <!-- Dashboard Section -->
             <div id="dashboard-section" class="dashboard-section p-6 bg-[var(--color-card-background)] rounded-xl shadow-lg mb-8">
-                <h2 class="text-3xl font-bold text-[var(--color-text-dark)] mb-2">Welcome to your Company Dashboard!</h2>
+                <h2 class="text-3xl font-bold text-[var(--color-text-dark)] mb-2">
+                    Hi, {{ Auth::user()->first_name }} {{ Auth::user()->last_name }}
+                </h2>
+                <div class="flex items-center mb-3">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        @if(Auth::user()->role === 'coordinator')
+                            Support Coordinator
+                        @elseif(Auth::user()->role === 'provider')
+                            NDIS Provider
+                        @elseif(Auth::user()->role === 'participant')
+                            Participant
+                        @else
+                            {{ ucfirst(Auth::user()->role) }}
+                        @endif
+                    </span>
+                </div>
                 <p class="text-[var(--color-text-light)]">Here's a quick overview of your company's operations.</p>
                 <div class="mt-6 p-4 bg-[var(--color-info-box-bg-transparent)] rounded-lg border border-[var(--color-border)] text-[var(--color-text-dark)]">
                     <p class="font-semibold">Company Updates:</p>
@@ -1217,6 +1238,9 @@
 
                         if (action === 'profile') {
                             showSection('profile');
+                        } else if (action === 'subscription') {
+                            // Open subscription management modal
+                            alert('Subscription management will be available soon!');
                         } else if (action === 'settings') {
                             showSection('settings');
                         } else if (action === 'logout') {

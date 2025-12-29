@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Touch D Cloud - Participant Dashboard</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -156,6 +157,9 @@
                 <button data-section="support-coordinator" class="sidebar-link flex items-center w-full px-4 py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
                 </button>
+                <button data-section="possible-matches" class="sidebar-link flex items-center w-full px-4 py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-users mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="m22 21-2-2m-7 2v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/></svg> Possible Matches
+                </button>
                 <button data-section="messages" class="sidebar-link flex items-center w-full px-4 py-2 rounded-md text-left text-base font-medium transition-colors duration-200 text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 active">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucude-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
                 </button>
@@ -195,6 +199,153 @@
                                 Message Sarah
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                <!-- Possible Matches Section -->
+                <div id="possible-matches-section" class="dashboard-section p-6 bg-white rounded-xl shadow-lg hidden">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Possible Matches</h2>
+                    <p class="text-gray-600 mb-6">Discover other participants who might be compatible roommates based on your preferences and needs.</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Match Card 1 -->
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-200 hover:shadow-lg transition-shadow duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                        PA
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">PA001</h3>
+                                        <p class="text-sm text-gray-600">Age: 25-30</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                                        85% Match
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mr-2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    Melbourne, VIC
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home mr-2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                                    Shared accommodation preferred
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock mr-2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                                    Similar daily routine
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button onclick="requestMatch('PA001')" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm font-medium">
+                                    Request Match
+                                </button>
+                                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Match Card 2 -->
+                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-xl border border-green-200 hover:shadow-lg transition-shadow duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                        PB
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">PA002</h3>
+                                        <p class="text-sm text-gray-600">Age: 28-32</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+                                        92% Match
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mr-2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    Melbourne, VIC
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home mr-2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                                    Independent living
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock mr-2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                                    Flexible schedule
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button onclick="requestMatch('PA002')" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 text-sm font-medium">
+                                    Request Match
+                                </button>
+                                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Match Card 3 -->
+                        <div class="bg-gradient-to-br from-purple-50 to-violet-50 p-6 rounded-xl border border-purple-200 hover:shadow-lg transition-shadow duration-200">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                                        PC
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-gray-800">PA003</h3>
+                                        <p class="text-sm text-gray-600">Age: 22-26</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                                        78% Match
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-2 mb-4">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin mr-2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    Melbourne, VIC
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-home mr-2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+                                    Group home preferred
+                                </div>
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock mr-2"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                                    Similar interests
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <button onclick="requestMatch('PA003')" class="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 text-sm font-medium">
+                                    Request Match
+                                </button>
+                                <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Load More Button -->
+                    <div class="text-center mt-8">
+                        <button class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-colors duration-200">
+                            Load More Matches
+                        </button>
                     </div>
                 </div>
 
@@ -342,6 +493,102 @@
         </main>
     </div>
 
+    {{-- Match Request Modal --}}
+    <div id="match-request-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Send Match Request</h3>
+                        <button id="close-match-request-modal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Send a match request to:</p>
+                        <p id="match-request-participant-name" class="font-medium text-gray-900"></p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="match-request-message" class="block text-sm font-medium text-gray-700 mb-2">
+                            Message (Optional)
+                        </label>
+                        <textarea 
+                            id="match-request-message" 
+                            rows="3" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                            placeholder="Add a personal message to your match request..."
+                        ></textarea>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button 
+                            id="cancel-match-request" 
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            id="send-match-request" 
+                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+                        >
+                            Send Request
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Success Modal --}}
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Success!</h3>
+                    <p id="success-message" class="text-sm text-gray-600 mb-4"></p>
+                    <button 
+                        id="close-success-modal" 
+                        class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200"
+                    >
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Error Modal --}}
+    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Error</h3>
+                    <p id="error-message" class="text-sm text-gray-600 mb-4"></p>
+                    <button 
+                        id="close-error-modal" 
+                        class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200"
+                    >
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebar = document.getElementById('sidebar');
@@ -389,6 +636,271 @@
                     console.error(`Section with ID ${sectionId}-section not found.`);
                 }
             }
+
+            // Match request functions
+            window.requestMatch = function(participantId) {
+                // Store the participant ID for later use
+                window.currentParticipantId = participantId;
+                
+                // Update the modal with participant info
+                const participantNameElement = document.getElementById('match-request-participant-name');
+                const messageElement = document.getElementById('match-request-message');
+                const modalElement = document.getElementById('match-request-modal');
+                
+                if (!participantNameElement) {
+                    console.error('match-request-participant-name element not found');
+                    return;
+                }
+                if (!messageElement) {
+                    console.error('match-request-message element not found');
+                    return;
+                }
+                if (!modalElement) {
+                    console.error('match-request-modal element not found');
+                    return;
+                }
+                
+                participantNameElement.textContent = 'Participant ' + participantId;
+                messageElement.value = '';
+                
+                // Show the modal
+                modalElement.classList.remove('hidden');
+            };
+
+            // Modal event listeners
+            document.getElementById('close-match-request-modal').addEventListener('click', function() {
+                document.getElementById('match-request-modal').classList.add('hidden');
+            });
+
+            document.getElementById('cancel-match-request').addEventListener('click', function() {
+                document.getElementById('match-request-modal').classList.add('hidden');
+            });
+
+            document.getElementById('send-match-request').addEventListener('click', function() {
+                const message = document.getElementById('match-request-message').value;
+                const participantId = window.currentParticipantId;
+                
+                // Disable the send button to prevent double-clicks
+                const sendBtn = document.getElementById('send-match-request');
+                sendBtn.disabled = true;
+                sendBtn.textContent = 'Sending...';
+                
+                // Make API call to send match request
+                fetch('/match-requests/send-for-participant', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        participant_id: participantId,
+                        message: message
+                    })
+                })
+                .then(response => {
+                    // Always try to parse JSON, even if response is not ok
+                    return parseJsonResponse(response).then(data => {
+                        // If response is not ok, throw error
+                        if (!response.ok) {
+                            throw new Error(data.error || 'Failed to send match request');
+                        }
+                        return data;
+                    });
+                })
+                .then(data => {
+                    // Hide the match request modal
+                    document.getElementById('match-request-modal').classList.add('hidden');
+                    
+                    // Check for success - handle both 'success' property and direct success responses
+                    if (data.success === true || (data.message && !data.error)) {
+                        showSuccessModal('Match request sent successfully!');
+                        updateButtonState(participantId, 'pending');
+                    } else {
+                        showErrorModal(data.error || data.message || 'Failed to send match request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('match-request-modal').classList.add('hidden');
+                    showErrorModal(error.message || 'Failed to send match request. Please try again.');
+                })
+                .finally(() => {
+                    // Re-enable the send button
+                    sendBtn.disabled = false;
+                    sendBtn.textContent = 'Send Request';
+                });
+            });
+
+            window.acceptMatchRequest = function(requestId) {
+                fetch(`/match-requests/${requestId}/accept`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(parseJsonResponse)
+                .then(data => {
+                    if (data.success) {
+                        showSuccessModal('Match request accepted! You can now start a conversation.');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorModal(data.error || 'Failed to accept match request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorModal('Failed to accept match request. Please try again.');
+                });
+            };
+
+            window.rejectMatchRequest = function(requestId) {
+                fetch(`/match-requests/${requestId}/reject`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(parseJsonResponse)
+                .then(data => {
+                    if (data.success) {
+                        showSuccessModal('Match request rejected');
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorModal(data.error || 'Failed to reject match request');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorModal('Failed to reject match request. Please try again.');
+                });
+            };
+
+            function updateButtonState(participantId, state) {
+                // Find the button by looking for the checkMatchRequestStatus onclick attribute
+                const button = document.querySelector(`button[onclick*="checkMatchRequestStatus(${participantId}"]`);
+                if (!button) {
+                    // Fallback: look for any button containing the participant ID
+                    const buttons = document.querySelectorAll('button');
+                    const targetButton = Array.from(buttons).find(btn => 
+                        btn.onclick && btn.onclick.toString().includes(participantId)
+                    );
+                    if (targetButton) {
+                        updateButtonContent(targetButton, state, participantId);
+                    }
+                    return;
+                }
+                updateButtonContent(button, state, participantId);
+            }
+            
+            function updateButtonContent(button, state, participantId) {
+                switch(state) {
+                    case 'pending':
+                        button.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Request Sent</span>
+                        `;
+                        button.disabled = true;
+                        button.classList.remove('bg-[#33595a]', 'hover:bg-[#2C494A]');
+                        button.classList.add('bg-yellow-600', 'cursor-not-allowed');
+                        button.onclick = null; // Remove onclick handler
+                        break;
+                    case 'accepted':
+                        button.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                            </svg>
+                            <span>Start Conversation</span>
+                        `;
+                        button.classList.remove('bg-[#33595a]', 'hover:bg-[#2C494A]');
+                        button.classList.add('bg-green-600', 'hover:bg-green-700');
+                        button.onclick = () => openSendModal(participantId);
+                        break;
+                    case 'rejected':
+                        button.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span>Request Rejected</span>
+                        `;
+                        button.disabled = true;
+                        button.classList.remove('bg-[#33595a]', 'hover:bg-[#2C494A]');
+                        button.classList.add('bg-red-600', 'cursor-not-allowed');
+                        button.onclick = null; // Remove onclick handler
+                        break;
+                }
+            }
+
+            function getUserIdFromParticipantId(participantId) {
+                // This is a placeholder - you'd need to implement proper mapping
+                // For demo purposes, return a dummy ID
+                return 1;
+            }
+
+            function startChat(participantId) {
+                // Redirect to chat or open chat modal
+                alert('Starting chat with ' + participantId);
+            }
+
+            function parseJsonResponse(response) {
+                const contentType = response.headers.get('content-type') || '';
+                if (contentType.includes('application/json')) {
+                    return response.json();
+                }
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error(text || 'Unexpected non-JSON response');
+                    }
+                });
+            }
+
+            // Modal helper functions
+            function showSuccessModal(message) {
+                document.getElementById('success-message').textContent = message;
+                document.getElementById('success-modal').classList.remove('hidden');
+            }
+
+            function showErrorModal(message) {
+                document.getElementById('error-message').textContent = message;
+                document.getElementById('error-modal').classList.remove('hidden');
+            }
+
+            // Success modal event listeners
+            document.getElementById('close-success-modal').addEventListener('click', function() {
+                document.getElementById('success-modal').classList.add('hidden');
+            });
+
+            // Error modal event listeners
+            document.getElementById('close-error-modal').addEventListener('click', function() {
+                document.getElementById('error-modal').classList.add('hidden');
+            });
+
+            // Close modals when clicking outside
+            document.getElementById('match-request-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('success-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('error-modal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
 
             // Function to update active sidebar link styling
             function updateActiveLink(activeSectionId) {
@@ -518,6 +1030,216 @@
                     loadChatMessages(contactId);
                 });
             });
+
+            // Function to send message to another participant
+            window.sendMessageToParticipant = function(participantCode) {
+                const message = prompt(`Send a message to ${participantCode}:`);
+                if (message && message.trim()) {
+                    // In a real implementation, you would:
+                    // 1. Find the participant ID by code
+                    // 2. Send AJAX request to the backend
+                    // 3. Handle the response
+                    
+                    // For now, just show a success message
+                    alert(`Message sent to ${participantCode}: "${message}"`);
+                    
+                    // Example of what the AJAX call would look like:
+                    /*
+                    fetch('/participant/messages/send-to-participant/' + participantId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            content: message
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert('Message sent successfully!');
+                        } else {
+                            alert('Error sending message');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error sending message');
+                    });
+                    */
+                }
+            };
+            
+            // Check match request status dynamically
+            window.checkMatchRequestStatus = function(participantId, buttonElement) {
+                // Show loading state
+                const originalText = buttonElement.innerHTML;
+                buttonElement.disabled = true;
+                buttonElement.innerHTML = `
+                    <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Checking...
+                `;
+                
+                // Use the new endpoint to check match request status between two participants
+                // For indiv users, sender_participant_id will be auto-detected from current user
+                fetch('/match-requests/check-status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        receiver_participant_id: participantId
+                    })
+                })
+                .then(parseJsonResponse)
+                .then(data => {
+                    if (data.success && data.exists) {
+                        if (data.status === 'pending') {
+                            // Show modal that request is already sent
+                            showRequestAlreadySentModal(participantId);
+                            updateButtonForMatchRequestStatus(buttonElement, 'pending', participantId);
+                        } else if (data.status === 'accepted') {
+                            // Show "See Conversation" button
+                            updateButtonForMatchRequestStatus(buttonElement, 'accepted', participantId, data.conversation_id);
+                        } else {
+                            updateButtonForMatchRequestStatus(buttonElement, data.status, participantId);
+                        }
+                    } else {
+                        // No existing request, proceed with sending new request
+                        requestMatch(participantId);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking match request status:', error);
+                    // On error, proceed with sending new request
+                    requestMatch(participantId);
+                })
+                .finally(() => {
+                    // Reset button if no action was taken
+                    if (buttonElement.disabled && buttonElement.innerHTML.includes('Checking...')) {
+                        buttonElement.disabled = false;
+                        buttonElement.innerHTML = originalText;
+                    }
+                });
+            };
+            
+            function updateButtonForMatchRequestStatus(buttonElement, status, participantId, conversationId = null) {
+                buttonElement.disabled = false;
+                
+                switch(status) {
+                    case 'pending':
+                        buttonElement.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Request Sent</span>
+                        `;
+                        buttonElement.className = buttonElement.className.replace('bg-[#33595a] hover:bg-[#2C494A]', 'bg-yellow-600 cursor-not-allowed');
+                        buttonElement.disabled = true;
+                        buttonElement.onclick = null;
+                        break;
+                    case 'accepted':
+                        if (conversationId) {
+                            // Show "See Conversation" button with link
+                            buttonElement.innerHTML = `
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                </svg>
+                                <span>See Conversation</span>
+                            `;
+                            buttonElement.className = buttonElement.className.replace('bg-[#33595a] hover:bg-[#2C494A]', 'bg-green-600 hover:bg-green-700');
+                            buttonElement.onclick = () => {
+                                window.location.href = `/participant/messages/${conversationId}`;
+                            };
+                        } else {
+                            // No conversation ID, show "Start Conversation"
+                            buttonElement.innerHTML = `
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                </svg>
+                                <span>Start Conversation</span>
+                            `;
+                            buttonElement.className = buttonElement.className.replace('bg-[#33595a] hover:bg-[#2C494A]', 'bg-green-600 hover:bg-green-700');
+                            buttonElement.onclick = () => {
+                                if (typeof openSendModal === 'function') {
+                                    openSendModal(participantId);
+                                }
+                            };
+                        }
+                        break;
+                    case 'rejected':
+                        buttonElement.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            <span>Request Rejected</span>
+                        `;
+                        buttonElement.className = buttonElement.className.replace('bg-[#33595a] hover:bg-[#2C494A]', 'bg-red-600 cursor-not-allowed');
+                        buttonElement.disabled = true;
+                        buttonElement.onclick = null;
+                        break;
+                }
+            }
+            
+            // Function to show "request already sent" modal
+            function showRequestAlreadySentModal(participantId) {
+                const modal = document.getElementById('request-already-sent-modal');
+                if (modal) {
+                    // Get participant code if available
+                    const matchElement = document.querySelector(`[data-participant-id="${participantId}"]`);
+                    const participantCode = matchElement ? matchElement.getAttribute('data-participant-code') : `Participant ${participantId}`;
+                    
+                    const nameElement = document.getElementById('already-sent-participant-name');
+                    if (nameElement) {
+                        nameElement.textContent = participantCode;
+                    }
+                    
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            }
+            
+            // Open send message modal for starting conversations
+            window.openSendModal = function(participantId) {
+                // For now, redirect to the possible matches view where the modal exists
+                // In a full implementation, you might want to create the modal in the dashboard
+                window.location.href = `/participant/possible-matches`;
+            };
+            
+            // Request Already Sent Modal event listeners
+            const closeAlreadySentModal = document.getElementById('close-already-sent-modal');
+            const closeAlreadySentModalBtn = document.getElementById('close-already-sent-modal-btn');
+            const alreadySentModal = document.getElementById('request-already-sent-modal');
+
+            if (closeAlreadySentModal) {
+                closeAlreadySentModal.addEventListener('click', function() {
+                    if (alreadySentModal) {
+                        alreadySentModal.classList.add('hidden');
+                        alreadySentModal.classList.remove('flex');
+                    }
+                });
+            }
+
+            if (closeAlreadySentModalBtn) {
+                closeAlreadySentModalBtn.addEventListener('click', function() {
+                    if (alreadySentModal) {
+                        alreadySentModal.classList.add('hidden');
+                        alreadySentModal.classList.remove('flex');
+                    }
+                });
+            }
+
+            if (alreadySentModal) {
+                alreadySentModal.addEventListener('click', function(e) {
+                    if (e.target === alreadySentModal) {
+                        alreadySentModal.classList.add('hidden');
+                        alreadySentModal.classList.remove('flex');
+                    }
+                });
+            }
         });
     </script>
 </body>

@@ -84,7 +84,7 @@
 
             {{-- Would you like to be contacted if a suitable match is found? --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Would you like to be contacted if a suitable match is found?</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Would the participant like to be contacted if a suitable match is found?</label>
                 <div class="mt-1 flex space-x-4">
                     <div class="flex items-center">
                         <input type="radio" name="contact_for_suitable_match" value="1" id="contact_match_yes"

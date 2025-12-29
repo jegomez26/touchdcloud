@@ -95,7 +95,7 @@ class Participant extends Model
         'daily_living_support_needs_other' => 'string', // Added this field
         'uses_assistive_technology_mobility_aids' => 'boolean',
         'assistive_technology_mobility_aids_list' => 'string', // Added this field
-        'medication_administration_help' => 'boolean',
+        'medication_administration_help' => 'string',
         'preferred_sil_locations' => 'array',
         'housemate_preferences' => 'array',
         'good_home_environment_looks_like' => 'array',
@@ -133,6 +133,22 @@ class Participant extends Model
     public function representativeUser()
     {
         return $this->belongsTo(User::class, 'representative_user_id');
+    }
+
+    /**
+     * Get the user who added this participant (for participants added by SCs, providers, etc.).
+     */
+    public function addedByUser()
+    {
+        return $this->belongsTo(User::class, 'added_by_user_id');
+    }
+
+    /**
+     * Get the support coordinator associated with this participant.
+     */
+    public function supportCoordinator()
+    {
+        return $this->belongsTo(SupportCoordinator::class, 'support_coordinator_id');
     }
 
     public function participantContact()

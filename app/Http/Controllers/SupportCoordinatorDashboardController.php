@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Participant;
+use App\Models\SupportTicket;
+use App\Models\SupportCategory;
+use App\Models\SupportTicketComment;
+use App\Models\MatchRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -62,16 +66,25 @@ class SupportCoordinatorDashboardController extends Controller
             ->limit(10)
             ->get();
 
-        // Chart Data: Participants Per Age Range (for current coordinator)
-        $participantsPerAgeRange = $coordinator->participantsAdded()
-            ->select(
-                DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 18 AND 25 THEN 1 ELSE 0 END) as age_18_25"),
-                DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 26 AND 35 THEN 1 ELSE 0 END) as age_26_35"),
-                DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 36 AND 50 THEN 1 ELSE 0 END) as age_36_50"),
-                DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) > 50 THEN 1 ELSE 0 END) as age_51_plus"),
-                DB::raw("SUM(CASE WHEN date_of_birth IS NULL THEN 1 ELSE 0 END) as age_unknown")
-            )
-            ->first();
+        // Chart Data: Participants Per Age Range (for current coordinator) - formatted for charts
+        $ageRangeData = $coordinator->participantsAdded()->select(
+            DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 18 AND 25 THEN 1 ELSE 0 END) as age_18_25"),
+            DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 26 AND 35 THEN 1 ELSE 0 END) as age_26_35"),
+            DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) BETWEEN 36 AND 50 THEN 1 ELSE 0 END) as age_36_50"),
+            DB::raw("SUM(CASE WHEN date_of_birth IS NOT NULL AND TIMESTAMPDIFF(YEAR, date_of_birth, CURDATE()) > 50 THEN 1 ELSE 0 END) as age_51_plus"),
+            DB::raw("SUM(CASE WHEN date_of_birth IS NULL THEN 1 ELSE 0 END) as age_unknown")
+        )->first();
+
+        // Format age range data for charts
+        $participantsPerAgeRange = collect([
+            ['age_range' => '18-25', 'total' => $ageRangeData->age_18_25 ?? 0],
+            ['age_range' => '26-35', 'total' => $ageRangeData->age_26_35 ?? 0],
+            ['age_range' => '36-50', 'total' => $ageRangeData->age_36_50 ?? 0],
+            ['age_range' => '51+', 'total' => $ageRangeData->age_51_plus ?? 0],
+            ['age_range' => 'Unknown', 'total' => $ageRangeData->age_unknown ?? 0]
+        ])->filter(function($item) {
+            return $item['total'] > 0;
+        });
 
         // Chart Data: Participants Per Gender (for current coordinator)
         $participantsPerGender = $coordinator->participantsAdded()
@@ -82,7 +95,106 @@ class SupportCoordinatorDashboardController extends Controller
             ->orderBy('total', 'desc')
             ->get();
 
-        return view('supcoor.dashboard', compact(
+        // Gender distribution data (replacing accommodation status)
+        $genderDistributionData = $coordinator->participantsAdded()
+            ->selectRaw('gender_identity, COUNT(*) as count')
+            ->whereNotNull('gender_identity')
+            ->where('gender_identity', '!=', '')
+            ->groupBy('gender_identity')
+            ->orderBy('gender_identity')
+            ->get()
+            ->map(function($item) {
+                return [
+                    'gender' => trim($item->gender_identity),
+                    'count' => $item->count
+                ];
+            })
+            ->filter(function($item) {
+                return $item['count'] > 0;
+            });
+
+        // Add coordinates for suburbs (mock data - in real app, you'd have a suburbs table with coordinates)
+        $participantsPerSuburb = $participantsPerSuburb->map(function($item) {
+            // Mock coordinates - in production, you'd fetch these from a suburbs/coordinates table
+            $mockCoordinates = [
+                'Sydney' => ['latitude' => -33.8688, 'longitude' => 151.2093],
+                'Melbourne' => ['latitude' => -37.8136, 'longitude' => 144.9631],
+                'Brisbane' => ['latitude' => -27.4698, 'longitude' => 153.0251],
+                'Perth' => ['latitude' => -31.9505, 'longitude' => 115.8605],
+                'Adelaide' => ['latitude' => -34.9285, 'longitude' => 138.6007],
+                'Hobart' => ['latitude' => -42.8821, 'longitude' => 147.3272],
+                'Darwin' => ['latitude' => -12.4634, 'longitude' => 130.8456],
+                'Canberra' => ['latitude' => -35.2809, 'longitude' => 149.1300]
+            ];
+            
+            $item->latitude = $mockCoordinates[$item->suburb]['latitude'] ?? null;
+            $item->longitude = $mockCoordinates[$item->suburb]['longitude'] ?? null;
+            
+            return $item;
+        });
+
+        // Recent Activities - Real data from database
+        $recentActivities = collect();
+        
+        // Get recent participants (last 7 days)
+        $recentParticipants = $coordinator->participantsAdded()->where('created_at', '>=', now()->subDays(7))->get();
+        foreach ($recentParticipants as $participant) {
+            if ($participant->created_at) {
+                $recentActivities->push([
+                    'description' => 'New participant added: ' . $participant->first_name . ' ' . $participant->last_name,
+                    'time' => $participant->created_at->diffForHumans(),
+                    'type' => 'participant',
+                    'created_at' => $participant->created_at
+                ]);
+            }
+        }
+        
+        // Get recent participant updates (last 7 days)
+        $recentParticipantUpdates = $coordinator->participantsAdded()->where('updated_at', '>=', now()->subDays(7))
+            ->where('updated_at', '>', DB::raw('created_at'))->get();
+        foreach ($recentParticipantUpdates as $participant) {
+            if ($participant->updated_at) {
+                $recentActivities->push([
+                    'description' => 'Participant profile updated: ' . $participant->first_name . ' ' . $participant->last_name,
+                    'time' => $participant->updated_at->diffForHumans(),
+                    'type' => 'participant_update',
+                    'created_at' => $participant->updated_at
+                ]);
+            }
+        }
+        
+        // Get recent messages (if you have a messages/conversations system)
+        // This would require checking if you have a messages table
+        // For now, we'll add a placeholder for future implementation
+        /*
+        $recentMessages = \App\Models\Message::where('support_coordinator_id', $coordinator->id)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->get();
+        foreach ($recentMessages as $message) {
+            $recentActivities->push([
+                'description' => 'New message received from participant',
+                'time' => $message->created_at->diffForHumans(),
+                'type' => 'message',
+                'created_at' => $message->created_at
+            ]);
+        }
+        */
+        
+        // Sort by creation time and take the 5 most recent
+        $recentActivities = $recentActivities->sortByDesc('created_at')->take(5);
+
+        // Accepted Match Request Statistics
+        $acceptedMatchRequests = MatchRequest::where('status', 'accepted')
+            ->where(function($query) use ($coordinator) {
+                $query->where('sender_user_id', $coordinator->id)
+                      ->orWhere('receiver_user_id', $coordinator->id);
+            })
+            ->count();
+
+        // System-wide Analytics (all participants in the system)
+        $systemWideAnalytics = $this->getSystemWideAnalytics();
+
+        return view('supcoor.dashboard-content', compact(
             'totalParticipants',
             'noCurrentSilSdaAccommodation',
             'participantsLookingForAccommodation',
@@ -90,8 +202,347 @@ class SupportCoordinatorDashboardController extends Controller
             'participantsPerSuburb',
             'participantsPerPrimaryDisability',
             'participantsPerAgeRange',
-            'participantsPerGender'
+            'participantsPerGender',
+            'genderDistributionData',
+            'recentActivities',
+            'acceptedMatchRequests',
+            'systemWideAnalytics'
         ));
+    }
+
+    /**
+     * Get system-wide analytics for all participants
+     */
+    private function getSystemWideAnalytics()
+    {
+        // Top 10 suburbs with most participants
+        $topSuburbs = Participant::selectRaw('suburb, COUNT(*) as count')
+            ->whereNotNull('suburb')
+            ->where('suburb', '!=', '')
+            ->groupBy('suburb')
+            ->orderBy('count', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function($item) {
+                // Add coordinates for mapping
+                $mockCoordinates = [
+                    'Sydney' => ['latitude' => -33.8688, 'longitude' => 151.2093],
+                    'Melbourne' => ['latitude' => -37.8136, 'longitude' => 144.9631],
+                    'Brisbane' => ['latitude' => -27.4698, 'longitude' => 153.0251],
+                    'Perth' => ['latitude' => -31.9505, 'longitude' => 115.8605],
+                    'Adelaide' => ['latitude' => -34.9285, 'longitude' => 138.6007],
+                    'Hobart' => ['latitude' => -42.8821, 'longitude' => 147.3272],
+                    'Darwin' => ['latitude' => -12.4634, 'longitude' => 130.8456],
+                    'Canberra' => ['latitude' => -35.2809, 'longitude' => 149.1300],
+                    'Gold Coast' => ['latitude' => -28.0167, 'longitude' => 153.4000],
+                    'Newcastle' => ['latitude' => -32.9283, 'longitude' => 151.7817],
+                    'Wollongong' => ['latitude' => -34.4278, 'longitude' => 150.8931],
+                    'Geelong' => ['latitude' => -38.1499, 'longitude' => 144.3617],
+                    'Townsville' => ['latitude' => -19.2590, 'longitude' => 146.8169],
+                    'Cairns' => ['latitude' => -16.9186, 'longitude' => 145.7781],
+                    'Toowoomba' => ['latitude' => -27.5598, 'longitude' => 151.9507],
+                    'Ballarat' => ['latitude' => -37.5622, 'longitude' => 143.8503],
+                    'Bendigo' => ['latitude' => -36.7570, 'longitude' => 144.2792],
+                    'Albury' => ['latitude' => -36.0737, 'longitude' => 146.9135],
+                    'Launceston' => ['latitude' => -41.4332, 'longitude' => 147.1441],
+                    'Mackay' => ['latitude' => -21.1535, 'longitude' => 149.1865]
+                ];
+                
+                $item->latitude = $mockCoordinates[$item->suburb]['latitude'] ?? null;
+                $item->longitude = $mockCoordinates[$item->suburb]['longitude'] ?? null;
+                
+                return $item;
+            });
+
+        // Top 10 states with most participants
+        $topStates = Participant::selectRaw('state, COUNT(*) as count')
+            ->whereNotNull('state')
+            ->where('state', '!=', '')
+            ->groupBy('state')
+            ->orderBy('count', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function($item) {
+                return [
+                    'state' => strtoupper(trim($item->state)),
+                    'count' => $item->count
+                ];
+            });
+
+        // Top 10 disabilities with most participants
+        $topDisabilities = Participant::selectRaw('primary_disability, COUNT(*) as count')
+            ->whereNotNull('primary_disability')
+            ->where('primary_disability', '!=', '')
+            ->groupBy('primary_disability')
+            ->orderBy('count', 'desc')
+            ->limit(10)
+            ->get();
+
+        // All participants grouped by suburb for mapping (with coordinates and counts)
+        $allParticipants = Participant::select('suburb', 'state', 'primary_disability', 'gender_identity')
+            ->get()
+            ->groupBy(function($participant) {
+                $suburb = trim($participant->suburb);
+                $state = trim($participant->state);
+                
+                // Create a location key for grouping
+                if (!empty($suburb)) {
+                    return $suburb . ', ' . $state;
+                } elseif (!empty($state)) {
+                    return 'State: ' . $state;
+                } else {
+                    return 'Unknown Location';
+                }
+            })
+            ->map(function($participants, $locationKey) {
+                $firstParticipant = $participants->first();
+                $suburb = trim($firstParticipant->suburb);
+                $state = trim($firstParticipant->state);
+                // Add coordinates for mapping
+                $mockCoordinates = [
+                    'Sydney' => ['latitude' => -33.8688, 'longitude' => 151.2093],
+                    'Melbourne' => ['latitude' => -37.8136, 'longitude' => 144.9631],
+                    'Brisbane' => ['latitude' => -27.4698, 'longitude' => 153.0251],
+                    'Perth' => ['latitude' => -31.9505, 'longitude' => 115.8605],
+                    'Adelaide' => ['latitude' => -34.9285, 'longitude' => 138.6007],
+                    'Hobart' => ['latitude' => -42.8821, 'longitude' => 147.3272],
+                    'Darwin' => ['latitude' => -12.4634, 'longitude' => 130.8456],
+                    'Canberra' => ['latitude' => -35.2809, 'longitude' => 149.1300],
+                    'Gold Coast' => ['latitude' => -28.0167, 'longitude' => 153.4000],
+                    'Newcastle' => ['latitude' => -32.9283, 'longitude' => 151.7817],
+                    'Wollongong' => ['latitude' => -34.4278, 'longitude' => 150.8931],
+                    'Geelong' => ['latitude' => -38.1499, 'longitude' => 144.3617],
+                    'Townsville' => ['latitude' => -19.2590, 'longitude' => 146.8169],
+                    'Cairns' => ['latitude' => -16.9186, 'longitude' => 145.7781],
+                    'Toowoomba' => ['latitude' => -27.5598, 'longitude' => 151.9507],
+                    'Ballarat' => ['latitude' => -37.5622, 'longitude' => 143.8503],
+                    'Bendigo' => ['latitude' => -36.7570, 'longitude' => 144.2792],
+                    'Albury' => ['latitude' => -36.0737, 'longitude' => 146.9135],
+                    'Launceston' => ['latitude' => -41.4332, 'longitude' => 147.1441],
+                    'Mackay' => ['latitude' => -21.1535, 'longitude' => 149.1865],
+                    // Additional suburbs
+                    'Parramatta' => ['latitude' => -33.8148, 'longitude' => 151.0019],
+                    'Blacktown' => ['latitude' => -33.7686, 'longitude' => 150.9108],
+                    'Liverpool' => ['latitude' => -33.9249, 'longitude' => 150.9259],
+                    'Penrith' => ['latitude' => -33.7500, 'longitude' => 150.7000],
+                    'Richmond' => ['latitude' => -33.6000, 'longitude' => 150.7500],
+                    'Campbelltown' => ['latitude' => -34.0667, 'longitude' => 150.8167],
+                    'Bankstown' => ['latitude' => -33.9167, 'longitude' => 151.0333],
+                    'Fairfield' => ['latitude' => -33.8667, 'longitude' => 150.9500],
+                    'Hurstville' => ['latitude' => -33.9667, 'longitude' => 151.1000],
+                    'Chatswood' => ['latitude' => -33.8000, 'longitude' => 151.1833],
+                    'Manly' => ['latitude' => -33.8000, 'longitude' => 151.2833],
+                    'Bondi' => ['latitude' => -33.8915, 'longitude' => 151.2767],
+                    'Surry Hills' => ['latitude' => -33.8889, 'longitude' => 151.2083],
+                    'Redfern' => ['latitude' => -33.8933, 'longitude' => 151.2042],
+                    'Glebe' => ['latitude' => -33.8750, 'longitude' => 151.1833],
+                    'Newtown' => ['latitude' => -33.8978, 'longitude' => 151.1806],
+                    'Marrickville' => ['latitude' => -33.9167, 'longitude' => 151.1500],
+                    'Leichhardt' => ['latitude' => -33.8833, 'longitude' => 151.1500],
+                    'Balmain' => ['latitude' => -33.8667, 'longitude' => 151.1833],
+                    'Rozelle' => ['latitude' => -33.8667, 'longitude' => 151.1667],
+                    'Annandale' => ['latitude' => -33.8833, 'longitude' => 151.1667],
+                    'Camperdown' => ['latitude' => -33.8833, 'longitude' => 151.1833],
+                    'Ultimo' => ['latitude' => -33.8833, 'longitude' => 151.2000],
+                    'Pyrmont' => ['latitude' => -33.8667, 'longitude' => 151.2000],
+                    'Darlinghurst' => ['latitude' => -33.8750, 'longitude' => 151.2167],
+                    'Kings Cross' => ['latitude' => -33.8750, 'longitude' => 151.2250],
+                    'Potts Point' => ['latitude' => -33.8667, 'longitude' => 151.2250],
+                    'Woolloomooloo' => ['latitude' => -33.8667, 'longitude' => 151.2167],
+                    'Elizabeth Bay' => ['latitude' => -33.8667, 'longitude' => 151.2333],
+                    'Rushcutters Bay' => ['latitude' => -33.8667, 'longitude' => 151.2417],
+                    'Double Bay' => ['latitude' => -33.8750, 'longitude' => 151.2417],
+                    'Edgecliff' => ['latitude' => -33.8750, 'longitude' => 151.2500],
+                    'Kingsford' => ['latitude' => -33.9167, 'longitude' => 151.2333],
+                    'Randwick' => ['latitude' => -33.9167, 'longitude' => 151.2500],
+                    'Coogee' => ['latitude' => -33.9167, 'longitude' => 151.2667],
+                    'Clovelly' => ['latitude' => -33.9167, 'longitude' => 151.2833],
+                    'Bronte' => ['latitude' => -33.9167, 'longitude' => 151.3000],
+                    'Waverley' => ['latitude' => -33.9000, 'longitude' => 151.2667],
+                    'Bondi Junction' => ['latitude' => -33.8917, 'longitude' => 151.2667],
+                    'Paddington' => ['latitude' => -33.8833, 'longitude' => 151.2333],
+                    'Woollahra' => ['latitude' => -33.8833, 'longitude' => 151.2500],
+                    'Bellevue Hill' => ['latitude' => -33.8750, 'longitude' => 151.2667],
+                    'Vaucluse' => ['latitude' => -33.8667, 'longitude' => 151.2667],
+                    'Rose Bay' => ['latitude' => -33.8667, 'longitude' => 151.2750],
+                    'Dover Heights' => ['latitude' => -33.8667, 'longitude' => 151.2833],
+                    'Watsons Bay' => ['latitude' => -33.8500, 'longitude' => 151.2833],
+                    'South Head' => ['latitude' => -33.8333, 'longitude' => 151.2833],
+                    'North Sydney' => ['latitude' => -33.8333, 'longitude' => 151.2083],
+                    'Crows Nest' => ['latitude' => -33.8333, 'longitude' => 151.2000],
+                    'Neutral Bay' => ['latitude' => -33.8333, 'longitude' => 151.2167],
+                    'Mosman' => ['latitude' => -33.8333, 'longitude' => 151.2333],
+                    'Cremorne' => ['latitude' => -33.8333, 'longitude' => 151.2250],
+                    'Cremorne Point' => ['latitude' => -33.8333, 'longitude' => 151.2417],
+                    'Kirribilli' => ['latitude' => -33.8500, 'longitude' => 151.2167],
+                    'Milsons Point' => ['latitude' => -33.8500, 'longitude' => 151.2083],
+                    'McMahons Point' => ['latitude' => -33.8500, 'longitude' => 151.2000],
+                    'Lavender Bay' => ['latitude' => -33.8500, 'longitude' => 151.1917],
+                    'Waverton' => ['latitude' => -33.8500, 'longitude' => 151.1833],
+                    'Wollstonecraft' => ['latitude' => -33.8500, 'longitude' => 151.1750],
+                    'St Leonards' => ['latitude' => -33.8500, 'longitude' => 151.1667],
+                    'Artarmon' => ['latitude' => -33.8500, 'longitude' => 151.1583],
+                    'Willoughby' => ['latitude' => -33.8500, 'longitude' => 151.1500],
+                    'Castlecrag' => ['latitude' => -33.8500, 'longitude' => 151.1417],
+                    'Castle Cove' => ['latitude' => -33.8500, 'longitude' => 151.1333],
+                    'Middle Cove' => ['latitude' => -33.8500, 'longitude' => 151.1250],
+                    'Roseville' => ['latitude' => -33.8500, 'longitude' => 151.1083],
+                    'Lindfield' => ['latitude' => -33.8500, 'longitude' => 151.1000],
+                    'Killara' => ['latitude' => -33.8500, 'longitude' => 151.0917],
+                    'Gordon' => ['latitude' => -33.8500, 'longitude' => 151.0833],
+                    'Pymble' => ['latitude' => -33.8500, 'longitude' => 151.0750],
+                    'Turramurra' => ['latitude' => -33.8500, 'longitude' => 151.0667],
+                    'Wahroonga' => ['latitude' => -33.8500, 'longitude' => 151.0583],
+                    'Warrawee' => ['latitude' => -33.8500, 'longitude' => 151.0500],
+                    'Warrimoo' => ['latitude' => -33.8500, 'longitude' => 151.0417],
+                    'Winmalee' => ['latitude' => -33.8500, 'longitude' => 151.0333],
+                    'Springwood' => ['latitude' => -33.8500, 'longitude' => 151.0250],
+                    'Faulconbridge' => ['latitude' => -33.8500, 'longitude' => 151.0167],
+                    'Glenbrook' => ['latitude' => -33.8500, 'longitude' => 151.0083],
+                    'Blaxland' => ['latitude' => -33.8500, 'longitude' => 151.0000],
+                    'Emu Plains' => ['latitude' => -33.8500, 'longitude' => 150.9917],
+                    'St Marys' => ['latitude' => -33.7667, 'longitude' => 150.7750],
+                    'Mount Druitt' => ['latitude' => -33.7667, 'longitude' => 150.8167],
+                    'Rooty Hill' => ['latitude' => -33.7667, 'longitude' => 150.8333],
+                    'Doonside' => ['latitude' => -33.7667, 'longitude' => 150.8500],
+                    'Seven Hills' => ['latitude' => -33.7667, 'longitude' => 150.9333],
+                    'Toongabbie' => ['latitude' => -33.7667, 'longitude' => 150.9500],
+                    'Wentworthville' => ['latitude' => -33.7667, 'longitude' => 150.9667],
+                    'Westmead' => ['latitude' => -33.7667, 'longitude' => 150.9833],
+                    'Harris Park' => ['latitude' => -33.8167, 'longitude' => 151.0167],
+                    'Rosehill' => ['latitude' => -33.8167, 'longitude' => 151.0333],
+                    'Clyde' => ['latitude' => -33.8167, 'longitude' => 151.0500],
+                    'Granville' => ['latitude' => -33.8167, 'longitude' => 151.0667],
+                    'Merrylands' => ['latitude' => -33.8167, 'longitude' => 151.0833],
+                    'Guildford' => ['latitude' => -33.8167, 'longitude' => 151.1000],
+                    'Yennora' => ['latitude' => -33.8167, 'longitude' => 151.1167],
+                    'Smithfield' => ['latitude' => -33.8167, 'longitude' => 151.1333],
+                    'Cabramatta' => ['latitude' => -33.9000, 'longitude' => 150.9333],
+                    'Canley Vale' => ['latitude' => -33.9000, 'longitude' => 150.9500],
+                    'Canley Heights' => ['latitude' => -33.9000, 'longitude' => 150.9667],
+                    'Lansvale' => ['latitude' => -33.9000, 'longitude' => 150.9833],
+                    'Carramar' => ['latitude' => -33.9000, 'longitude' => 151.0000],
+                    'Villawood' => ['latitude' => -33.9000, 'longitude' => 151.0167],
+                    'Bossley Park' => ['latitude' => -33.9000, 'longitude' => 151.0333],
+                    'Abbotsbury' => ['latitude' => -33.9000, 'longitude' => 151.0500],
+                    'Edensor Park' => ['latitude' => -33.9000, 'longitude' => 151.0667],
+                    'Bonnyrigg' => ['latitude' => -33.9000, 'longitude' => 151.0833],
+                    'Greenfield Park' => ['latitude' => -33.9000, 'longitude' => 151.1000],
+                    'Prairiewood' => ['latitude' => -33.9000, 'longitude' => 151.1167],
+                    'Wetherill Park' => ['latitude' => -33.9000, 'longitude' => 151.1333],
+                    'Horsley Park' => ['latitude' => -33.9000, 'longitude' => 151.1500],
+                    'Cecil Park' => ['latitude' => -33.9000, 'longitude' => 151.1667],
+                    'Kemps Creek' => ['latitude' => -33.9000, 'longitude' => 151.1833],
+                    'Badgerys Creek' => ['latitude' => -33.9000, 'longitude' => 151.2000],
+                    'Luddenham' => ['latitude' => -33.9000, 'longitude' => 151.2167],
+                    'Wallacia' => ['latitude' => -33.9000, 'longitude' => 151.2333],
+                    'Silverdale' => ['latitude' => -33.9000, 'longitude' => 151.2500],
+                    'Warwick Farm' => ['latitude' => -33.9000, 'longitude' => 151.2667],
+                    'Casula' => ['latitude' => -33.9500, 'longitude' => 150.9167],
+                    'Hammondville' => ['latitude' => -33.9500, 'longitude' => 150.9333],
+                    'Voyager Point' => ['latitude' => -33.9500, 'longitude' => 150.9500],
+                    'Sandy Point' => ['latitude' => -33.9500, 'longitude' => 150.9667],
+                    'Holsworthy' => ['latitude' => -33.9500, 'longitude' => 150.9833],
+                    'Wattle Grove' => ['latitude' => -33.9500, 'longitude' => 151.0000],
+                    'Moorebank' => ['latitude' => -33.9500, 'longitude' => 151.0333],
+                    'Chipping Norton' => ['latitude' => -33.9500, 'longitude' => 151.0500],
+                    'Milperra' => ['latitude' => -33.9500, 'longitude' => 151.0667],
+                    'Revesby' => ['latitude' => -33.9500, 'longitude' => 151.0833],
+                    'Padstow' => ['latitude' => -33.9500, 'longitude' => 151.1000],
+                    'Riverwood' => ['latitude' => -33.9500, 'longitude' => 151.1167],
+                    'Narwee' => ['latitude' => -33.9500, 'longitude' => 151.1333],
+                    'Beverly Hills' => ['latitude' => -33.9500, 'longitude' => 151.1500],
+                    'Kingsgrove' => ['latitude' => -33.9500, 'longitude' => 151.1667],
+                    'Bexley' => ['latitude' => -33.9500, 'longitude' => 151.1833],
+                    'Bexley North' => ['latitude' => -33.9500, 'longitude' => 151.2000],
+                    'Bardwell Park' => ['latitude' => -33.9500, 'longitude' => 151.2167],
+                    'Turrella' => ['latitude' => -33.9500, 'longitude' => 151.2333],
+                    'Wolli Creek' => ['latitude' => -33.9500, 'longitude' => 151.2500],
+                    'Arncliffe' => ['latitude' => -33.9500, 'longitude' => 151.2667],
+                    'Banksia' => ['latitude' => -33.9500, 'longitude' => 151.2833],
+                    'Rockdale' => ['latitude' => -33.9500, 'longitude' => 151.3000],
+                    'Kogarah' => ['latitude' => -33.9500, 'longitude' => 151.3167],
+                    'Carlton' => ['latitude' => -33.9500, 'longitude' => 151.3333],
+                    'Allawah' => ['latitude' => -33.9500, 'longitude' => 151.3500],
+                    'Penshurst' => ['latitude' => -33.9667, 'longitude' => 151.1167],
+                    'Mortdale' => ['latitude' => -33.9667, 'longitude' => 151.1333],
+                    'Oatley' => ['latitude' => -33.9667, 'longitude' => 151.1500],
+                    'Kangaroo Point' => ['latitude' => -33.9667, 'longitude' => 151.1667],
+                    'Como' => ['latitude' => -33.9667, 'longitude' => 151.1833],
+                    'Jannali' => ['latitude' => -33.9667, 'longitude' => 151.2000],
+                    'Sutherland' => ['latitude' => -33.9667, 'longitude' => 151.2167],
+                    'Kirrawee' => ['latitude' => -33.9667, 'longitude' => 151.2333],
+                    'Gymea' => ['latitude' => -33.9667, 'longitude' => 151.2500],
+                    'Miranda' => ['latitude' => -33.9667, 'longitude' => 151.2667],
+                    'Caringbah' => ['latitude' => -33.9667, 'longitude' => 151.2833],
+                    'Cronulla' => ['latitude' => -33.9667, 'longitude' => 151.3000],
+                    'Kurnell' => ['latitude' => -33.9667, 'longitude' => 151.3167],
+                    'Taren Point' => ['latitude' => -33.9667, 'longitude' => 151.3333],
+                    'Sylvania' => ['latitude' => -33.9667, 'longitude' => 151.3500],
+                    'Sylvania Waters' => ['latitude' => -33.9667, 'longitude' => 151.3667],
+                    'Blakehurst' => ['latitude' => -33.9667, 'longitude' => 151.3833],
+                    'Kyle Bay' => ['latitude' => -33.9667, 'longitude' => 151.4000],
+                    'Connells Point' => ['latitude' => -33.9667, 'longitude' => 151.4167],
+                    'South Hurstville' => ['latitude' => -33.9667, 'longitude' => 151.4333],
+                    'Peakhurst' => ['latitude' => -33.9667, 'longitude' => 151.4500],
+                    'Peakhurst Heights' => ['latitude' => -33.9667, 'longitude' => 151.4667],
+                    'Lugarno' => ['latitude' => -33.9667, 'longitude' => 151.4833]
+                ];
+                
+                // Get coordinates for the suburb, or use state-based fallback
+                if (!empty($suburb) && isset($mockCoordinates[$suburb])) {
+                    $latitude = $mockCoordinates[$suburb]['latitude'];
+                    $longitude = $mockCoordinates[$suburb]['longitude'];
+                } elseif (!empty($state)) {
+                    // Fallback to state capital coordinates
+                    $stateCapitals = [
+                        'NSW' => ['latitude' => -33.8688, 'longitude' => 151.2093], // Sydney
+                        'VIC' => ['latitude' => -37.8136, 'longitude' => 144.9631], // Melbourne
+                        'QLD' => ['latitude' => -27.4698, 'longitude' => 153.0251], // Brisbane
+                        'WA' => ['latitude' => -31.9505, 'longitude' => 115.8605], // Perth
+                        'SA' => ['latitude' => -34.9285, 'longitude' => 138.6007], // Adelaide
+                        'TAS' => ['latitude' => -42.8821, 'longitude' => 147.3272], // Hobart
+                        'NT' => ['latitude' => -12.4634, 'longitude' => 130.8456], // Darwin
+                        'ACT' => ['latitude' => -35.2809, 'longitude' => 149.1300]  // Canberra
+                    ];
+                    
+                    if (isset($stateCapitals[$state])) {
+                        $latitude = $stateCapitals[$state]['latitude'];
+                        $longitude = $stateCapitals[$state]['longitude'];
+                    } else {
+                        // Final fallback to Australia center
+                        $latitude = -25.2744;
+                        $longitude = 133.7751;
+                    }
+                } else {
+                    // No suburb or state - use Australia center
+                    $latitude = -25.2744;
+                    $longitude = 133.7751;
+                }
+                
+                // Calculate demographics for this location
+                $disabilities = $participants->pluck('primary_disability')->filter()->values();
+                $genders = $participants->pluck('gender_identity')->filter()->values();
+                
+                return (object) [
+                    'location' => $locationKey,
+                    'suburb' => $suburb,
+                    'state' => $state,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                    'participant_count' => $participants->count(),
+                    'disabilities' => $disabilities,
+                    'genders' => $genders
+                ];
+            })
+            ->values();
+
+        return [
+            'topSuburbs' => $topSuburbs,
+            'topStates' => $topStates,
+            'topDisabilities' => $topDisabilities,
+            'allParticipants' => $allParticipants
+        ];
     }
 
     /**
@@ -370,7 +821,7 @@ class SupportCoordinatorDashboardController extends Controller
             'secondary_disability' => ['nullable', 'string', 'max:255'],
             'estimated_support_hours_sil_level' => ['nullable', 'string', 'max:255'],
             'night_support_type' => ['nullable', Rule::in(['Active overnight', 'Sleepover', 'None'])],
-            'uses_assistive_technology_mobility_aids' => ['boolean'],
+            'uses_assistive_technology_mobility_aids' => ['in:0,1'],
             'assistive_technology_mobility_aids_list' => ['nullable', 'string', 'max:1000'],
 
             'medical_conditions_relevant' => ['nullable', 'string', 'max:1000'],
@@ -568,7 +1019,7 @@ class SupportCoordinatorDashboardController extends Controller
             'secondary_disability' => ['nullable', 'string', 'max:255'],
             'estimated_support_hours_sil_level' => ['nullable', 'string', 'max:255'],
             'night_support_type' => ['nullable', Rule::in(['Active overnight', 'Sleepover', 'None'])],
-            'uses_assistive_technology_mobility_aids' => ['boolean'],
+            'uses_assistive_technology_mobility_aids' => ['in:0,1'],
             'assistive_technology_mobility_aids_list' => ['nullable', 'string', 'max:1000'],
 
             'medical_conditions_relevant' => ['nullable', 'string', 'max:1000'],
@@ -675,5 +1126,166 @@ class SupportCoordinatorDashboardController extends Controller
         $participant->delete();
 
         return redirect()->route('sc.participants.list')->with('success', 'Participant deleted successfully!');
+    }
+
+    /**
+     * Support Center - View user's tickets
+     */
+    public function supportCenter(Request $request)
+    {
+        $user = Auth::user();
+        
+        $query = SupportTicket::with(['category', 'assignedAdmin'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc');
+        
+        // Filter by status
+        if ($request->has('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        
+        // Filter by priority
+        if ($request->has('priority') && $request->priority !== 'all') {
+            $query->where('priority', $request->priority);
+        }
+        
+        // Search
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_number', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+        
+        $tickets = $query->paginate(10);
+        
+        // Statistics
+        $totalTickets = SupportTicket::where('user_id', $user->id)->count();
+        $openTickets = SupportTicket::where('user_id', $user->id)->where('status', 'open')->count();
+        $inProgressTickets = SupportTicket::where('user_id', $user->id)->where('status', 'in_progress')->count();
+        $resolvedTickets = SupportTicket::where('user_id', $user->id)->where('status', 'resolved')->count();
+        
+        // Get categories for new ticket form
+        $categories = SupportCategory::active()->ordered()->get();
+        
+        return view('supcoor.support-center.index', compact(
+            'tickets', 
+            'totalTickets', 
+            'openTickets', 
+            'inProgressTickets', 
+            'resolvedTickets',
+            'categories'
+        ));
+    }
+
+    /**
+     * Create a new support ticket
+     */
+    public function createTicket(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:2000',
+            'type' => 'required|in:bug_report,feature_request,technical_issue,account_issue,billing_question,general_inquiry,complaint',
+            'priority' => 'required|in:low,medium,high,urgent',
+            'category_id' => 'nullable|exists:support_categories,id',
+        ]);
+        
+        $ticket = SupportTicket::create([
+            'ticket_number' => SupportTicket::generateTicketNumber(),
+            'title' => $request->title,
+            'description' => $request->description,
+            'type' => $request->type,
+            'priority' => $request->priority,
+            'status' => 'open',
+            'user_id' => Auth::id(),
+            'category_id' => $request->category_id,
+        ]);
+        
+        return redirect()->route('sc.support-center.index')
+            ->with('success', "Ticket {$ticket->ticket_number} created successfully!");
+    }
+
+    /**
+     * View individual ticket
+     */
+    public function viewTicket(SupportTicket $ticket)
+    {
+        // Ensure user can only view their own tickets
+        if ($ticket->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to ticket.');
+        }
+        
+        $ticket->load(['category', 'assignedAdmin', 'comments.user']);
+        $categories = SupportCategory::active()->ordered()->get();
+        
+        return view('supcoor.support-center.view', compact('ticket', 'categories'));
+    }
+
+    /**
+     * Add comment to ticket
+     */
+    public function addComment(Request $request, SupportTicket $ticket)
+    {
+        // Ensure user can only comment on their own tickets
+        if ($ticket->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized access to ticket.');
+        }
+        
+        $request->validate([
+            'comment' => 'required|string|max:1000',
+        ]);
+        
+        SupportTicketComment::create([
+            'support_ticket_id' => $ticket->id,
+            'user_id' => Auth::id(),
+            'comment' => $request->comment,
+            'is_internal' => false,
+            'is_admin_reply' => false,
+        ]);
+        
+        return redirect()->route('sc.support-center.view', $ticket)
+            ->with('success', 'Comment added successfully!');
+    }
+
+    /**
+     * Show match requests page for support coordinators
+     */
+    public function matchRequests()
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+        
+        // Get pending requests (received)
+        $pendingRequests = MatchRequest::pendingForUser($user->id)
+            ->with(['senderUser', 'senderParticipant'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get sent requests
+        $sentRequests = MatchRequest::sentByUser($user->id)
+            ->with(['receiverUser', 'receiverParticipant'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Get accepted requests (both sent and received)
+        $acceptedRequests = MatchRequest::where(function($query) use ($user) {
+                $query->where('sender_user_id', $user->id)
+                      ->orWhere('receiver_user_id', $user->id);
+            })
+            ->where('status', 'accepted')
+            ->with(['senderUser', 'receiverUser', 'senderParticipant', 'receiverParticipant'])
+            ->orderBy('responded_at', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $pendingCount = $pendingRequests->count();
+
+        return view('supcoor.match-requests', compact('pendingRequests', 'sentRequests', 'acceptedRequests', 'pendingCount'));
     }
 }

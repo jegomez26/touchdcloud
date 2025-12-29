@@ -34,7 +34,7 @@
             <div class="space-y-6">
 
                 <div>
-                    <label for="sil_funding_status" class="block text-sm font-medium text-gray-700">Do you currently have SIL funding in your NDIS plan?</label>
+                    <label for="sil_funding_status" class="block text-sm font-medium text-gray-700">Does the participant currently have SIL funding in their NDIS plan?</label>
                     <select name="sil_funding_status" id="sil_funding_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <option value="" disabled selected>Select an option</option>
                         @php
@@ -55,7 +55,7 @@
                 </div>
 
                 <div>
-                    <label for="ndis_plan_manager" class="block text-sm font-medium text-gray-700">Who manages your NDIS plan?</label>
+                    <label for="ndis_plan_manager" class="block text-sm font-medium text-gray-700">Who manages the participant's NDIS plan?</label>
                     <select name="ndis_plan_manager" id="ndis_plan_manager" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <option value="" disabled selected>Select an option</option>
                         @php
@@ -68,7 +68,7 @@
                 </div>
 
                 <div>
-                    <label for="has_support_coordinator" class="block text-sm font-medium text-gray-700">Do you have a support coordinator?</label>
+                    <label for="has_support_coordinator" class="block text-sm font-medium text-gray-700">Does the participant have a support coordinator?</label>
                     <select name="has_support_coordinator" id="has_support_coordinator" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <option value="">Select an option</option>
                         {{-- Values are 1 (Yes), 0 (No), and empty string (null for 'Not sure') --}}
@@ -145,7 +145,7 @@
                 </div>
 
                 <div>
-                    <label for="night_support_type" class="block text-sm font-medium text-gray-700">Do you require night support?</label>
+                    <label for="night_support_type" class="block text-sm font-medium text-gray-700">Does the participant require night support?</label>
                     <select name="night_support_type" id="night_support_type" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                         <option value="" disabled selected>Select an option</option>
                         @php
@@ -158,12 +158,12 @@
                 </div>
 
                 <div>
-                    <label for="uses_assistive_technology_mobility_aids" class="block text-sm font-medium text-gray-700">Do you use assistive technology or mobility aids?</label>
+                    <label for="uses_assistive_technology_mobility_aids" class="block text-sm font-medium text-gray-700">Does the participant use assistive technology or mobility aids?</label>
                     <select name="uses_assistive_technology_mobility_aids" id="uses_assistive_technology_mobility_aids" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="" disabled selected>Select an option</option>
+                        <option value="" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') === '' ? 'selected' : '' }}>Select an option</option>
                         {{-- Values are 1 (Yes), 0 (No) --}}
-                        <option value="1" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') == 1 ? 'selected' : '' }}>Yes</option>
-                        <option value="0" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') == 0 ? 'selected' : '' }}>No</option>
+                        <option value="1" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') == '1' ? 'selected' : '' }}>Yes</option>
+                        <option value="0" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') == '0' ? 'selected' : '' }}>No</option>
                     </select>
                 </div>
 

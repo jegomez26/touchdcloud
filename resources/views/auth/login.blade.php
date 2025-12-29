@@ -88,7 +88,8 @@
                                 autocomplete="current-password"
                                 class="block w-full px-3 py-2 rounded-md shadow-sm
                                         text-sm sm:text-base bg-custom-white text-custom-dark-teal placeholder-custom-light-grey-brown pr-10
-                                        border {{ $errors->has('password') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}"
+                                        {{ $errors->has('password') ? 'border-custom-ochre' : 'border-custom-light-grey-green' }}
+                                        focus:border-custom-ochre focus:ring-custom-ochre transition ease-in-out duration-150"
                             />
                             <button type="button"
                                     @click="passwordFieldType = (passwordFieldType === 'password' ? 'text' : 'password')"

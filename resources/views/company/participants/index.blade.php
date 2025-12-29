@@ -8,15 +8,61 @@
     <div class="bg-white shadow-lg rounded-xl p-4 sm:p-6 lg:p-8"> {{-- Responsive padding: smaller on mobile, larger on desktop --}}
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 md:mb-8 gap-4 md:gap-6">
             <h3 class="text-2xl sm:text-3xl font-extrabold text-[#33595a] text-center md:text-left w-full md:w-auto">Managed Participants</h3>
-            <a href="{{ route('provider.participants.create') }}" class="w-full md:w-auto inline-flex justify-center items-center px-4 py-2 sm:px-6 sm:py-3 bg-[#cc8e45] border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-wider hover:bg-opacity-90 focus:bg-opacity-90 active:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#cc8e45] focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
-                <svg class="w-4 h-4 mr-2 -ml-1 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                Add New Participant
-            </a>
+            @if($canAddParticipant)
+                <a href="{{ route('provider.participants.create') }}" class="w-full md:w-auto inline-flex justify-center items-center px-4 py-2 sm:px-6 sm:py-3 bg-[#cc8e45] border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-wider hover:bg-opacity-90 focus:bg-opacity-90 active:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-[#cc8e45] focus:ring-offset-2 transition ease-in-out duration-150 shadow-md">
+                    <svg class="w-4 h-4 mr-2 -ml-1 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Add New Participant
+                </a>
+            @else
+                <button disabled class="w-full md:w-auto inline-flex justify-center items-center px-4 py-2 sm:px-6 sm:py-3 bg-gray-400 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-wider cursor-not-allowed shadow-md">
+                    <svg class="w-4 h-4 mr-2 -ml-1 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    Participant Limit Reached ({{ $currentParticipantCount }}/{{ $participantLimit ?? 'Unlimited' }})
+                </button>
+            @endif
         </div>
 
         @if (session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
                 <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                <span class="block sm:inline">{{ session('error') }}</span>
+            </div>
+        @endif
+
+        @if(isset($deletionEligibility) && !$deletionEligibility['can_delete'])
+            <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="block sm:inline">
+                        <strong>Deletion Restriction:</strong> {{ $deletionEligibility['message'] }}
+                        @if(isset($deletionEligibility['days_remaining']) && $deletionEligibility['days_remaining'] !== null && $deletionEligibility['days_remaining'] > 0)
+                            ({{ $deletionEligibility['days_remaining'] }} day{{ $deletionEligibility['days_remaining'] > 1 ? 's' : '' }} remaining)
+                        @endif
+                    </span>
+                </div>
+            </div>
+        @endif
+
+        @if (!$canAddParticipant)
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="block sm:inline">
+                        <strong>Participant Limit Reached:</strong> You have reached your subscription limit of {{ $participantLimit ?? 'unlimited' }} participants. 
+                        @if($participantLimit)
+                            You currently have {{ $currentParticipantCount }} participants. 
+                        @endif
+                        Please upgrade your subscription to add more participants.
+                    </span>
+                </div>
             </div>
         @endif
 
@@ -95,22 +141,12 @@
                         </select>
                     </div>
 
-                    {{-- Suburb Filter (Dependent on State) --}}
+                    {{-- Suburb Filter (Free Text) --}}
                     <div>
                         <label for="suburb" class="block text-sm font-medium text-gray-700 mb-1">Suburb</label>
-                        <select id="suburb" name="suburb"
-                                x-model="currentSuburb"
-                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 p-2.5 text-base"
-                                :disabled="!selectedState">
-                            <option value="">All Suburbs</option>
-                            {{-- Options will be loaded dynamically by Alpine.js/JavaScript --}}
-                            {{-- Pre-populate if state and suburb already selected on page load --}}
-                            @if(request('state') && !empty($suburbsForFilter))
-                                @foreach($suburbsForFilter as $suburb)
-                                    <option value="{{ $suburb }}" {{ request('suburb') == $suburb ? 'selected' : '' }}>{{ $suburb }}</option>
-                                @endforeach
-                            @endif
-                        </select>
+                        <input type="text" id="suburb" name="suburb" value="{{ request('suburb') }}"
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#cc8e45] focus:ring-[#cc8e45] bg-white text-gray-800 p-2.5 text-base"
+                               placeholder="Enter suburb name">
                     </div>
 
                     <div class="col-span-full flex flex-col sm:flex-row justify-end gap-3 pt-2 sm:pt-0"> {{-- Buttons stack on mobile, side-by-side on sm+ --}}
@@ -209,32 +245,43 @@
                             <a href="{{ route('provider.participants.edit', $participant) }}" class="flex-grow sm:flex-none inline-flex justify-center items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-[#cc8e45] text-white text-xs font-semibold rounded-md hover:bg-opacity-90 transition-colors duration-200 shadow-sm">
                                 Edit
                             </a>
-                            <button
-                                type="button"
-                                class="flex-grow sm:flex-none inline-flex justify-center items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white text-xs font-semibold rounded-md hover:bg-red-700 transition-colors duration-200 shadow-sm"
-                                x-data="{}"
-                                x-on:click.prevent="
-                                    Swal.fire({
-                                        title: 'Are you sure?',
-                                        text: 'You will not be able to revert this!',
-                                        icon: 'warning',
-                                        showCancelButton: true,
-                                        confirmButtonColor: '#cc8e45',
-                                        cancelButtonColor: '#33595a',
-                                        confirmButtonText: 'Yes, delete it!'
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            document.getElementById('delete-participant-{{ $participant->id }}').submit();
-                                        }
-                                    })
-                                "
-                            >
-                                Delete
-                            </button>
-                            <form id="delete-participant-{{ $participant->id }}" action="{{ route('provider.participants.destroy', $participant) }}" method="POST" class="hidden">
-                                @csrf
-                                @method('DELETE')
-                            </form>
+                            @if($deletionEligibility['can_delete'] ?? false)
+                                <button
+                                    type="button"
+                                    class="flex-grow sm:flex-none inline-flex justify-center items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-red-600 text-white text-xs font-semibold rounded-md hover:bg-red-700 transition-colors duration-200 shadow-sm"
+                                    x-data="{}"
+                                    x-on:click.prevent="
+                                        Swal.fire({
+                                            title: 'Are you sure?',
+                                            text: 'You will not be able to revert this!',
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#cc8e45',
+                                            cancelButtonColor: '#33595a',
+                                            confirmButtonText: 'Yes, delete it!'
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                document.getElementById('delete-participant-{{ $participant->id }}').submit();
+                                            }
+                                        })
+                                    "
+                                >
+                                    Delete
+                                </button>
+                                <form id="delete-participant-{{ $participant->id }}" action="{{ route('provider.participants.destroy', $participant) }}" method="POST" class="hidden">
+                                    @csrf
+                                    @method('DELETE')
+                                </form>
+                            @else
+                                <button
+                                    type="button"
+                                    class="flex-grow sm:flex-none inline-flex justify-center items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-gray-400 text-white text-xs font-semibold rounded-md cursor-not-allowed transition-colors duration-200 shadow-sm"
+                                    title="{{ $deletionEligibility['message'] ?? 'Deletion is restricted. You can only delete participants once per month based on your subscription date.' }}"
+                                    disabled
+                                >
+                                    Delete
+                                </button>
+                            @endif
                         </div>
                     </div>
                 @endforeach

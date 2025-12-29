@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\SupportCoordinator;
+use App\Models\Participant;
+use App\Models\Provider;
+use App\Models\Conversation;
+use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log; // Added for Log::error, etc.
@@ -52,7 +57,20 @@ class SuperAdminDashboardController extends Controller
                                 ->orderBy('created_at', 'desc')
                                 ->get(); // Fetch all coordinators for the bottom table
 
-        return view('supadmin.support-coordinators.index', compact('pendingCoordinators', 'allCoordinators'));
+        // Calculate statistics
+        $totalCoordinators = SupportCoordinator::count();
+        $verifiedCoordinators = SupportCoordinator::where('status', 'verified')->count();
+        $pendingCount = $pendingCoordinators->count();
+        $newThisWeekCount = SupportCoordinator::where('created_at', '>=', now()->subWeek())->count();
+
+        return view('supadmin.support-coordinators.index', compact(
+            'pendingCoordinators', 
+            'allCoordinators',
+            'totalCoordinators',
+            'verifiedCoordinators', 
+            'pendingCount',
+            'newThisWeekCount'
+        ));
     }
 
     public function approveSupportCoordinator(SupportCoordinator $coordinator)
@@ -155,8 +173,6 @@ class SuperAdminDashboardController extends Controller
         $participantCount = User::where('role', 'participant')->count();
         $coordinatorCount = User::where('role', 'coordinator')->count();
         $providerCount = User::where('role', 'provider')->count();
-        // Assuming ndis_business role exists for users as well, if not, adjust
-        $ndisBusinessCount = User::where('role', 'ndis_business')->count();
         $superAdminCount = User::where('role', 'admin')->count();
         $inactiveUserCount = User::where('is_active', false)->count();
 
@@ -171,32 +187,93 @@ class SuperAdminDashboardController extends Controller
             $mappedRoles[ucwords(str_replace('_', ' ', $role))] = $count;
         }
 
+        // Monthly Registrations per User Type (last 6 months)
+        $monthlyRegistrationsByType = $this->getMonthlyRegistrationsByType();
 
-        // Data for Monthly Registrations Line Chart (last 6 months example)
-        $monthlyRegistrations = [];
-        $today = Carbon::now();
+        // Matches based on conversations
+        $matchesData = $this->getMatchesData();
 
-        for ($i = 5; $i >= 0; $i--) {
-            $month = $today->copy()->subMonths($i);
-            $monthName = $month->format('M');
-            $year = $month->format('Y');
+        // Top Analytics
+        $topSuburbs = $this->getTopSuburbs();
+        $topStates = $this->getTopStates();
+        $topDisabilities = $this->getTopDisabilities();
 
-            $count = User::whereYear('created_at', $year)
-                          ->whereMonth('created_at', $month->month)
-                          ->count();
+        // Sitewide Map Data
+        $sitewideMapData = $this->getSitewideMapData();
 
-            $monthlyRegistrations[$monthName . ' ' . $year] = $count;
-        }
+        // System Performance Metrics
+        $performanceMetrics = $this->getPerformanceMetrics();
 
-        return view('supadmin.dashboard-content', compact( // Corrected view path to superadmin.dashboard-content
+        // User Activity Analytics
+        $userActivityData = $this->getUserActivityData();
+
+        // Accepted Match Request Statistics
+        $totalAcceptedMatchRequests = \App\Models\MatchRequest::where('status', 'accepted')->count();
+        
+        // Accepted match requests by provider/company
+        // Get all provider users and count their accepted match requests
+        $providerUsers = \App\Models\User::where('role', 'provider')->get();
+        $acceptedMatchRequestsByProvider = $providerUsers->map(function($user) {
+            $count = \App\Models\MatchRequest::where('status', 'accepted')
+                ->where(function($query) use ($user) {
+                    $query->where('sender_user_id', $user->id)
+                          ->orWhere('receiver_user_id', $user->id);
+                })
+                ->count();
+            return [
+                'user_id' => $user->id,
+                'name' => $user->first_name . ' ' . $user->last_name,
+                'email' => $user->email,
+                'count' => $count
+            ];
+        })
+        ->filter(function($item) {
+            return $item['count'] > 0; // Only show providers with accepted match requests
+        })
+        ->sortByDesc('count')
+        ->values();
+
+        // Accepted match requests by support coordinator
+        // Get all coordinator users and count their accepted match requests
+        $coordinatorUsers = \App\Models\User::where('role', 'coordinator')->get();
+        $acceptedMatchRequestsBySupcoor = $coordinatorUsers->map(function($user) {
+            $count = \App\Models\MatchRequest::where('status', 'accepted')
+                ->where(function($query) use ($user) {
+                    $query->where('sender_user_id', $user->id)
+                          ->orWhere('receiver_user_id', $user->id);
+                })
+                ->count();
+            return [
+                'user_id' => $user->id,
+                'name' => $user->first_name . ' ' . $user->last_name,
+                'email' => $user->email,
+                'count' => $count
+            ];
+        })
+        ->filter(function($item) {
+            return $item['count'] > 0; // Only show coordinators with accepted match requests
+        })
+        ->sortByDesc('count')
+        ->values();
+
+        return view('supadmin.dashboard-content', compact(
             'participantCount',
             'coordinatorCount',
             'providerCount',
-            'ndisBusinessCount',
             'superAdminCount',
             'inactiveUserCount',
             'mappedRoles',
-            'monthlyRegistrations'
+            'monthlyRegistrationsByType',
+            'matchesData',
+            'topSuburbs',
+            'topStates',
+            'topDisabilities',
+            'sitewideMapData',
+            'performanceMetrics',
+            'userActivityData',
+            'totalAcceptedMatchRequests',
+            'acceptedMatchRequestsByProvider',
+            'acceptedMatchRequestsBySupcoor'
         ));
     }
 
@@ -205,17 +282,65 @@ class SuperAdminDashboardController extends Controller
     //--------------------------------------------------------------------------
 
     /**
-     * Display a list of all users for activation/deactivation.
+     * Display a list of all participants.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\View\View
      */
-    public function manageUsers(Request $request)
+    public function manageParticipants(Request $request)
     {
         $this->authorizeSuperAdminAccess();
 
-        $users = User::orderBy('created_at', 'desc')->paginate(20);
-        return view('supadmin.dashboard.users.index', compact('users'));
+        $participants = Participant::with(['user', 'representativeUser', 'addedByUser'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        // Calculate statistics
+        $totalParticipants = Participant::count();
+        $selfRegisteredCount = Participant::whereNotNull('user_id')->count();
+        $newThisWeekCount = Participant::where('created_at', '>=', now()->subDays(7))->count();
+        $uniqueSuburbsCount = Participant::whereNotNull('suburb')->distinct('suburb')->count();
+
+        return view('supadmin.participants.index', compact(
+            'participants', 
+            'totalParticipants', 
+            'selfRegisteredCount', 
+            'newThisWeekCount', 
+            'uniqueSuburbsCount'
+        ));
+    }
+
+    /**
+     * Display a list of all providers with their subscriptions.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function manageProviders(Request $request)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        $providers = Provider::with(['user', 'subscriptions'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        // Calculate statistics
+        $totalProviders = Provider::count();
+        $activeSubscriptionsCount = Provider::whereHas('subscriptions', function($query) {
+            $query->where('stripe_status', 'active')->orWhere('paypal_status', 'active');
+        })->count();
+        $expiredSubscriptionsCount = Provider::whereHas('subscriptions', function($query) {
+            $query->where('stripe_status', 'expired')->orWhere('paypal_status', 'expired');
+        })->count();
+        $newThisWeekCount = Provider::where('created_at', '>=', now()->subDays(7))->count();
+
+        return view('supadmin.providers.index', compact(
+            'providers', 
+            'totalProviders', 
+            'activeSubscriptionsCount', 
+            'expiredSubscriptionsCount', 
+            'newThisWeekCount'
+        ));
     }
 
     /**
@@ -339,7 +464,7 @@ class SuperAdminDashboardController extends Controller
         fclose($handle); // Close the handle from the previous logic, if it's still open or used.
         // The SplFileObject approach doesn't require manual fopen/fclose for this logic.
 
-        return view('superadmin.dashboard.logs.index', compact('logContent'));
+        return view('supadmin.logs.index', compact('logContent'));
     }
 
     public function downloadLogs()
@@ -375,7 +500,7 @@ class SuperAdminDashboardController extends Controller
             ];
         })->sortByDesc('last_modified');
 
-        return view('superadmin.dashboard.backup.index', compact('backups'));
+        return view('supadmin.backup.index', compact('backups'));
     }
 
     public function createBackup()
@@ -415,5 +540,658 @@ class SuperAdminDashboardController extends Controller
         }
 
         return redirect()->back()->with('error', 'Backup file not found.');
+    }
+
+    /**
+     * Format bytes to human readable format
+     */
+    private function formatBytes($bytes, $precision = 2)
+    {
+        $units = array('B', 'KB', 'MB', 'GB', 'TB');
+
+        for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
+            $bytes /= 1024;
+        }
+
+        return round($bytes, $precision) . ' ' . $units[$i];
+    }
+
+    /**
+     * Get log level from log line
+     */
+    private function getLogLevel($line)
+    {
+        if (strpos($line, 'ERROR') !== false) return 'ERROR';
+        if (strpos($line, 'WARNING') !== false) return 'WARNING';
+        if (strpos($line, 'INFO') !== false) return 'INFO';
+        if (strpos($line, 'DEBUG') !== false) return 'DEBUG';
+        return 'INFO';
+    }
+
+    /**
+     * Get CSS class for log level
+     */
+    private function getLogClass($line)
+    {
+        $level = $this->getLogLevel($line);
+        return $level;
+    }
+
+    /**
+     * Get monthly registrations by user type
+     */
+    private function getMonthlyRegistrationsByType()
+    {
+        $data = [];
+        $today = Carbon::now();
+
+        for ($i = 5; $i >= 0; $i--) {
+            $month = $today->copy()->subMonths($i);
+            $monthName = $month->format('M Y');
+
+            $data[$monthName] = [
+                'participants' => User::where('role', 'participant')
+                    ->whereYear('created_at', $month->year)
+                    ->whereMonth('created_at', $month->month)
+                    ->count(),
+                'coordinators' => User::where('role', 'coordinator')
+                    ->whereYear('created_at', $month->year)
+                    ->whereMonth('created_at', $month->month)
+                    ->count(),
+                'providers' => User::where('role', 'provider')
+                    ->whereYear('created_at', $month->year)
+                    ->whereMonth('created_at', $month->month)
+                    ->count(),
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Get matches data based on conversations
+     */
+    private function getMatchesData()
+    {
+        $totalConversations = Conversation::count();
+        
+        // Since there's no status column, we'll determine "active" conversations 
+        // as those with recent messages (within last 30 days)
+        $activeConversations = Conversation::whereHas('messages', function($query) {
+            $query->where('created_at', '>=', now()->subDays(30));
+        })->count();
+        
+        // For completed matches, we'll consider conversations with multiple messages
+        // as potential matches (this is a heuristic since we don't have explicit status)
+        $completedMatches = Conversation::withCount('messages')
+            ->having('messages_count', '>', 1)
+            ->count();
+        
+        $totalMessages = Message::count();
+
+        return [
+            'total_conversations' => $totalConversations,
+            'active_conversations' => $activeConversations,
+            'completed_matches' => $completedMatches,
+            'total_messages' => $totalMessages,
+            'match_rate' => $totalConversations > 0 ? round(($completedMatches / $totalConversations) * 100, 2) : 0
+        ];
+    }
+
+    /**
+     * Get top 10 suburbs with participant counts
+     */
+    private function getTopSuburbs()
+    {
+        return Participant::selectRaw('suburb, COUNT(*) as count')
+            ->whereNotNull('suburb')
+            ->where('suburb', '!=', '')
+            ->groupBy('suburb')
+            ->orderBy('count', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    /**
+     * Get top 10 states with participant counts
+     */
+    private function getTopStates()
+    {
+        return Participant::selectRaw('state, COUNT(*) as count')
+            ->whereNotNull('state')
+            ->where('state', '!=', '')
+            ->groupBy('state')
+            ->orderBy('count', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    /**
+     * Get top 10 disabilities with participant counts
+     */
+    private function getTopDisabilities()
+    {
+        return Participant::selectRaw('primary_disability, COUNT(*) as count')
+            ->whereNotNull('primary_disability')
+            ->where('primary_disability', '!=', '')
+            ->groupBy('primary_disability')
+            ->orderBy('count', 'desc')
+            ->limit(10)
+            ->get();
+    }
+
+    /**
+     * Get sitewide map data with coordinates
+     */
+    private function getSitewideMapData()
+    {
+        return Participant::select('suburb', 'state', 'primary_disability', 'gender_identity')
+            ->get()
+            ->groupBy(function($participant) {
+                $suburb = trim($participant->suburb);
+                $state = trim($participant->state);
+                
+                if (!empty($suburb)) {
+                    return $suburb . ', ' . $state;
+                } elseif (!empty($state)) {
+                    return 'State: ' . $state;
+                } else {
+                    return 'Unknown Location';
+                }
+            })
+            ->map(function($participants, $locationKey) {
+                $firstParticipant = $participants->first();
+                $suburb = trim($firstParticipant->suburb);
+                $state = trim($firstParticipant->state);
+                
+                // Mock coordinates for Australian suburbs
+                $mockCoordinates = [
+                    'Sydney' => ['latitude' => -33.8688, 'longitude' => 151.2093],
+                    'Melbourne' => ['latitude' => -37.8136, 'longitude' => 144.9631],
+                    'Brisbane' => ['latitude' => -27.4698, 'longitude' => 153.0251],
+                    'Perth' => ['latitude' => -31.9505, 'longitude' => 115.8605],
+                    'Adelaide' => ['latitude' => -34.9285, 'longitude' => 138.6007],
+                    'Hobart' => ['latitude' => -42.8821, 'longitude' => 147.3272],
+                    'Darwin' => ['latitude' => -12.4634, 'longitude' => 130.8456],
+                    'Canberra' => ['latitude' => -35.2809, 'longitude' => 149.1300],
+                    'Gold Coast' => ['latitude' => -28.0167, 'longitude' => 153.4000],
+                    'Newcastle' => ['latitude' => -32.9283, 'longitude' => 151.7817],
+                    'Wollongong' => ['latitude' => -34.4278, 'longitude' => 150.8931],
+                    'Geelong' => ['latitude' => -38.1499, 'longitude' => 144.3617],
+                    'Townsville' => ['latitude' => -19.2590, 'longitude' => 146.8169],
+                    'Cairns' => ['latitude' => -16.9186, 'longitude' => 145.7781],
+                    'Toowoomba' => ['latitude' => -27.5598, 'longitude' => 151.9507],
+                    'Ballarat' => ['latitude' => -37.5622, 'longitude' => 143.8503],
+                    'Bendigo' => ['latitude' => -36.7570, 'longitude' => 144.2792],
+                    'Albury' => ['latitude' => -36.0737, 'longitude' => 146.9135],
+                    'Launceston' => ['latitude' => -41.4332, 'longitude' => 147.1441],
+                    'Mackay' => ['latitude' => -21.1535, 'longitude' => 149.1865],
+                    'Isaacs' => ['latitude' => -35.3500, 'longitude' => 149.1500],
+                ];
+                
+                // Get coordinates for the suburb, or use state-based fallback
+                if (!empty($suburb) && isset($mockCoordinates[$suburb])) {
+                    $latitude = $mockCoordinates[$suburb]['latitude'];
+                    $longitude = $mockCoordinates[$suburb]['longitude'];
+                } elseif (!empty($state)) {
+                    $stateCapitals = [
+                        'NSW' => ['latitude' => -33.8688, 'longitude' => 151.2093],
+                        'VIC' => ['latitude' => -37.8136, 'longitude' => 144.9631],
+                        'QLD' => ['latitude' => -27.4698, 'longitude' => 153.0251],
+                        'WA' => ['latitude' => -31.9505, 'longitude' => 115.8605],
+                        'SA' => ['latitude' => -34.9285, 'longitude' => 138.6007],
+                        'TAS' => ['latitude' => -42.8821, 'longitude' => 147.3272],
+                        'NT' => ['latitude' => -12.4634, 'longitude' => 130.8456],
+                        'ACT' => ['latitude' => -35.2809, 'longitude' => 149.1300]
+                    ];
+                    
+                    if (isset($stateCapitals[$state])) {
+                        $latitude = $stateCapitals[$state]['latitude'];
+                        $longitude = $stateCapitals[$state]['longitude'];
+                    } else {
+                        $latitude = -25.2744;
+                        $longitude = 133.7751;
+                    }
+                } else {
+                    $latitude = -25.2744;
+                    $longitude = 133.7751;
+                }
+                
+                return (object) [
+                    'location' => $locationKey,
+                    'suburb' => $suburb,
+                    'state' => $state,
+                    'latitude' => $latitude,
+                    'longitude' => $longitude,
+                    'participant_count' => $participants->count(),
+                    'disabilities' => $participants->pluck('primary_disability')->filter()->values(),
+                    'genders' => $participants->pluck('gender_identity')->filter()->values()
+                ];
+            })
+            ->values();
+    }
+
+    /**
+     * Get system performance metrics
+     */
+    private function getPerformanceMetrics()
+    {
+        $totalUsers = User::count();
+        $activeUsers = User::where('is_active', true)->count();
+        $totalParticipants = Participant::count();
+        $totalProviders = Provider::count();
+        $totalConversations = Conversation::count();
+        $totalMessages = Message::count();
+
+        return [
+            'total_users' => $totalUsers,
+            'active_users' => $activeUsers,
+            'user_activity_rate' => $totalUsers > 0 ? round(($activeUsers / $totalUsers) * 100, 2) : 0,
+            'total_participants' => $totalParticipants,
+            'total_providers' => $totalProviders,
+            'total_conversations' => $totalConversations,
+            'total_messages' => $totalMessages,
+            'avg_messages_per_conversation' => $totalConversations > 0 ? round($totalMessages / $totalConversations, 2) : 0
+        ];
+    }
+
+    /**
+     * Get user activity data
+     */
+    private function getUserActivityData()
+    {
+        $today = Carbon::now();
+        $lastWeek = $today->copy()->subWeek();
+        $lastMonth = $today->copy()->subMonth();
+
+        return [
+            // Since there's no last_login_at column, we'll use different metrics
+            'recent_registrations_today' => User::where('created_at', '>=', $today->startOfDay())->count(),
+            'recent_registrations_this_week' => User::where('created_at', '>=', $lastWeek)->count(),
+            'recent_registrations_this_month' => User::where('created_at', '>=', $lastMonth)->count(),
+            'active_users' => User::where('is_active', true)->count(),
+            'inactive_users' => User::where('is_active', false)->count(),
+            'profile_completion_rate' => User::count() > 0 ? round((User::where('profile_completed', true)->count() / User::count()) * 100, 2) : 0
+        ];
+    }
+
+    //--------------------------------------------------------------------------
+    // Participant Activation/Deactivation 🚦
+    //--------------------------------------------------------------------------
+
+    /**
+     * Activate a participant's account.
+     *
+     * @param  \App\Models\Participant  $participant
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function activateParticipant(Participant $participant)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Prevent superadmin from deactivating themselves
+        if ($participant->user && $participant->user->id === auth()->id() && $participant->user->role === 'admin') {
+            return redirect()->back()->with('error', 'You cannot deactivate your own admin account.');
+        }
+
+        if ($participant->user) {
+            $participant->user->is_active = true;
+            $participant->user->save();
+        }
+
+        return redirect()->route('superadmin.participants.index')->with('success', 'Participant ' . ($participant->user ? $participant->user->email : 'ID: ' . $participant->id) . ' has been activated.');
+    }
+
+    /**
+     * Deactivate a participant's account.
+     *
+     * @param  \App\Models\Participant  $participant
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deactivateParticipant(Participant $participant)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Prevent superadmin from deactivating themselves
+        if ($participant->user && $participant->user->id === auth()->id() && $participant->user->role === 'admin') {
+            return redirect()->back()->with('error', 'You cannot deactivate your own admin account.');
+        }
+
+        if ($participant->user) {
+            $participant->user->is_active = false;
+            $participant->user->save();
+        }
+
+        return redirect()->route('superadmin.participants.index')->with('success', 'Participant ' . ($participant->user ? $participant->user->email : 'ID: ' . $participant->id) . ' has been deactivated.');
+    }
+
+    //--------------------------------------------------------------------------
+    // Provider Activation/Deactivation 🚦
+    //--------------------------------------------------------------------------
+
+    /**
+     * Activate a provider's account.
+     *
+     * @param  \App\Models\Provider  $provider
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function activateProvider(Provider $provider)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Prevent superadmin from deactivating themselves
+        if ($provider->user && $provider->user->id === auth()->id() && $provider->user->role === 'admin') {
+            return redirect()->back()->with('error', 'You cannot deactivate your own admin account.');
+        }
+
+        if ($provider->user) {
+            $provider->user->is_active = true;
+            $provider->user->save();
+        }
+
+        return redirect()->route('superadmin.providers.index')->with('success', 'Provider ' . ($provider->user ? $provider->user->email : 'ID: ' . $provider->id) . ' has been activated.');
+    }
+
+    /**
+     * Deactivate a provider's account.
+     *
+     * @param  \App\Models\Provider  $provider
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deactivateProvider(Provider $provider)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Prevent superadmin from deactivating themselves
+        if ($provider->user && $provider->user->id === auth()->id() && $provider->user->role === 'admin') {
+            return redirect()->back()->with('error', 'You cannot deactivate your own admin account.');
+        }
+
+        if ($provider->user) {
+            $provider->user->is_active = false;
+            $provider->user->save();
+        }
+
+        return redirect()->route('superadmin.providers.index')->with('success', 'Provider ' . ($provider->user ? $provider->user->email : 'ID: ' . $provider->id) . ' has been deactivated.');
+    }
+
+    //--------------------------------------------------------------------------
+    // Support Coordinator Activation/Deactivation 🚦
+    //--------------------------------------------------------------------------
+
+    /**
+     * Activate a support coordinator's account.
+     *
+     * @param  \App\Models\SupportCoordinator  $coordinator
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function activateSupportCoordinator(SupportCoordinator $coordinator)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Prevent superadmin from deactivating themselves
+        if ($coordinator->user && $coordinator->user->id === auth()->id() && $coordinator->user->role === 'admin') {
+            return redirect()->back()->with('error', 'You cannot deactivate your own admin account.');
+        }
+
+        if ($coordinator->user) {
+            $coordinator->user->is_active = true;
+            $coordinator->user->save();
+        }
+
+        return redirect()->route('superadmin.support-coordinators.index')->with('success', 'Support Coordinator ' . ($coordinator->user ? $coordinator->user->email : 'ID: ' . $coordinator->id) . ' has been activated.');
+    }
+
+    /**
+     * Deactivate a support coordinator's account.
+     *
+     * @param  \App\Models\SupportCoordinator  $coordinator
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deactivateSupportCoordinator(SupportCoordinator $coordinator)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Prevent superadmin from deactivating themselves
+        if ($coordinator->user && $coordinator->user->id === auth()->id() && $coordinator->user->role === 'admin') {
+            return redirect()->back()->with('error', 'You cannot deactivate your own admin account.');
+        }
+
+        if ($coordinator->user) {
+            $coordinator->user->is_active = false;
+            $coordinator->user->save();
+        }
+
+        return redirect()->route('superadmin.support-coordinators.index')->with('success', 'Support Coordinator ' . ($coordinator->user ? $coordinator->user->email : 'ID: ' . $coordinator->id) . ' has been deactivated.');
+    }
+
+    /**
+     * Show modal demo page
+     */
+    public function modalDemo()
+    {
+        $this->authorizeSuperAdminAccess();
+        
+        return view('supadmin.modal-demo');
+    }
+
+    public function testPrivilege()
+    {
+        $this->authorizeSuperAdminAccess();
+        
+        return view('supadmin.test-privilege');
+    }
+
+    /**
+     * Support Center - Main page
+     */
+    public function supportCenter(Request $request)
+    {
+        $this->authorizeSuperAdminAccess();
+        
+        $query = \App\Models\SupportTicket::with(['user', 'assignedAdmin'])
+            ->orderBy('created_at', 'desc');
+        
+        // Filter by status
+        if ($request->has('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        
+        // Filter by priority
+        if ($request->has('priority') && $request->priority !== 'all') {
+            $query->where('priority', $request->priority);
+        }
+        
+        // Filter by type
+        if ($request->has('type') && $request->type !== 'all') {
+            $query->where('type', $request->type);
+        }
+        
+        // Search
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('ticket_number', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+        
+        $tickets = $query->paginate(20);
+        
+        // Statistics
+        $totalTickets = \App\Models\SupportTicket::count();
+        $openTickets = \App\Models\SupportTicket::where('status', 'open')->count();
+        $inProgressTickets = \App\Models\SupportTicket::where('status', 'in_progress')->count();
+        $resolvedTickets = \App\Models\SupportTicket::where('status', 'resolved')->count();
+        $urgentTickets = \App\Models\SupportTicket::where('priority', 'urgent')->whereIn('status', ['open', 'in_progress', 'pending'])->count();
+        
+        // Get all admins for assignment
+        $admins = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->get();
+        
+        return view('supadmin.support-center.index', compact(
+            'tickets', 
+            'totalTickets', 
+            'openTickets', 
+            'inProgressTickets', 
+            'resolvedTickets', 
+            'urgentTickets',
+            'admins'
+        ));
+    }
+
+    /**
+     * Update ticket status
+     */
+    public function updateTicketStatus(Request $request, \App\Models\SupportTicket $ticket)
+    {
+        $this->authorizeSuperAdminAccess();
+        
+        $request->validate([
+            'status' => 'required|in:open,in_progress,pending,resolved,closed',
+            'resolution_notes' => 'nullable|string|max:1000'
+        ]);
+        
+        $ticket->status = $request->status;
+        
+        if ($request->status === 'resolved' && !$ticket->resolved_at) {
+            $ticket->resolved_at = now();
+        }
+        
+        if ($request->resolution_notes) {
+            $ticket->resolution_notes = $request->resolution_notes;
+        }
+        
+        $ticket->save();
+        
+        return redirect()->route('superadmin.support-center.index')
+            ->with('success', "Ticket {$ticket->ticket_number} status updated to {$ticket->status_name}.");
+    }
+
+    /**
+     * Assign ticket to admin
+     */
+    public function assignTicket(Request $request, \App\Models\SupportTicket $ticket)
+    {
+        $this->authorizeSuperAdminAccess();
+        
+        $request->validate([
+            'assigned_to' => 'required|exists:users,id'
+        ]);
+        
+        $ticket->assigned_to = $request->assigned_to;
+        $ticket->save();
+        
+        $assignedAdmin = \App\Models\User::find($request->assigned_to);
+        
+        return redirect()->route('superadmin.support-center.index')
+            ->with('success', "Ticket {$ticket->ticket_number} assigned to {$assignedAdmin->first_name} {$assignedAdmin->last_name}.");
+    }
+
+    /**
+     * View individual ticket
+     */
+    public function viewTicket(\App\Models\SupportTicket $ticket)
+    {
+        $this->authorizeSuperAdminAccess();
+        
+        $ticket->load(['user', 'assignedAdmin']);
+        $admins = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->get();
+        
+        return view('supadmin.support-center.view', compact('ticket', 'admins'));
+    }
+
+    /**
+     * Manage admins page
+     */
+    public function manageAdmins()
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Get all admin users
+        $admins = User::where('role', 'admin')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        // Calculate statistics
+        $totalAdmins = User::where('role', 'admin')->count();
+        $activeAdmins = User::where('role', 'admin')->where('is_active', true)->count();
+        $inactiveAdmins = User::where('role', 'admin')->where('is_active', false)->count();
+        $newThisWeekCount = User::where('role', 'admin')->where('created_at', '>=', now()->subWeek())->count();
+
+        return view('supadmin.admins.index', compact(
+            'admins',
+            'totalAdmins',
+            'activeAdmins', 
+            'inactiveAdmins',
+            'newThisWeekCount'
+        ));
+    }
+
+    /**
+     * Create a new admin
+     */
+    public function createAdmin(Request $request)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|string|in:admin,super_admin',
+            'privileges' => 'array',
+            'privileges.*' => 'string|in:manage_users,manage_providers,manage_participants,manage_support_coordinators,manage_admins,view_logs,manage_backups'
+        ]);
+
+        $user = User::create([
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'privileges' => $request->privileges ?? [],
+            'is_active' => true,
+            'email_verified_at' => now(),
+        ]);
+
+        return redirect()->route('superadmin.admins.index')->with('success', 'Admin ' . $user->email . ' has been created successfully.');
+    }
+
+    /**
+     * Activate an admin
+     */
+    public function activateAdmin(User $admin)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Prevent superadmin from activating themselves
+        if ($admin->id === auth()->id() && $admin->role === 'admin') {
+            return redirect()->back()->with('error', 'You cannot modify your own admin account.');
+        }
+
+        $admin->is_active = true;
+        $admin->save();
+
+        return redirect()->route('superadmin.admins.index')->with('success', 'Admin ' . $admin->email . ' has been activated.');
+    }
+
+    /**
+     * Deactivate an admin
+     */
+    public function deactivateAdmin(User $admin)
+    {
+        $this->authorizeSuperAdminAccess();
+
+        // Prevent superadmin from deactivating themselves
+        if ($admin->id === auth()->id() && $admin->role === 'admin') {
+            return redirect()->back()->with('error', 'You cannot modify your own admin account.');
+        }
+
+        $admin->is_active = false;
+        $admin->save();
+
+        return redirect()->route('superadmin.admins.index')->with('success', 'Admin ' . $admin->email . ' has been deactivated.');
     }
 }

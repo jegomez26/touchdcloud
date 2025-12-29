@@ -4,42 +4,33 @@
     <div class="container mx-auto px-4 py-6">
         <div class="flex items-center justify-between mb-6">
             <h1 class="text-3xl font-bold text-[#3e4732]">My Accommodations</h1>
-            <a href="{{ route('provider.accommodations.create') }}" class="bg-[#33595a] text-white px-6 py-2 rounded-md hover:bg-[#2c494a] transition duration-300 flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus mr-2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-                Add New Accommodation
-            </a>
+            @if($canAddAccommodation)
+                <a href="{{ route('provider.accommodations.create') }}" class="bg-[#33595a] text-white px-6 py-2 rounded-md hover:bg-[#2c494a] transition duration-300 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus mr-2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    Add New Accommodation
+                </a>
+            @else
+                <button disabled class="bg-gray-400 text-gray-600 px-6 py-2 rounded-md cursor-not-allowed flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus mr-2"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+                    Accommodation Limit Reached ({{ $currentAccommodationCount }}/{{ $accommodationLimit ?? 'Unlimited' }})
+                </button>
+            @endif
         </div>
 
-        {{-- Success/Error Messages --}}
-        @if (session('status'))
-            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-4 flex items-center justify-between" role="alert">
+        @if (!$canAddAccommodation)
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
                 <div class="flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                     </svg>
-                    <span class="font-semibold">{{ session('status') }}</span>
+                    <span class="block sm:inline">
+                        <strong>Accommodation Limit Reached:</strong> You have reached your subscription limit of {{ $accommodationLimit ?? 'unlimited' }} accommodations. 
+                        @if($accommodationLimit)
+                            You currently have {{ $currentAccommodationCount }} accommodations. 
+                        @endif
+                        Please upgrade your subscription to add more accommodations.
+                    </span>
                 </div>
-                <button onclick="this.parentElement.style.display='none'" class="text-green-700 hover:text-green-900">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-            </div>
-        @endif
-
-        @if (session('error'))
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-4 flex items-center justify-between" role="alert">
-                <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span class="font-semibold">{{ session('error') }}</span>
-                </div>
-                <button onclick="this.parentElement.style.display='none'" class="text-red-700 hover:text-red-900">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
             </div>
         @endif
 
@@ -129,26 +120,35 @@
                 </div>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">No Accommodations Found</h3>
                 <p class="text-gray-600 mb-6">Get started by adding your first accommodation property.</p>
-                <a href="{{ route('provider.accommodations.create') }}" class="inline-flex items-center px-6 py-3 bg-[#33595a] text-white font-medium rounded-lg hover:bg-[#2c494a] transition duration-300">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                    </svg>
-                    Add Your First Accommodation
-                </a>
+                @if($canAddAccommodation)
+                    <a href="{{ route('provider.accommodations.create') }}" class="inline-flex items-center px-6 py-3 bg-[#33595a] text-white font-medium rounded-lg hover:bg-[#2c494a] transition duration-300">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Add Your First Accommodation
+                    </a>
+                @else
+                    <button disabled class="inline-flex items-center px-6 py-3 bg-gray-400 text-gray-600 font-medium rounded-lg cursor-not-allowed">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Accommodation Limit Reached ({{ $currentAccommodationCount }}/{{ $accommodationLimit ?? 'Unlimited' }})
+                    </button>
+                @endif
             </div>
         @else
             {{-- Accommodations Grid --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach ($accommodations as $accommodation)
                     @php
-                        $photos = json_decode($accommodation->photos, true);
+                        $photos = $accommodation->photos ?? []; // Already decoded by model cast
                         $firstPhoto = count($photos) > 0 ? $photos[0] : null;
                     @endphp
                     <div class="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                         {{-- Image --}}
                         <div class="h-48 bg-gray-200 relative">
                             @if ($firstPhoto)
-                                <img src="{{ asset('storage/' . $firstPhoto) }}" alt="{{ $accommodation->title }}" class="w-full h-full object-cover">
+                                <img src="{{ accommodation_image_url($firstPhoto) }}" alt="{{ $accommodation->title }}" class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full flex items-center justify-center text-gray-500">
                                     <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,6 +300,35 @@
             }));
         });
 
+        // Message handling functions
+        function showMessage(type, message) {
+            if (type === 'success') {
+                window.modalManager.success(message);
+            } else if (type === 'error') {
+                window.modalManager.error(message);
+            }
+        }
+
+        function hideMessage(messageId) {
+            // This function is kept for compatibility but now uses the modal manager
+            if (messageId === 'success-message') {
+                window.modalManager.hide('success-modal');
+            } else if (messageId === 'error-message') {
+                window.modalManager.hide('error-modal');
+            }
+        }
+
+        // Check for session messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('status'))
+                window.modalManager.success('{{ session('status') }}');
+            @endif
+            
+            @if (session('error'))
+                window.modalManager.error('{{ session('error') }}');
+            @endif
+        });
+
         // Modal functions
         function confirmDelete(accommodationId, accommodationTitle) {
             document.getElementById('accommodationTitle').textContent = accommodationTitle;
@@ -348,18 +377,18 @@
             .then(data => {
                 closeDeleteModal();
                 if (data.success) {
-                    showSuccessModal(data.message || 'Accommodation deleted successfully.');
+                    showMessage('success', data.message || 'Accommodation deleted successfully.');
                     // Reload the page after a short delay
                     setTimeout(() => {
                         window.location.reload();
                     }, 1500);
                 } else {
-                    showErrorModal(data.message || 'An error occurred while deleting the accommodation.');
+                    showMessage('error', data.message || 'An error occurred while deleting the accommodation.');
                 }
             })
             .catch(error => {
                 closeDeleteModal();
-                showErrorModal('An error occurred while deleting the accommodation.');
+                showMessage('error', 'An error occurred while deleting the accommodation.');
                 console.error('Error:', error);
             });
         });

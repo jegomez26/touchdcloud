@@ -31,10 +31,40 @@ class Property extends Model
 
     protected $casts = [
         'is_available_for_hm' => 'boolean',
-        'amenities' => 'array',
-        'photos' => 'array',
         'rent_per_week' => 'decimal:2',
     ];
+
+    /**
+     * Get the photos attribute, ensuring it's always an array.
+     */
+    public function getPhotosAttribute($value)
+    {
+        if (is_string($value)) {
+            // Handle double-encoded JSON
+            $decoded = json_decode($value, true);
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+            }
+            return $decoded ?? [];
+        }
+        return $value ?? [];
+    }
+
+    /**
+     * Get the amenities attribute, ensuring it's always an array.
+     */
+    public function getAmenitiesAttribute($value)
+    {
+        if (is_string($value)) {
+            // Handle double-encoded JSON
+            $decoded = json_decode($value, true);
+            if (is_string($decoded)) {
+                $decoded = json_decode($decoded, true);
+            }
+            return $decoded ?? [];
+        }
+        return $value ?? [];
+    }
 
     /**
      * Get the provider that owns the accommodation.
@@ -42,5 +72,13 @@ class Property extends Model
     public function provider()
     {
         return $this->belongsTo(Provider::class);
+    }
+
+    /**
+     * Get the enquiries for this property.
+     */
+    public function enquiries()
+    {
+        return $this->hasMany(Enquiry::class);
     }
 }

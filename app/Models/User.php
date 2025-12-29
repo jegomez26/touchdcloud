@@ -26,6 +26,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'role',
+        'privileges',
         'profile_completed',
         'is_active',
         'is_representative', // Indicates if the user is registering on behalf of someone else
@@ -51,6 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'privileges' => 'array',
             'profile_completed' => 'boolean',
             'is_active' => 'boolean',
             'is_representative' => 'boolean', // Cast to boolean for easier checks
@@ -79,6 +81,62 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isActive(): bool
     {
         return (bool) $this->is_active;
+    }
+
+    /**
+     * Check if the user has a specific privilege.
+     */
+    public function hasPrivilege(string $privilege): bool
+    {
+        // Super admins have all privileges
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        // Check if user has the specific privilege
+        return $this->privileges && in_array($privilege, $this->privileges);
+    }
+
+    /**
+     * Check if the user has any of the specified privileges.
+     */
+    public function hasAnyPrivilege(array $privileges): bool
+    {
+        // Super admins have all privileges
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        // Check if user has any of the specified privileges
+        return $this->privileges && !empty(array_intersect($privileges, $this->privileges));
+    }
+
+    /**
+     * Check if the user has all of the specified privileges.
+     */
+    public function hasAllPrivileges(array $privileges): bool
+    {
+        // Super admins have all privileges
+        if ($this->role === 'super_admin') {
+            return true;
+        }
+
+        // Check if user has all of the specified privileges
+        return $this->privileges && empty(array_diff($privileges, $this->privileges));
+    }
+
+    /**
+     * Get the user's privileges as a readable array.
+     */
+    public function getReadablePrivileges(): array
+    {
+        if (!$this->privileges) {
+            return [];
+        }
+
+        return array_map(function($privilege) {
+            return ucfirst(str_replace('_', ' ', $privilege));
+        }, $this->privileges);
     }
 
     /*
@@ -125,6 +183,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function provider(): HasOne
     {
         return $this->hasOne(Provider::class, 'user_id');
+    }
+
+    /**
+     * Get the payments made by this user.
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
     }
 
     /**

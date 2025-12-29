@@ -3,9 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'SIL Match') }}</title>
 
+    <link rel="icon" type="image/png" href="{{ asset('images/blue_logo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -50,6 +53,17 @@
         .h-auto {
             transition: height 0.3s ease-out;
         }
+
+        /* Fix map z-index issues - ensure maps stay below header */
+        .leaflet-container {
+            z-index: 1 !important;
+        }
+        .leaflet-control-container {
+            z-index: 2 !important;
+        }
+        .leaflet-popup {
+            z-index: 3 !important;
+        }
     </style>
 </head>
 <body class="antialiased bg-custom-light-cream">
@@ -92,6 +106,8 @@
                     <a href="{{ route('pricing') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">Pricing</a>
                     <a href="{{ route('listings') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">Listings</a>
                     <a href="{{ route('faqs') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">FAQs</a>
+                    <a href="{{ route('sil-sda') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">SIL & SDA</a>
+                    <a href="{{ route('contact') }}" class="text-custom-dark-teal hover:text-custom-ochre font-medium text-base lg:text-lg transition duration-300">Contact</a>
                     
                     {{-- AUTHENTICATION LINKS (Desktop) --}}
                     @auth
@@ -125,6 +141,9 @@
                 <a href="{{ route('about') }}" class="block px-4 py-2 text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300" @click="isMobileMenuOpen = false">About Us</a>
                 <a href="{{ route('pricing') }}" class="block px-4 py-2 text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300" @click="isMobileMenuOpen = false">Pricing</a>
                 <a href="{{ route('listings') }}" class="block px-4 py-2 text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300" @click="isMobileMenuOpen = false">Listings</a>
+                <a href="{{ route('faqs') }}" class="block px-4 py-2 text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300" @click="isMobileMenuOpen = false">FAQs</a>
+                <a href="{{ route('sil-sda') }}" class="block px-4 py-2 text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300" @click="isMobileMenuOpen = false">SIL & SDA</a>
+                <a href="{{ route('contact') }}" class="block px-4 py-2 text-custom-dark-teal hover:text-custom-ochre font-medium text-lg transition duration-300" @click="isMobileMenuOpen = false">Contact</a>
 
                 {{-- AUTHENTICATION LINKS (Mobile) --}}
                 @auth
@@ -154,74 +173,103 @@
                 x-transition:leave="ease-in duration-200"
                 x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0"
-                class="fixed inset-0 bg-custom-dark-teal bg-opacity-75 flex items-center justify-center z-50 p-4">
+                class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
 
                 <div x-show="showRegisterRoleModal"
                     @click.away="showRegisterRoleModal = false"
                     x-transition:enter="ease-out duration-300"
-                    x-transition:enter-start="opacity-0 transform scale-90"
+                    x-transition:enter-start="opacity-0 transform scale-95"
                     x-transition:enter-end="opacity-100 transform scale-100"
                     x-transition:leave="ease-in duration-200"
                     x-transition:leave-start="opacity-100 transform scale-100"
-                    x-transition:leave-end="opacity-0 transform scale-90"
-                    class="bg-custom-white rounded-lg shadow-xl max-w-sm sm:max-w-md md:max-w-2xl lg:max-w-4xl w-full p-6 sm:p-8 relative overflow-y-auto max-h-[90vh] text-center">
+                    x-transition:leave-end="opacity-0 transform scale-95"
+                    class="bg-white rounded-2xl shadow-2xl max-w-sm sm:max-w-md md:max-w-4xl lg:max-w-6xl w-full p-6 sm:p-8 lg:p-12 relative overflow-y-auto max-h-[95vh] text-center">
 
-                    <button @click="showRegisterRoleModal = false" class="absolute top-3 right-3 text-custom-light-grey-brown hover:text-custom-black text-3xl font-bold">
-                        &times;
+                    {{-- Close Button --}}
+                    <button @click="showRegisterRoleModal = false" 
+                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl font-bold transition-colors duration-200 z-10">
+                        <i class="fas fa-times"></i>
                     </button>
 
-                    <h2 class="text-2xl sm:text-3xl font-extrabold text-custom-black mb-4 sm:mb-6">
-                        Sign Up
-                    </h2>
-                    <p class="mt-2 text-base sm:text-lg text-custom-dark-teal mb-6 sm:mb-8">
-                        Before signing up, please choose your role so we can set up your account in the best way for you. Select one of the options below:
-                    </p>
+                    {{-- Header --}}
+                    <div class="mb-8">
+                        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#33595a] mb-4 sm:mb-6">
+                            Sign Up
+                        </h2>
+                        <p class="text-lg sm:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto leading-relaxed">
+                            Before signing up, please choose your role so we can set up your account in the best way for you. Select one of the options below:
+                        </p>
+                    </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mt-6 sm:mt-10">
+                    {{-- Role Selection Cards --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
                         {{-- NDIS Participant --}}
                         <a href="{{ route('register.participant.create') }}"
-                           class="flex flex-col items-center p-4 sm:p-6 border border-custom-light-grey-green rounded-lg shadow-lg bg-custom-light-cream hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div class="text-custom-dark-teal mb-3 sm:mb-4">
-                                <svg class="w-12 h-12 sm:w-16 sm:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m0 0l-7 7m7-7v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                           class="group flex flex-col items-center p-6 sm:p-8 border-2 border-gray-200 rounded-2xl shadow-lg bg-gradient-to-br from-white to-gray-50 hover:shadow-2xl hover:border-[#cc8e45] transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+                            <div class="bg-gradient-to-br from-[#cc8e45] to-[#a67137] rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-user text-white text-2xl sm:text-3xl"></i>
                             </div>
-                            <h3 class="text-lg sm:text-xl font-bold text-custom-dark-teal mb-1 sm:mb-2">NDIS Participant</h3>
-                            <p class="text-custom-dark-olive text-center text-sm mb-3 sm:mb-4 flex-grow">
+                            <h3 class="text-xl sm:text-2xl font-bold text-[#33595a] mb-3 group-hover:text-[#cc8e45] transition-colors duration-300">
+                                NDIS Participant
+                            </h3>
+                            <p class="text-gray-600 text-center text-sm sm:text-base mb-6 flex-grow leading-relaxed">
                                Create your profile and share what you are looking for in a housemate or living arrangement. Search listings, connect with others, and find people who are the right fit for you.
                             </p>
-                            <span class="mt-auto px-4 py-2 sm:px-6 sm:py-3 border border-custom-dark-teal text-custom-dark-teal rounded-full font-semibold hover:bg-custom-dark-teal-darker hover:text-white transition duration-300 text-sm sm:text-base">
-                                Participant Sign Up
-                            </span>
+                            <div class="mt-auto w-full">
+                                <span class="inline-flex items-center justify-center w-full px-6 py-3 bg-[#cc8e45] text-white rounded-xl font-semibold hover:bg-[#a67137] transition-colors duration-300 text-sm sm:text-base shadow-md group-hover:shadow-lg">
+                                    <i class="fas fa-arrow-right mr-2"></i>
+                                    Participant Sign Up
+                                </span>
+                            </div>
                         </a>
 
                         {{-- Support Coordinator --}}
                         <a href="{{ route('register.coordinator.create') }}"
-                           class="flex flex-col items-center p-4 sm:p-6 border border-custom-light-grey-green rounded-lg shadow-lg bg-custom-light-cream hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div class="text-custom-dark-teal mb-3 sm:mb-4">
-                                <svg class="w-12 h-12 sm:w-16 sm:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M12 20.005v-2.004m0 0v-2.004m0 0V8.995m0 0h.01M12 18.001c-3.14 0-5.7-2.56-5.7-5.7s2.56-5.7 5.7-5.7 5.7 2.56 5.7 5.7-2.56 5.7-5.7 5.7z"></path></svg>
+                           class="group flex flex-col items-center p-6 sm:p-8 border-2 border-gray-200 rounded-2xl shadow-lg bg-gradient-to-br from-white to-gray-50 hover:shadow-2xl hover:border-[#cc8e45] transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+                            <div class="bg-gradient-to-br from-[#cc8e45] to-[#a67137] rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-hands-helping text-white text-2xl sm:text-3xl"></i>
                             </div>
-                            <h3 class="text-lg sm:text-xl font-bold text-custom-dark-teal mb-1 sm:mb-2">Support Coordinator</h3>
-                            <p class="text-custom-dark-olive text-center text-sm mb-3 sm:mb-4 flex-grow">
+                            <h3 class="text-xl sm:text-2xl font-bold text-[#33595a] mb-3 group-hover:text-[#cc8e45] transition-colors duration-300">
+                                Support Coordinator
+                            </h3>
+                            <p class="text-gray-600 text-center text-sm sm:text-base mb-6 flex-grow leading-relaxed">
                                 Create and manage profiles for the people you support. Search listings, connect with participants, providers, and other coordinators, and help match people with the right living arrangements.
                             </p>
-                            <span class="mt-auto px-4 py-2 sm:px-6 sm:py-3 border border-custom-dark-teal text-custom-dark-teal rounded-full font-semibold hover:bg-custom-dark-teal-darker hover:text-white transition duration-300 text-sm sm:text-base">
-                                Coordinator Sign Up
-                            </span>
+                            <div class="mt-auto w-full">
+                                <span class="inline-flex items-center justify-center w-full px-6 py-3 bg-[#cc8e45] text-white rounded-xl font-semibold hover:bg-[#a67137] transition-colors duration-300 text-sm sm:text-base shadow-md group-hover:shadow-lg">
+                                    <i class="fas fa-arrow-right mr-2"></i>
+                                    Coordinator Sign Up
+                                </span>
+                            </div>
                         </a>
 
                         {{-- NDIS Support and Accommodation Provider --}}
                         <a href="{{ route('register.provider.create') }}"
-                           class="flex flex-col items-center p-4 sm:p-6 border border-custom-light-grey-green rounded-lg shadow-lg bg-custom-light-cream hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-                            <div class="text-custom-dark-teal mb-3 sm:mb-4">
-                                <svg class="w-12 h-12 sm:w-16 sm:h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M17 12h.01M12 12h.01M10 16h.01"></path></svg>
+                           class="group flex flex-col items-center p-6 sm:p-8 border-2 border-gray-200 rounded-2xl shadow-lg bg-gradient-to-br from-white to-gray-50 hover:shadow-2xl hover:border-[#cc8e45] transition-all duration-300 transform hover:-translate-y-2 hover:scale-105">
+                            <div class="bg-gradient-to-br from-[#cc8e45] to-[#a67137] rounded-full w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                                <i class="fas fa-building text-white text-2xl sm:text-3xl"></i>
                             </div>
-                            <h3 class="text-lg sm:text-xl font-bold text-custom-dark-teal mb-1 sm:mb-2">NDIS Support & Accommodation Provider</h3>
-                            <p class="text-custom-dark-olive text-center text-sm mb-3 sm:mb-4 flex-grow">
+                            <h3 class="text-xl sm:text-2xl font-bold text-[#33595a] mb-3 group-hover:text-[#cc8e45] transition-colors duration-300">
+                                NDIS Support & Accommodation Provider
+                            </h3>
+                            <p class="text-gray-600 text-center text-sm sm:text-base mb-6 flex-grow leading-relaxed">
                                 Create a provider account to connect with participants, Support Coordinators, and other providers. Upload depersonalised participant details to find matches, and if you have a Premium plan, list your available properties for public viewing.
                             </p>
-                            <span class="mt-auto px-4 py-2 sm:px-6 sm:py-3 border border-custom-dark-teal text-custom-dark-teal rounded-full font-semibold hover:bg-custom-dark-teal-darker hover:text-white transition duration-300 text-sm sm:text-base">
-                                Provider Sign Up
-                            </span>
+                            <div class="mt-auto w-full">
+                                <span class="inline-flex items-center justify-center w-full px-6 py-3 bg-[#cc8e45] text-white rounded-xl font-semibold hover:bg-[#a67137] transition-colors duration-300 text-sm sm:text-base shadow-md group-hover:shadow-lg">
+                                    <i class="fas fa-arrow-right mr-2"></i>
+                                    Provider Sign Up
+                                </span>
+                            </div>
                         </a>
+                    </div>
+
+                    {{-- Footer Note --}}
+                    <div class="mt-8 pt-6 border-t border-gray-200">
+                        <p class="text-sm text-gray-500">
+                            <i class="fas fa-shield-alt mr-2"></i>
+                            Your information is secure and will only be used to create your account
+                        </p>
                     </div>
 
                 </div>

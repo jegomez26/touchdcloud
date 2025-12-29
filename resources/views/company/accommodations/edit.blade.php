@@ -10,7 +10,7 @@
             </a>
         </div>
 
-        <div class="bg-white shadow-lg rounded-lg p-6" x-data="accommodationForm()">
+        <div class="bg-white shadow-lg rounded-lg p-6">
             <form action="{{ route('provider.accommodations.update', $accommodation) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
@@ -141,53 +141,40 @@
                         <label class="block text-sm font-medium text-gray-700">Photos (Max 10 total, 1MB each)</label>
 
                         {{-- Display Existing Photos --}}
-                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" x-show="existingPhotos.length > 0">
-                            <template x-for="(photoPath, index) in existingPhotos" :key="index">
-                                <div class="relative w-full aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                                    <img :src="'{{ asset('storage') }}/' + photoPath" alt="Existing Photo" class="w-full h-full object-cover">
-                                    {{-- Hidden input to tell backend which photos to keep --}}
-                                    <input type="hidden" name="photos_to_keep[]" :value="photoPath">
-                                    <button type="button" @click="removeExistingPhoto(index)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-80 hover:opacity-100 transition-opacity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </template>
-                        </div>
-                        <p x-show="existingPhotos.length === 0 && uploadedPhotos.length === 0" class="text-sm text-gray-500 mt-2">No photos uploaded yet. Max 5 total.</p>
+                        @php
+                            $photos = $accommodation->photos ?? [];
+                            $uniquePhotos = array_unique($photos);
+                        @endphp
+                        
+                        @if(count($uniquePhotos) > 0)
+                            <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                @foreach($uniquePhotos as $index => $photoPath)
+                                    <div class="relative w-full aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                                        <img src="{{ accommodation_image_url($photoPath) }}" alt="Existing Photo" class="w-full h-full object-cover">
+                                        <button type="button" onclick="removePhoto({{ $index }})" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-80 hover:opacity-100 transition-opacity">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                        
+                        {{-- Hidden inputs for photos to keep --}}
+                        @foreach($uniquePhotos as $photoPath)
+                            <input type="hidden" name="photos_to_keep[]" value="{{ $photoPath }}">
+                        @endforeach
+                        
+                        @if(count($uniquePhotos) === 0)
+                            <p class="text-sm text-gray-500 mt-2">No photos uploaded yet. Max 10 total.</p>
+                        @endif
 
                         {{-- Input for New Photos --}}
                         <label for="new_photos" class="block text-sm font-medium text-gray-700 mt-4">Upload New Photos</label>
                         <input type="file" name="new_photos[]" id="new_photos" multiple
-                               @change="handleNewPhotoUpload($event)"
                                accept="image/jpeg,image/png,image/gif"
-                               class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f2f7ed] file:text-[#33595a] hover:file:bg-[#e1e7dd] cursor-pointer"
-                               x-bind:disabled="currentTotalPhotos() >= maxPhotos">
-
-                        <p x-show="currentTotalPhotos() >= maxPhotos" class="text-sm text-gray-500 mt-1">Maximum number of photos reached.</p>
-                        @error('new_photos')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                        @error('new_photos.*')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-
-                        <div x-show="photoErrors.length > 0" class="mt-2">
-                            <template x-for="error in photoErrors" :key="error">
-                                <p class="text-red-500 text-xs mt-1" x-text="error"></p>
-                            </template>
-                        </div>
-
-                        {{-- Display Newly Uploaded Photos --}}
-                        <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4" x-show="uploadedPhotos.length > 0">
-                            <template x-for="(photo, index) in uploadedPhotos" :key="'new-photo-' + index">
-                                <div class="relative w-full aspect-square rounded-lg overflow-hidden border border-gray-200 shadow-sm">
-                                    <img :src="photo.preview" alt="New Photo preview" class="w-full h-full object-cover">
-                                    <button type="button" @click="removeNewPhoto(index)" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 text-xs opacity-80 hover:opacity-100 transition-opacity">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </template>
-                        </div>
+                               class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f2f7ed] file:text-[#33595a] hover:file:bg-[#e1e7dd] cursor-pointer">
                     </div>
                 </div>
 
@@ -200,66 +187,48 @@
         </div>
     </div>
 
+
+
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('accommodationForm', () => ({
-                existingPhotos: {!! json_encode($accommodation->photos ?? []) !!}, // Paths of current photos from DB
-                uploadedPhotos: [], // Stores { file: File, preview: URL } for new uploads
-                photoErrors: [],
-                maxPhotos: 10,
-                maxPhotoSizeKB: 1024, // 1MB
+        // Message handling functions
+        function showMessage(type, message) {
+            if (type === 'success') {
+                window.modalManager.success(message);
+            } else if (type === 'error') {
+                window.modalManager.error(message);
+            }
+        }
 
-                init() {
-                    // No longer need to fetch suburbs since we're using text input
-                },
+        function hideMessage(messageId) {
+            // This function is kept for compatibility but now uses the modal manager
+            if (messageId === 'success-message') {
+                window.modalManager.hide('success-modal');
+            } else if (messageId === 'error-message') {
+                window.modalManager.hide('error-modal');
+            }
+        }
 
-                currentTotalPhotos() {
-                    return this.existingPhotos.length + this.uploadedPhotos.length;
-                },
-
-                handleNewPhotoUpload(event) {
-                    this.photoErrors = [];
-                    const files = Array.from(event.target.files);
-
-                    if (this.currentTotalPhotos() + files.length > this.maxPhotos) {
-                        this.photoErrors.push(`You can upload a maximum of ${this.maxPhotos - this.existingPhotos.length} new photos, remaining ${this.maxPhotos - this.currentTotalPhotos()} slots.`);
-                        event.target.value = ''; // Clear input if too many files selected initially
-                        return;
-                    }
-
-                    // Clear previous new photos
-                    this.uploadedPhotos = [];
-                    
-                    files.forEach(file => {
-                        if (file.size > this.maxPhotoSizeKB * 1024) { // Convert KB to bytes
-                            this.photoErrors.push(`Photo "${file.name}" exceeds the ${this.maxPhotoSizeKB / 1024}MB limit.`);
-                        } else if (!file.type.match('image/jpeg|image/png|image/gif')) {
-                             this.photoErrors.push(`File "${file.name}" is not a valid image type (JPEG, PNG, GIF).`);
-                        } else {
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                this.uploadedPhotos.push({ file: file, preview: e.target.result });
-                            };
-                            reader.readAsDataURL(file);
-                        }
-                    });
-                },
-
-                removeExistingPhoto(index) {
-                    this.existingPhotos.splice(index, 1);
-                    this.photoErrors = this.photoErrors.filter(error => !error.includes('maximum of')); // Clear related errors
-                },
-
-                removeNewPhoto(index) {
-                    this.uploadedPhotos.splice(index, 1);
-                    
-                    // Update the file input to reflect the removed photo
-                    const input = document.getElementById('new_photos');
-                    const dataTransfer = new DataTransfer();
-                    this.uploadedPhotos.forEach(item => dataTransfer.items.add(item.file));
-                    input.files = dataTransfer.files;
-                }
-            }));
+        // Check for session messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('status'))
+                window.modalManager.success('{{ session('status') }}');
+            @endif
+            
+            @if (session('error'))
+                window.modalManager.error('{{ session('error') }}');
+            @endif
         });
+
+        function removePhoto(index) {
+            // Create a hidden input to mark this photo for removal
+            const hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'photos_to_remove[]';
+            hiddenInput.value = index;
+            document.querySelector('form').appendChild(hiddenInput);
+            
+            // Hide the photo element
+            event.target.closest('.relative').style.display = 'none';
+        }
     </script>
 @endsection

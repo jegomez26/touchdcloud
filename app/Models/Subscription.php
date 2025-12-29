@@ -18,6 +18,7 @@ class Subscription extends Model
      */
     protected $fillable = [
         'user_id',
+        'plan_id',
         'name',
         'plan_name',
         'plan_slug',
@@ -31,6 +32,7 @@ class Subscription extends Model
         'paypal_plan_id',
         'payment_gateway',
         'participant_profile_limit',
+        'accommodation_listing_limit',
         'has_advanced_matching_filters',
         'has_phone_support',
         'has_early_feature_access',
@@ -42,6 +44,7 @@ class Subscription extends Model
         'ends_at',
         'starts_at',
         'is_founding_partner',
+        'auto_renew',
     ];
 
     /**
@@ -52,6 +55,7 @@ class Subscription extends Model
     protected $casts = [
         'price' => 'decimal:2',
         'participant_profile_limit' => 'integer',
+        'accommodation_listing_limit' => 'integer',
         'has_advanced_matching_filters' => 'boolean',
         'has_phone_support' => 'boolean',
         'has_early_feature_access' => 'boolean',
@@ -63,6 +67,7 @@ class Subscription extends Model
         'trial_ends_at' => 'datetime',
         'ends_at' => 'datetime',
         'starts_at' => 'datetime',
+        'auto_renew' => 'boolean',
     ];
 
     /*
@@ -77,6 +82,14 @@ class Subscription extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the plan for this subscription.
+     */
+    public function plan(): BelongsTo
+    {
+        return $this->belongsTo(Plan::class);
     }
 
     /*
@@ -130,16 +143,29 @@ class Subscription extends Model
      */
     public function isActive(): bool
     {
-        // Add more robust checks based on stripe_status/paypal_status
-        return $this->ends_at === null || $this->ends_at->isFuture();
+        // Check if subscription is not ended
+        if ($this->ends_at && $this->ends_at->isPast()) {
+            return false;
+        }
+
+        // Check if subscription is in trial period
+        if ($this->inTrial()) {
+            return true;
+        }
+
+        // Check if subscription has active status
+        return in_array($this->stripe_status, ['active', 'trialing']) || 
+               in_array($this->paypal_status, ['active', 'trialing']);
     }
 
     /**
-     * Check if the subscription is currently in trial.
+     * Check if the subscription is currently in trial period.
      */
     public function inTrial(): bool
     {
-        return $this->trial_ends_at !== null && $this->trial_ends_at->isFuture();
+        return $this->trial_ends_at && 
+               $this->trial_ends_at->isFuture() && 
+               $this->trial_ends_at->isAfter(now());
     }
 
     /**
@@ -147,11 +173,128 @@ class Subscription extends Model
      */
     public function getTrialRemainingDaysAttribute(): ?int
     {
-        if ($this->inTrial()) {
-            return $this->trial_ends_at->diffInDays(Carbon::now());
+        if (!$this->inTrial()) {
+            return null;
         }
-        return null;
+
+        return max(0, now()->diffInDays($this->trial_ends_at, false));
     }
+
+    /**
+     * Get the trial progress percentage (0-100).
+     */
+    public function getTrialProgressAttribute(): float
+    {
+        if (!$this->trial_ends_at || !$this->starts_at) {
+            return 0;
+        }
+
+        $totalTrialDays = $this->starts_at->diffInDays($this->trial_ends_at);
+        $remainingDays = $this->trial_remaining_days ?? 0;
+        
+        if ($totalTrialDays <= 0) {
+            return 100;
+        }
+
+        return max(0, min(100, (($totalTrialDays - $remainingDays) / $totalTrialDays) * 100));
+    }
+
+    /**
+     * Check if trial is ending soon (within 3 days).
+     */
+    public function isTrialEndingSoon(): bool
+    {
+        if (!$this->inTrial()) {
+            return false;
+        }
+
+        return $this->trial_remaining_days <= 3;
+    }
+
+    /**
+     * Check if trial has ended.
+     */
+    public function hasTrialEnded(): bool
+    {
+        return $this->trial_ends_at && $this->trial_ends_at->isPast();
+    }
+
+    /**
+     * Get the subscription status for display.
+     */
+    public function getStatusAttribute(): string
+    {
+        if ($this->inTrial()) {
+            return 'trialing';
+        }
+
+        if ($this->isActive()) {
+            return 'active';
+        }
+
+        if ($this->hasTrialEnded()) {
+            return 'trial_ended';
+        }
+
+        return 'inactive';
+    }
+
+    /**
+     * Get the next billing date.
+     */
+    public function getNextBillingDateAttribute(): ?Carbon
+    {
+        if ($this->inTrial()) {
+            return $this->trial_ends_at;
+        }
+
+        if (!$this->starts_at) {
+            return null;
+        }
+
+        $billingInterval = $this->billing_period === 'yearly' ? 12 : 1;
+        return $this->starts_at->addMonths($billingInterval);
+    }
+
+    /**
+     * Check if subscription can be cancelled.
+     */
+    public function canBeCancelled(): bool
+    {
+        return $this->isActive() && !$this->inTrial();
+    }
+
+    /**
+     * Check if subscription can be upgraded.
+     */
+    public function canBeUpgraded(): bool
+    {
+        return $this->isActive();
+    }
+
+    /**
+     * Get the subscription display name.
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        $name = $this->plan_name ?? 'Unknown Plan';
+        
+        if ($this->inTrial()) {
+            $name .= ' (Trial)';
+        }
+
+        return $name;
+    }
+
+    /**
+     * Check if the subscription is currently active (legacy method).
+     */
+    public function isActiveOld(): bool
+    {
+        // Add more robust checks based on stripe_status/paypal_status
+        return $this->ends_at === null || $this->ends_at->isFuture();
+    }
+
 
     /**
      * Determine if the subscription is eligible for a specific feature (e.g., advanced filters).

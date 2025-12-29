@@ -74,7 +74,7 @@
 
             {{-- Do you smoke? --}}
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Do you smoke?</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Does the participant smoke?</label>
                 <div class="mt-1 flex space-x-4">
                     <div class="flex items-center">
                         <input type="radio" name="smokes" value="1" id="smokes_yes"
@@ -118,7 +118,7 @@
 
             {{-- What are you interests and hobbies --}}
             <div>
-                <label for="interests_hobbies" class="block text-sm font-medium text-gray-700">What are your interests and hobbies? (feel free to list as many as you would like listed on your profile):</label>
+                <label for="interests_hobbies" class="block text-sm font-medium text-gray-700">What are the participant's interests and hobbies? (feel free to list as many as you would like listed on their profile):</label>
                 <textarea name="interests_hobbies" id="interests_hobbies" rows="4"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                     placeholder="e.g., Reading, gaming, painting, gardening, listening to music">{{ old('interests_hobbies', $participant->interests_hobbies ?? '') }}</textarea>

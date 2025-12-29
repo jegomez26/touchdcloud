@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Touch D Cloud - Participant Dashboard</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('images/blue_logo.png') }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {{-- FontAwesome CSS --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     {{-- Flatpickr CSS --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script>
@@ -289,17 +292,6 @@
                 <img src="{{ asset('images/blue_logo.png') }}" alt="{{ config('app.name', 'SIL Match') }}" class="h-10 inline-block align-middle mr-3">
             </a>
             <div class="flex items-center space-x-4 relative">
-                <div class="relative hidden lg:block">
-                    <input type="text" placeholder="Search anything..." class="pl-10 pr-4 py-2 rounded-full border border-border-light focus:outline-none focus:ring-2 focus:ring-primary-dark focus:border-transparent text-sm w-64 transition-all duration-200">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search text-text-light"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    </div>
-                </div>
-
-                <button class="text-text-light hover:text-text-dark focus:outline-none p-2 rounded-md hover:bg-border-light transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                </button>
-
                 <div class="relative">
                     <button id="profile-menu-button" class="flex items-center space-x-2 text-text-light hover:text-text-dark focus:outline-none p-2 rounded-md hover:bg-border-light transition-colors duration-200">
                         {{-- Generate initials for the avatar --}}
@@ -324,9 +316,22 @@
                         @endphp
                         <img src="https://placehold.co/32x32/{{ $bgColor }}/{{ $textColor }}?text={{ $initials }}" alt="User Avatar" class="w-8 h-8 rounded-full border-2 border-primary-dark">
                         {{-- Display the logged-in user's name --}}
-                        <span class="font-medium text-text-dark hidden sm:inline">
-                            {{ Auth::user()->first_name ?? 'User' }} {{ Auth::user()->last_name ?? '' }}
-                        </span>
+                        <div class="flex flex-col">
+                            <span class="font-medium text-text-dark hidden sm:inline">
+                                {{ Auth::user()->first_name ?? 'User' }} {{ Auth::user()->last_name ?? '' }}
+                            </span>
+                            <span class="text-xs text-gray-500 hidden sm:inline">
+                                @if(Auth::user()->role === 'coordinator')
+                                    Support Coordinator
+                                @elseif(Auth::user()->role === 'provider')
+                                    NDIS Provider
+                                @elseif(Auth::user()->role === 'participant')
+                                    Participant
+                                @else
+                                    {{ ucfirst(Auth::user()->role) }}
+                                @endif
+                            </span>
+                        </div>
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
                     </button>
 
@@ -334,9 +339,6 @@
                         <a href="{{ route('indiv.profile.basic-details') }}" class="block px-4 py-2 text-sm text-text-dark hover:bg-border-light hover:text-primary-dark w-full text-left transition-colors duration-150 rounded-md">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user inline-block mr-2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
                         </a>
-                        <button data-action="settings" class="block px-4 py-2 text-sm text-text-dark hover:bg-border-light hover:text-primary-dark w-full text-left transition-colors duration-150 rounded-md">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings inline-block mr-2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
-                        </button>
                         <hr class="my-1 border-border-light">
                         <button data-action="logout" class="block px-4 py-2 text-sm text-[#ef4444] hover:bg-secondary-bg w-full text-left transition-colors duration-150 rounded-md" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out inline-block mr-2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="17 16 22 12 17 8"/><line x1="22" x2="11" y1="12" y2="12"/></svg> Log out
@@ -363,17 +365,25 @@
                 <a href="{{ route('indiv.dashboard') }}"
                     data-active-route="indiv.dashboard"
                     data-section="dashboard" class="sidebar-link flex items-center w-full py-3 rounded-md text-left text-base font-medium transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
+                    <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
                 </a>
-                <a href="#"
-                    data-active-route="#"
-                    data-section="support-coordinator" class="sidebar-link flex items-center w-full py-3 rounded-md text-left text-base font-medium transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
+                
+                <a href="{{ route('indiv.possible-matches') }}"
+                    data-active-route="indiv.possible-matches"
+                    data-section="possible-matches" class="sidebar-link flex items-center w-full py-3 rounded-md text-left text-base font-medium transition-colors duration-200">
+                    <i class="fas fa-search mr-3"></i> Possible Matches
                 </a>
                 <a href="{{ route('indiv.messages.inbox') }}"
                     data-active-route="indiv.messages.inbox"
                     data-section="messages" class="sidebar-link flex items-center w-full py-3 rounded-md text-left text-base font-medium transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                    <i class="fas fa-comments mr-3"></i> Messages
+                </a>
+                <a href="{{ route('indiv.match-requests.index') }}" data-section="match-requests" class="sidebar-link flex items-center w-full py-3 rounded-md text-left text-base font-medium transition-colors duration-200">
+                    <i class="fas fa-handshake mr-3"></i> Match Requests
+                </a>
+                <a href="{{ route('indiv.support-center.index') }}"
+                    data-section="support-center" class="sidebar-link flex items-center w-full py-3 rounded-md text-left text-base font-medium transition-colors duration-200">
+                    <i class="fas fa-headphones mr-3"></i> Support Center
                 </a>
 
             </nav>
@@ -390,20 +400,24 @@
             <nav class="space-y-2 overflow-y-auto pr-2" id="mobile-sidebar-nav-container">
                 <p class="text-xs font-semibold text-text-light uppercase mb-2 px-4">Menu</p>
                 <a href="{{ route('indiv.dashboard') }}" data-section="dashboard" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout-dashboard mr-3"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg> Dashboard
+                    <i class="fas fa-tachometer-alt mr-3"></i> Dashboard
                 </a>
-                <a href="#" data-section="support-coordinator" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-check mr-3"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg> Support Coordinator
+                
+                <a href="{{ route('indiv.possible-matches') }}" data-section="possible-matches" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
+                    <i class="fas fa-search mr-3"></i> Possible Matches
                 </a>
                 <a href="{{ route('indiv.messages.inbox') }}" data-section="messages" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square mr-3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> Messages
+                    <i class="fas fa-comments mr-3"></i> Messages
+                </a>
+                <a href="{{ route('indiv.match-requests.index') }}" data-section="match-requests" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
+                    <i class="fas fa-handshake mr-3"></i> Match Requests
                 </a>
 
                 {{-- Add Profile Menu items here for mobile --}}
                 <hr class="my-4 border-border-light">
                 <p class="text-xs font-semibold text-text-light uppercase mb-2 px-4">Account</p>
                 <a href="{{ route('indiv.profile.basic-details') }}" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user mr-3"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
+                    <i class="fas fa-user mr-3"></i> Profile
                 </a>
                 <button data-action="settings" class="sidebar-link flex items-center w-full py-2.5 rounded-md text-left text-base font-medium transition-colors duration-200">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-settings mr-3"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.78 1.22a2 2 0 0 0 .73 2.73l.09.09a2 2 0 0 1 .73 2.73l-.78 1.22a2 2 0 0 0 .73 2.73l.15.08a2 2 0 0 0 2.73-.73l.43-.25a2 2 0 0 1 1-1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.78-1.22a2 2 0 0 0-.73-2.73l-.09-.09a2 2 0 0 1-.73-2.73l.78-1.22a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 0-2.73.73l-.43.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Settings
@@ -627,7 +641,165 @@
                 maxDate: new Date(new Date().setFullYear(new Date().getFullYear() - 18)),
             });
             // --- End Flatpickr Initialization ---
+
+            // Function to send message to another participant
+            window.sendMessageToParticipant = function(participantCode, participantId) {
+                const message = prompt(`Send a message to ${participantCode}:`);
+                if (message && message.trim()) {
+                    // Send AJAX request to the backend
+                    fetch('/participant/messages/send-to-participant/' + participantId, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        },
+                        body: JSON.stringify({
+                            content: message
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert('Message sent successfully!');
+                        } else {
+                            alert('Error sending message');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Error sending message');
+                    });
+                }
+            };
         });
     </script>
+
+    {{-- Request Already Sent Modal --}}
+    <div id="request-already-sent-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white w-full max-w-md mx-4 rounded-lg shadow-xl border border-[#e1e7dd]">
+            <div class="px-6 py-4 border-b border-[#e1e7dd] flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-[#3e4732]">Match Request Already Sent</h3>
+                <button id="close-already-sent-modal" class="text-[#bcbabb] hover:text-[#3e4732]">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="px-6 py-4 space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm text-[#3e4732] font-medium">A match request has already been sent to <span id="already-sent-participant-name" class="font-semibold"></span>.</p>
+                        <p class="text-xs text-[#bcbabb] mt-1">Please wait for them to accept your request.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-[#e1e7dd] flex items-center justify-end">
+                <button id="close-already-sent-modal-btn" class="px-4 py-2 bg-[#33595a] text-white rounded-md hover:bg-[#2C494A] transition-colors duration-200">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Match Request Modal --}}
+    <div id="match-request-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">Send Match Request</h3>
+                        <button id="close-match-request-modal" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Send a match request to:</p>
+                        <p id="match-request-participant-name" class="font-medium text-gray-900"></p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="match-request-message" class="block text-sm font-medium text-gray-700 mb-2">
+                            Message (Optional)
+                        </label>
+                        <textarea 
+                            id="match-request-message" 
+                            rows="3" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                            placeholder="Add a personal message to your match request..."
+                        ></textarea>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button 
+                            id="cancel-match-request" 
+                            class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition-colors duration-200"
+                        >
+                            Cancel
+                        </button>
+                        <button 
+                            id="send-match-request" 
+                            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
+                        >
+                            Send Request
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Success Modal --}}
+    <div id="success-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+                        <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Success!</h3>
+                    <p id="success-message" class="text-sm text-gray-600 mb-4"></p>
+                    <button 
+                        id="close-success-modal" 
+                        class="w-full px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors duration-200"
+                    >
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Error Modal --}}
+    <div id="error-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="p-6 text-center">
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Error</h3>
+                    <p id="error-message" class="text-sm text-gray-600 mb-4"></p>
+                    <button 
+                        id="close-error-modal" 
+                        class="w-full px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200"
+                    >
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

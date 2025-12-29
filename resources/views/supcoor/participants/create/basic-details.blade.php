@@ -223,21 +223,9 @@
                     </div>
                     <div>
                         <label for="suburb" class="block text-sm font-medium text-gray-700">Suburb</label>
-                        <select name="suburb" id="suburb"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('suburb') border-red-500 @enderror">
-                            <option value="">Select a Suburb</option>
-                            {{-- Suburbs will be loaded dynamically via JavaScript --}}
-                            @if(old('state', $participant->state ?? ''))
-                                {{-- If there's an old state or participant state, try to pre-fill the suburb --}}
-                                @php
-                                    // This assumes you have a way to get suburbs for the old/current state on initial load
-                                    // For simplicity in this Blade, we'll just put the current selected suburb if it exists
-                                @endphp
-                                @if($participant->suburb)
-                                    <option value="{{ $participant->suburb }}" selected>{{ $participant->suburb }}</option>
-                                @endif
-                            @endif
-                        </select>
+                        <input type="text" name="suburb" id="suburb" value="{{ old('suburb', $participant->suburb ?? '') }}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 @error('suburb') border-red-500 @enderror"
+                               placeholder="Enter suburb name">
                         @error('suburb')
                             <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                         @enderror
@@ -509,50 +497,7 @@
             languagesElement.addEventListener('change', toggleLanguagesOther);
 
             // ----- Dynamic Suburb Loading -----
-            const stateSelect = document.getElementById('state');
-            const suburbSelect = document.getElementById('suburb');
-            const currentSuburb = "{{ old('suburb', $participant->suburb ?? '') }}"; // Capture the old/current suburb for pre-selection
-
-            async function loadSuburbs(state) {
-                suburbSelect.innerHTML = '<option value="">Loading suburbs...</option>';
-                suburbSelect.disabled = true;
-
-                if (!state) {
-                    suburbSelect.innerHTML = '<option value="">Select a State first</option>';
-                    return;
-                }
-
-                try {
-                    const response = await fetch(`/get-suburbs/${state}`);
-                    const suburbs = await response.json();
-
-                    suburbSelect.innerHTML = '<option value="">Select a Suburb</option>';
-                    suburbs.forEach(suburb => {
-                        const option = document.createElement('option');
-                        option.value = suburb;
-                        option.textContent = suburb;
-                        if (suburb === currentSuburb) {
-                            option.selected = true;
-                        }
-                        suburbSelect.appendChild(option);
-                    });
-                } catch (error) {
-                    console.error('Error fetching suburbs:', error);
-                    suburbSelect.innerHTML = '<option value="">Error loading suburbs</option>';
-                } finally {
-                    suburbSelect.disabled = false;
-                }
-            }
-
-            // Initial load of suburbs if a state is already selected (e.g., on form errors or edit)
-            if (stateSelect.value) {
-                loadSuburbs(stateSelect.value);
-            }
-
-            // Event listener for state change
-            stateSelect.addEventListener('change', (event) => {
-                loadSuburbs(event.target.value);
-            });
+            // Suburb is now a free text field, no JavaScript needed
         });
     </script>
 @endsection

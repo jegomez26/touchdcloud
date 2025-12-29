@@ -19,19 +19,25 @@ class ParticipantController extends Controller
 {
     public function create()
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $supportCoordinator = Auth::user();
         $participant = new Participant();
 
+        // Check participant limit
+        $currentParticipantCount = Participant::where('added_by_user_id', $supportCoordinator->id)->count();
+        $canAddParticipant = \App\Services\SubscriptionService::canAddParticipant($currentParticipantCount);
+        $participantLimit = \App\Services\SubscriptionService::getParticipantLimit();
 
-        return view('company.participants.create.basic-details', compact('participant'));
+        return view('company.participants.create.basic-details', compact('participant', 'subscriptionStatus', 'canAddParticipant', 'participantLimit', 'currentParticipantCount'));
     }
 
     public function show(Participant $participant)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $participant->load('participantContact'); // Eager load the contact details
 
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('company.participants.show', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.show', compact('participant', 'profileCompletionPercentage', 'subscriptionStatus'));
     }
 
     /**
@@ -43,7 +49,18 @@ class ParticipantController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $supportCoordinator = Auth::user();
+        $user = Auth::user();
+
+        // Check participant limit before allowing creation
+        $currentParticipantCount = Participant::where('added_by_user_id', $user->id)->count();
+        if (!\App\Services\SubscriptionService::canAddParticipant($currentParticipantCount)) {
+            $participantLimit = \App\Services\SubscriptionService::getParticipantLimit();
+            return redirect()->back()->withErrors([
+                'limit' => "You have reached your participant limit of {$participantLimit} participants. Please upgrade your subscription to add more participants."
+            ]);
+        }
 
         // Validate the incoming request data for the new participant
         $validatedData = $request->validate([
@@ -137,21 +154,30 @@ class ParticipantController extends Controller
                 'consent_to_speak_on_behalf' => $validatedData['contact_consent'] ?? null,
             ]);
         }
+        
+        $participantCount = Participant::where('added_by_user_id', $user->id)->count();
 
         // Redirect to a list of participants or the newly created participant's details
-        return redirect()->route('provider.participants.profile.basic-details', $participant->id)->with('success', 'Participant created successfully! 🎉');
+        return redirect()->route('provider.participants.profile.basic-details', $participant->id)->with('success', 'Participant created successfully! 🎉')->with('subscriptionStatus', $subscriptionStatus) ->with('participantCount', $participantCount);
     }
 
     public function showBasicDetails(Participant $participant)
     {
+        
+        $user = Auth::user();
         // This method will be used to display the form for editing basic details.
         // The $participant is automatically injected by Route Model Binding.
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('company.participants.create.basic-details', compact('participant', 'profileCompletionPercentage'));
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+        $participantCount = Participant::where('added_by_user_id', $user->id)->count();
+        return view('company.participants.create.basic-details', compact('participant', 'profileCompletionPercentage', 'subscriptionStatus', 'participantCount'));
     }
 
     public function updateBasicDetails(Request $request, Participant $participant): RedirectResponse
     {
+        $user = Auth::user();
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+        $participantCount = Participant::where('added_by_user_id', $user->id)->count();
         $validatedData = $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
@@ -235,7 +261,9 @@ class ParticipantController extends Controller
         }
 
         return redirect()->route('provider.participants.profile.basic-details', $participant->id)
-                         ->with('success', 'Basic details updated successfully!');
+                         ->with('success', 'Basic details updated successfully!')
+                         ->with('subscriptionStatus', $subscriptionStatus)
+                         ->with('participantCount', $participantCount);
     }
 
 
@@ -243,6 +271,7 @@ class ParticipantController extends Controller
 
     public function showNdisDetails(Participant $participant)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         // Optional: Ensure the support coordinator has permission to view this participant
         // For instance, check if $participant->added_by_user_id === Auth::id()
         // or if they are otherwise associated with this participant.
@@ -252,14 +281,16 @@ class ParticipantController extends Controller
         // However, if you want to reuse the logic, you can.
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant); // Reuse if calculateProfileCompletion is available/relevant
 
-        return view('company.participants.create.ndis-support-needs', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.ndis-support-needs', compact('participant', 'profileCompletionPercentage', 'subscriptionStatus'));
     }
 
     // Example: Update NDIS Details for a SPECIFIC participant
     public function updateNdisDetails(Request $request, Participant $participant): RedirectResponse
     {
+        $user = Auth::user();
         // Optional: Authorization check here as well
-
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+        $participantCount = Participant::where('added_by_user_id', $user->id)->count();
         $validated = $request->validate([
             'sil_funding_status' => 'nullable|in:Yes,No,Not sure',
             'ndis_plan_review_date' => 'nullable|date',
@@ -272,14 +303,14 @@ class ParticipantController extends Controller
             'secondary_disability' => 'nullable|string|max:255',
             'estimated_support_hours_sil_level' => 'nullable|string|max:50',
             'night_support_type' => 'nullable|in:Active overnight,Sleepover,None',
-            'uses_assistive_technology_mobility_aids' => 'nullable|string',
+            'uses_assistive_technology_mobility_aids' => 'nullable|in:0,1',
             'assistive_technology_mobility_aids_list' => 'nullable|string',
         ]);
 
         
 
         $validated['has_support_coordinator'] = $request->has('has_support_coordinator');
-        $validated['uses_assistive_technology_mobility_aids'] = $request->has('uses_assistive_technology_mobility_aids');
+        $validated['uses_assistive_technology_mobility_aids'] = $validated['uses_assistive_technology_mobility_aids'] == '1';
 
         $processedDailyLivingNeeds = $validated['daily_living_support_needs'] ?? [];
         if (in_array('Other', $processedDailyLivingNeeds) && !empty($validated['daily_living_support_needs_other'])) {
@@ -298,19 +329,25 @@ class ParticipantController extends Controller
         $participant->update($validated);
 
         return redirect()->route('provider.participants.profile.ndis-support-needs', $participant->id) // Redirect to the participant's NDIS page
-                         ->with('success', 'NDIS details updated successfully for ' . $participant->first_name . '!');
+                         ->with('success', 'NDIS details updated successfully for ' . $participant->first_name . '!')
+                         ->with('subscriptionStatus', $subscriptionStatus)
+                         ->with('participantCount', $participantCount);
     }
 
     // You would replicate this pattern for Health & Safety, Living Preferences, etc.
     // For example:
     public function showHealthSafety(Participant $participant)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('company.participants.create.health-safety', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.health-safety', compact('participant', 'profileCompletionPercentage', 'subscriptionStatus'));
     }
 
     public function updateHealthSafety(Request $request, Participant $participant): RedirectResponse
     {
+        $user = Auth::user();
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+        $participantCount = Participant::where('added_by_user_id', $user->id)->count();
         $validated = $request->validate([
             'medical_conditions_relevant' => 'nullable|string',
             'medication_administration_help' => 'nullable|in:Yes,No,Sometimes',
@@ -325,7 +362,9 @@ class ParticipantController extends Controller
         $participant->update($validated);
 
         return redirect()->route('provider.participants.profile.health-safety', $participant->id)
-                         ->with('success', 'Health and safety information updated successfully for ' . $participant->first_name . '!');
+                         ->with('success', 'Health and safety information updated successfully for ' . $participant->first_name . '!')
+                         ->with('subscriptionStatus', $subscriptionStatus)
+                         ->with('participantCount', $participantCount);
     }
 
     /**
@@ -333,8 +372,9 @@ class ParticipantController extends Controller
      */
     public function healthSafety(Participant $participant)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('company.participants.create.health-safety', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.health-safety', compact('participant', 'profileCompletionPercentage', 'subscriptionStatus'));
     }
 
     /**
@@ -342,8 +382,9 @@ class ParticipantController extends Controller
      */
     public function showLivingPreferences (Participant $participant)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('company.participants.create.living-preferences', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.living-preferences', compact('participant', 'profileCompletionPercentage', 'subscriptionStatus'));
     }
 
     /**
@@ -351,7 +392,9 @@ class ParticipantController extends Controller
      */
     public function updateLivingPreferences(Request $request, Participant $participant)
     {
-
+        $user = Auth::user();
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+        $participantCount = Participant::where('added_by_user_id', $user->id)->count();
         $validated = $request->validate([
             'preferred_sil_locations' => 'nullable|array',
             'preferred_sil_locations.*.state' => 'required_with:preferred_sil_locations|string|max:255',
@@ -407,7 +450,9 @@ class ParticipantController extends Controller
         $participant->update($validated);
 
         return redirect()->route('provider.participants.profile.living-preferences', $participant->id)
-            ->with('success', 'Living preferences updated successfully!'); // Changed 'success' to 'status'
+            ->with('success', 'Living preferences updated successfully!') // Changed 'success' to 'status'
+            ->with('subscriptionStatus', $subscriptionStatus)
+            ->with('participantCount', $participantCount);
     }
 
     /**
@@ -415,8 +460,9 @@ class ParticipantController extends Controller
      */
     public function showCompatibilityPersonality (Participant $participant)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('company.participants.create.compatibility-personality', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.compatibility-personality', compact('participant', 'profileCompletionPercentage', 'subscriptionStatus'));
     }
 
     /**
@@ -424,7 +470,9 @@ class ParticipantController extends Controller
      */
     public function updateCompatibilityPersonality(Request $request, Participant $participant) : RedirectResponse
     {
-
+        $user = Auth::user();
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+        $participantCount = Participant::where('added_by_user_id', $user->id)->count();
         $validated = $request->validate([
             'self_description' => 'nullable|array',
             'self_description.*' => 'string|max:255', 
@@ -457,7 +505,9 @@ class ParticipantController extends Controller
         $participant->update($validated);
 
         return redirect()->route('provider.participants.profile.compatibility-personality', $participant->id)
-                         ->with('success', 'Compatibility & Personality updated successfully!'); // Changed 'success' to 'status'
+                         ->with('success', 'Compatibility & Personality updated successfully!') // Changed 'success' to 'status'
+                         ->with('subscriptionStatus', $subscriptionStatus)
+                         ->with('participantCount', $participantCount);
     }
 
     /**
@@ -465,8 +515,9 @@ class ParticipantController extends Controller
      */
     public function showAvailability(Participant $participant)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $profileCompletionPercentage = $this->calculateProfileCompletion($participant);
-        return view('company.participants.create.availability', compact('participant', 'profileCompletionPercentage'));
+        return view('company.participants.create.availability', compact('participant', 'profileCompletionPercentage', 'subscriptionStatus'));
     }
 
     /**
@@ -474,7 +525,9 @@ class ParticipantController extends Controller
      */
     public function updateAvailability(Request $request, Participant $participant): RedirectResponse
     {
-        
+        $user = Auth::user();
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+        $participantCount = Participant::where('added_by_user_id', $user->id)->count();
         $validated = $request->validate([
             'move_in_availability' => 'nullable|in:ASAP,Within 1–3 months,Within 3–6 months,Just exploring options',
             'current_living_situation' => 'nullable|in:SIL or SDA accommodation,Group home,With family,Living alone,Other',
@@ -602,5 +655,43 @@ class ParticipantController extends Controller
         }
 
         return (int) round(($completedSections / $totalSections) * 100);
+    }
+
+    /**
+     * Remove the specified participant from storage.
+     */
+    public function destroy(Participant $participant): RedirectResponse
+    {
+        $user = Auth::user();
+        
+        // Ensure the participant belongs to the current provider
+        if ($participant->added_by_user_id !== $user->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Check if provider can delete participant (once per month restriction)
+        $deletionEligibility = \App\Services\SubscriptionService::canDeleteParticipant();
+        
+        if (!$deletionEligibility['can_delete']) {
+            return redirect()->route('provider.participants.list')
+                             ->with('error', $deletionEligibility['message']);
+        }
+
+        // Delete associated participant contact if exists
+        if ($participant->participantContact) {
+            $participant->participantContact->delete();
+        }
+
+        // Delete the participant
+        $participant->delete();
+
+        // Update the last deletion date
+        $provider = $user->provider;
+        if ($provider) {
+            $provider->update(['last_participant_deletion_at' => now()]);
+        }
+
+        return redirect()->route('provider.participants.list')
+                         ->with('success', 'Participant deleted successfully.');
     }
 }

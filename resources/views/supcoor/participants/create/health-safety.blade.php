@@ -39,9 +39,9 @@
             </div>
 
             <div>
-                <label for="medication_administration_help" class="block text-sm font-medium text-gray-700">Do you need help with medication administration?</label>
+                <label for="medication_administration_help" class="block text-sm font-medium text-gray-700">Does the participant need help with medication administration?</label>
                 <select name="medication_administration_help" id="medication_administration_help" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                    <option value="" disabled selected>Select an option</option>
+                    <option value="" {{ old('medication_administration_help', $participant->medication_administration_help ?? '') === '' ? 'selected' : '' }}>Select an option</option>
                     @php
                         $medicationHelpOptions = ['Yes', 'No', 'Sometimes'];
                     @endphp
@@ -55,7 +55,7 @@
             </div>
 
             <div>
-                <label for="behaviour_support_plan_status" class="block text-sm font-medium text-gray-700">Do you have a behaviour support plan?</label>
+                <label for="behaviour_support_plan_status" class="block text-sm font-medium text-gray-700">Does the participant have a behaviour support plan?</label>
                 <select name="behaviour_support_plan_status" id="behaviour_support_plan_status" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                     <option value="" disabled selected>Select an option</option>
                     @php

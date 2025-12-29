@@ -9,6 +9,10 @@ use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\CheckProfileCompletion;
 use App\Http\Middleware\CheckCoordinatorVerification;
 use App\Http\Middleware\EnsureProfileIsComplete;
+use App\Http\Middleware\SubscriptionRequired;
+use App\Http\Middleware\CheckParticipantLimit;
+use App\Http\Middleware\CheckAccommodationLimit;
+use App\Http\Middleware\CheckPrivilege;
 
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -27,6 +31,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'profile.complete.check' => EnsureProfileIsComplete::class,
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class, // Laravel's default
             'coordinator.approved' => \App\Http\Middleware\EnsureCoordinatorIsApproved::class, // <-- ADD THIS
+            'subscription.required' => SubscriptionRequired::class,
+            'check.participant.limit' => CheckParticipantLimit::class,
+            'check.accommodation.limit' => CheckAccommodationLimit::class,
+            'privilege' => CheckPrivilege::class,
         ]);
 
         // If you have any global web middleware you want to append, you can do it here.

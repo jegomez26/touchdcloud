@@ -16,6 +16,7 @@ class Message extends Model
         'receiver_id', // User ID
         'content',
         'type', // 'text', 'attachment', etc.
+        'sent_at',
         'read_at',
         'original_sender_role',
         'original_recipient_role',
@@ -23,6 +24,7 @@ class Message extends Model
     ];
 
     protected $casts = [
+        'sent_at' => 'datetime',
         'read_at' => 'datetime',
     ];
 

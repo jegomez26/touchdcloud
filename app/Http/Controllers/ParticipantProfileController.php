@@ -84,6 +84,7 @@ class ParticipantProfileController extends Controller
                     'first_name' => $user->first_name,
                     'last_name' => $user->last_name,
                     'participant_email' => $user->email, // Pre-fill participant's email
+                    'contact_for_suitable_match' => true, // Individual participants are automatically available for matching
                 ]);
             }
         }  else {
@@ -332,6 +333,7 @@ class ParticipantProfileController extends Controller
                 'first_name' => $validatedParticipant['first_name'],
                 'last_name' => $validatedParticipant['last_name'],
                 'added_by_user_id' => $user->id,
+                'contact_for_suitable_match' => true, // Individual participants are automatically available for matching
                 // Add any other fields that are NOT NULL and don't have defaults in your DB
             ]);
 
@@ -446,7 +448,7 @@ class ParticipantProfileController extends Controller
      */
     public function updateNdisDetails(Request $request)
     {
-        dd(Auth::user());
+        // dd(Auth::user());
 
         $user = Auth::user();
         $participant = $user->participant;
@@ -467,15 +469,15 @@ class ParticipantProfileController extends Controller
             'secondary_disability' => 'nullable|string|max:255',
             'estimated_support_hours_sil_level' => 'nullable|string|max:50',
             'night_support_type' => 'nullable|in:Active overnight,Sleepover,None',
-            'uses_assistive_technology_mobility_aids' => 'nullable|boolean', // Assuming checkbox, storing boolean
+            'uses_assistive_technology_mobility_aids' => 'nullable|in:0,1', // Changed to accept string values from select
             'assistive_technology_mobility_aids_list' => 'nullable|string',
         ]);
 
 
         // Convert has_support_coordinator checkbox to boolean
         $validated['has_support_coordinator'] = $request->has('has_support_coordinator');
-        // Convert uses_assistive_technology_mobility_aids checkbox to boolean
-        $validated['uses_assistive_technology_mobility_aids'] = $request->has('uses_assistive_technology_mobility_aids');
+        // Convert uses_assistive_technology_mobility_aids select value to boolean
+        $validated['uses_assistive_technology_mobility_aids'] = $validated['uses_assistive_technology_mobility_aids'] == '1';
 
         // Handle 'Other' for daily_living_support_needs if it's not selected, clear the text field.
         $processedDailyLivingNeeds = $validated['daily_living_support_needs'] ?? [];
@@ -730,7 +732,20 @@ class ParticipantProfileController extends Controller
             return [];
         }
         
-        $decoded = json_decode($participant->$field, true);
-        return is_array($decoded) ? $decoded : [];
+        $fieldValue = $participant->$field;
+        
+        // If it's already an array, return it directly
+        if (is_array($fieldValue)) {
+            return $fieldValue;
+        }
+        
+        // If it's a string, try to decode it
+        if (is_string($fieldValue)) {
+            $decoded = json_decode($fieldValue, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+        
+        // For any other type, return empty array
+        return [];
     }
 }

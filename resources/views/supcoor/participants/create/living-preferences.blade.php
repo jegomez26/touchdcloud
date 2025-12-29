@@ -81,16 +81,10 @@
                             </div>
                             <div class="flex-1">
                                 <label for="suburb_{{ $index }}" class="block text-sm font-medium text-gray-700">Suburb</label>
-                                <select name="preferred_sil_locations[{{ $index }}][suburb]" id="suburb_{{ $index }}" {{-- Removed '[]' and 'multiple' --}}
-                                    class="suburb-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                    <option value="">Select Suburb</option>
-                                    {{-- The specific suburb option will be dynamically added by JS or pre-selected if available --}}
-                                    @if (!empty(old("preferred_sil_locations.$index.suburb", $location['suburb'] ?? '')))
-                                        <option value="{{ old("preferred_sil_locations.$index.suburb", $location['suburb'] ?? '') }}" selected>
-                                            {{ old("preferred_sil_locations.$index.suburb", $location['suburb'] ?? '') }}
-                                        </option>
-                                    @endif
-                                </select>
+                                <input type="text" name="preferred_sil_locations[{{ $index }}][suburb]" id="suburb_{{ $index }}" 
+                                       value="{{ old("preferred_sil_locations.$index.suburb", $location['suburb'] ?? '') }}"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                       placeholder="Enter suburb name">
                                 @error("preferred_sil_locations.$index.suburb")
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -272,8 +266,6 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Initialize locationIndex based on the count of existing preferred locations.
@@ -282,91 +274,7 @@
         const silLocationsContainer = document.getElementById('sil_locations_container');
         const addLocationBtn = document.getElementById('add_location_btn');
 
-        // Store Choices instances
-        const suburbChoicesInstances = {};
-
-        // Function to initialize Choices.js on a given select element
-        function initializeChoices(element, predefinedValues = []) {
-            const choices = new Choices(element, {
-                removeItemButton: true,
-                placeholder: true,
-                placeholderValue: 'Select Suburb(s)',
-            });
-
-            // Set pre-selected options if any
-            if (predefinedValues.length > 0) {
-                const items = predefinedValues.map(value => ({ value: value, label: value, selected: true }));
-                choices.setChoices(items, 'value', 'label', true);
-            }
-            return choices;
-        }
-
-        // Function to fetch suburbs and update Choices.js instance
-        async function fetchSuburbs(state, suburbSelectElement, initialSuburbs = []) {
-            if (!state) {
-                // Clear and reset Choices.js instance if no state is selected
-                if (suburbChoicesInstances[suburbSelectElement.id]) {
-                    suburbChoicesInstances[suburbSelectElement.id].destroy();
-                    suburbSelectElement.innerHTML = '<option value="">Select Suburb</option>';
-                    suburbChoicesInstances[suburbSelectElement.id] = initializeChoices(suburbSelectElement);
-                }
-                return;
-            }
-
-            try {
-                // CHANGE THIS LINE: Pass state as a URL parameter
-                const response = await fetch(`/get-suburbs/${state}`);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const suburbs = await response.json();
-
-                // Destroy existing Choices.js instance
-                if (suburbChoicesInstances[suburbSelectElement.id]) {
-                    suburbChoicesInstances[suburbSelectElement.id].destroy();
-                }
-
-                // Clear existing options
-                suburbSelectElement.innerHTML = ''; // Clear everything, Choices.js will add its own options
-
-                // Add new options and mark initial suburbs as selected
-                const options = suburbs.map(suburb => ({
-                    value: suburb,
-                    label: suburb,
-                    selected: initialSuburbs.includes(suburb) // Check if this suburb should be pre-selected
-                }));
-
-                // Re-initialize Choices.js
-                suburbChoicesInstances[suburbSelectElement.id] = initializeChoices(suburbSelectElement);
-                suburbChoicesInstances[suburbSelectElement.id].setChoices(options, 'value', 'label', true);
-
-            } catch (error) {
-                console.error('Error fetching suburbs:', error);
-                if (suburbChoicesInstances[suburbSelectElement.id]) {
-                    suburbChoicesInstances[suburbSelectElement.id].destroy();
-                }
-                suburbSelectElement.innerHTML = '<option value="">Error loading suburbs</option>';
-                suburbChoicesInstances[suburbSelectElement.id] = initializeChoices(suburbSelectElement);
-            }
-        }
-
-        // Initialize Choices.js for existing suburb dropdowns and fetch suburbs
-        document.querySelectorAll('.preferred-location-row').forEach(row => {
-            const stateSelect = row.querySelector('.state-select');
-            const suburbSelect = row.querySelector('.suburb-select');
-            // Get the currently selected suburb (if any)
-            const currentSelectedSuburb = suburbSelect.value;
-
-            // Fetch suburbs for the initially selected state, and pre-select the current suburb
-            if (stateSelect.value) {
-                fetchSuburbs(stateSelect.value, suburbSelect, currentSelectedSuburb);
-            }
-
-            // Add change listener to state select to update suburbs
-            stateSelect.addEventListener('change', function () {
-                fetchSuburbs(this.value, suburbSelect); // When state changes, clear previous suburb selection
-            });
-        });
+        // Suburbs are now free text fields, no JavaScript needed for suburb handling
 
         // Add new location row
         addLocationBtn.addEventListener('click', function () {
@@ -387,10 +295,9 @@
                 </div>
                 <div class="flex-1">
                     <label for="suburb_${locationIndex}" class="block text-sm font-medium text-gray-700">Suburb</label>
-                    <select name="preferred_sil_locations[${locationIndex}][suburb]" id="suburb_${locationIndex}"
-                        class="suburb-select mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="">Select Suburb</option>
-                    </select>
+                    <input type="text" name="preferred_sil_locations[${locationIndex}][suburb]" id="suburb_${locationIndex}"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        placeholder="Enter suburb name">
                 </div>
                 <button type="button" class="remove-location-btn inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
                     Remove
@@ -398,23 +305,14 @@
             `;
             silLocationsContainer.appendChild(newRow);
 
-            const newStateSelect = newRow.querySelector('.state-select');
-            const newSuburbSelect = newRow.querySelector('.suburb-select');
-
-            newStateSelect.addEventListener('change', function () {
-                fetchSuburbs(this.value, newSuburbSelect);
-            });
+            // No suburb handling needed since it's now a free text field
         });
 
         // Remove location row
         silLocationsContainer.addEventListener('click', function (event) {
             if (event.target.classList.contains('remove-location-btn')) {
                 const rowToRemove = event.target.closest('.preferred-location-row');
-                const suburbSelectId = rowToRemove.querySelector('.suburb-select').id;
-                if (suburbChoicesInstances[suburbSelectId]) {
-                    suburbChoicesInstances[suburbSelectId].destroy(); // Destroy Choices.js instance
-                    delete suburbChoicesInstances[suburbSelectId]; // Remove from tracking object
-                }
+                // No suburb handling needed since it's now a free text field
                 rowToRemove.remove();
                 // Re-index remaining rows if necessary (important for form submission)
                 document.querySelectorAll('.preferred-location-row').forEach((row, i) => {

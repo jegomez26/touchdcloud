@@ -12,9 +12,18 @@ class ProviderAccommodationController extends Controller
 {
     // ... (index, show, edit, destroy methods remain largely the same, but update `edit` method for types)
 
+    
+
     public function index(Request $request)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+
         $providerId = Auth::user()->provider->id;
+
+        // Get accommodation limit information
+        $currentAccommodationCount = Property::where('provider_id', $providerId)->count();
+        $canAddAccommodation = \App\Services\SubscriptionService::canAddAccommodation($currentAccommodationCount);
+        $accommodationLimit = \App\Services\SubscriptionService::getAccommodationLimit();
 
         $query = Property::where('provider_id', $providerId);
 
@@ -52,6 +61,17 @@ class ProviderAccommodationController extends Controller
 
         $accommodations = $query->orderBy('created_at', 'desc')->paginate(10)->withQueryString();
 
+        // Ensure photos and amenities are always arrays for each accommodation
+        $accommodations->getCollection()->transform(function ($accommodation) {
+            if (!is_array($accommodation->photos)) {
+                $accommodation->photos = json_decode($accommodation->photos, true) ?? [];
+            }
+            if (!is_array($accommodation->amenities)) {
+                $accommodation->amenities = json_decode($accommodation->amenities, true) ?? [];
+            }
+            return $accommodation;
+        });
+
         // Data for filters
         $australianStates = $this->getAustralianStates();
         $accommodationTypes = [
@@ -65,7 +85,7 @@ class ProviderAccommodationController extends Controller
             'draft', 'available', 'occupied', 'archived'
         ];
 
-        return view('company.accommodations.index', compact('accommodations', 'australianStates', 'accommodationTypes', 'accommodationStatuses'));
+        return view('company.accommodations.index', compact('accommodations', 'australianStates', 'accommodationTypes', 'accommodationStatuses', 'subscriptionStatus', 'canAddAccommodation', 'accommodationLimit', 'currentAccommodationCount'));
     }
 
     /**
@@ -73,6 +93,14 @@ class ProviderAccommodationController extends Controller
      */
     public function create()
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
+        
+        // Check accommodation limit
+        $providerId = Auth::user()->provider->id;
+        $currentAccommodationCount = Property::where('provider_id', $providerId)->count();
+        $canAddAccommodation = \App\Services\SubscriptionService::canAddAccommodation($currentAccommodationCount);
+        $accommodationLimit = \App\Services\SubscriptionService::getAccommodationLimit();
+        
         // Australian States
         $australianStates = [
             'ACT' => 'Australian Capital Territory',
@@ -102,7 +130,7 @@ class ProviderAccommodationController extends Controller
             'Wi-Fi', 'Laundry Facilities', 'Parking'
         ];
 
-        return view('company.accommodations.create', compact('australianStates', 'accommodationTypes', 'amenitiesOptions'));
+        return view('company.accommodations.create', compact('australianStates', 'accommodationTypes', 'amenitiesOptions', 'subscriptionStatus', 'canAddAccommodation', 'accommodationLimit', 'currentAccommodationCount'));
     }
 
     /**
@@ -110,9 +138,20 @@ class ProviderAccommodationController extends Controller
      */
     public function store(Request $request)
     {
+
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         $provider = Auth::user()->provider;
         if (!$provider) {
             abort(403, 'No provider profile found for this user.');
+        }
+
+        // Check accommodation limit before allowing creation
+        $currentAccommodationCount = $provider->properties()->count();
+        if (!\App\Services\SubscriptionService::canAddAccommodation($currentAccommodationCount)) {
+            $accommodationLimit = \App\Services\SubscriptionService::getAccommodationLimit();
+            return redirect()->back()->withErrors([
+                'limit' => "You have reached your accommodation limit of {$accommodationLimit} accommodations. Please upgrade your subscription to add more accommodations."
+            ]);
         }
 
         // Flatten accommodation types for validation rules
@@ -166,6 +205,10 @@ class ProviderAccommodationController extends Controller
                 // Store in 'public/accommodations' folder with custom name
                 $path = $photo->storeAs('accommodations', $filename, 'public');
                 $photoPaths[] = $path;
+                
+                // Also copy to public/images/accommodations for cPanel compatibility
+                $publicPath = public_path('images/accommodations/' . $filename);
+                copy(storage_path('app/public/' . $path), $publicPath);
             }
             
             // Update the accommodation with photo paths
@@ -185,6 +228,8 @@ class ProviderAccommodationController extends Controller
      */
     public function edit(Property $accommodation)
     {
+
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         // Ensure the authenticated provider owns this accommodation
         if ($accommodation->provider_id !== Auth::user()->provider->id) {
             abort(403, 'Unauthorized action.');
@@ -219,11 +264,15 @@ class ProviderAccommodationController extends Controller
             'Wi-Fi', 'Laundry Facilities', 'Parking'
         ];
 
-        // Convert amenities and photos from JSON string back to array for forms
-        $accommodation->amenities = json_decode($accommodation->amenities, true) ?? [];
-        $accommodation->photos = json_decode($accommodation->photos, true) ?? [];
+        // Ensure amenities and photos are always arrays (handle cases where casting might not work)
+        if (!is_array($accommodation->amenities)) {
+            $accommodation->amenities = json_decode($accommodation->amenities, true) ?? [];
+        }
+        if (!is_array($accommodation->photos)) {
+            $accommodation->photos = json_decode($accommodation->photos, true) ?? [];
+        }
 
-        return view('company.accommodations.edit', compact('accommodation', 'australianStates', 'accommodationTypes', 'amenitiesOptions'));
+        return view('company.accommodations.edit', compact('accommodation', 'australianStates', 'accommodationTypes', 'amenitiesOptions', 'subscriptionStatus'));
     }
 
     /**
@@ -231,6 +280,7 @@ class ProviderAccommodationController extends Controller
      */
     public function update(Request $request, Property $accommodation)
     {
+
         // Ensure the authenticated provider owns this accommodation
         if ($accommodation->provider_id !== Auth::user()->provider->id) {
             abort(403, 'Unauthorized action.');
@@ -272,7 +322,7 @@ class ProviderAccommodationController extends Controller
         $validatedData['amenities'] = json_encode($validatedData['amenities'] ?? []);
 
         // Handle photo updates
-        $existingPhotos = json_decode($accommodation->photos, true) ?? [];
+        $existingPhotos = $accommodation->photos ?? []; // Already decoded by model cast
         $photosToKeep = $validatedData['photos_to_keep'] ?? [];
         $finalPhotoPaths = [];
 
@@ -303,6 +353,10 @@ class ProviderAccommodationController extends Controller
                 // Store in 'public/accommodations' folder with custom name
                 $path = $photo->storeAs('accommodations', $filename, 'public');
                 $finalPhotoPaths[] = $path;
+                
+                // Also copy to public/images/accommodations for cPanel compatibility
+                $publicPath = public_path('images/accommodations/' . $filename);
+                copy(storage_path('app/public/' . $path), $publicPath);
             }
         }
         $validatedData['photos'] = json_encode($finalPhotoPaths);
@@ -319,18 +373,21 @@ class ProviderAccommodationController extends Controller
 
     public function show(Property $accommodation)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         // Ensure the authenticated provider owns this accommodation
         if (!Auth::user()->provider || $accommodation->provider_id !== Auth::user()->provider->id) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Convert amenities and photos from JSON string back to array for display
-        // The model's $casts property should handle this automatically if defined,
-        // but explicit decoding here ensures it in case of casting issues or for older Laravel versions.
-        $accommodation->amenities = json_decode($accommodation->amenities, true) ?? [];
-        $accommodation->photos = json_decode($accommodation->photos, true) ?? [];
+        // Ensure amenities and photos are always arrays (handle cases where casting might not work)
+        if (!is_array($accommodation->amenities)) {
+            $accommodation->amenities = json_decode($accommodation->amenities, true) ?? [];
+        }
+        if (!is_array($accommodation->photos)) {
+            $accommodation->photos = json_decode($accommodation->photos, true) ?? [];
+        }
 
-        return view('company.accommodations.show', compact('accommodation'));
+        return view('company.accommodations.show', compact('accommodation', 'subscriptionStatus'));
     }
 
     /**
@@ -338,6 +395,7 @@ class ProviderAccommodationController extends Controller
      */
     public function destroy(Property $accommodation)
     {
+        $subscriptionStatus = \App\Services\SubscriptionService::getSubscriptionStatus();
         // Ensure the authenticated provider owns this accommodation
         if ($accommodation->provider_id !== Auth::user()->provider->id) {
             if (request()->ajax()) {
@@ -348,7 +406,7 @@ class ProviderAccommodationController extends Controller
 
         try {
             // Delete associated photos from storage
-            $photos = json_decode($accommodation->photos, true) ?? [];
+            $photos = $accommodation->photos ?? []; // Already decoded by model cast
             foreach ($photos as $photoPath) {
                 Storage::disk('public')->delete($photoPath);
             }

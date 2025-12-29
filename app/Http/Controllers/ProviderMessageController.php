@@ -65,14 +65,25 @@ class ProviderMessageController extends Controller
             ->where('provider_id', $provider->id)
             ->where('support_coordinator_id', $supportCoordinatorForParticipant->id)
             ->where('participant_id', $participant->id) // Crucial: Link to the specific participant
+            ->where('initiator_user_id', $sender->id)
+            ->where('recipient_user_id', $receiverUser->id)
             ->first();
 
         if (!$conversation) {
+            // Find a participant that belongs to this provider (added by them)
+            $providerParticipant = Participant::where('added_by_user_id', $sender->id)->first();
+            $matchingForParticipantId = $providerParticipant ? $providerParticipant->id : null;
+            
             $conversation = Conversation::create([
                 'type' => 'provider_to_sc',
                 'provider_id' => $provider->id,
                 'support_coordinator_id' => $supportCoordinatorForParticipant->id,
                 'participant_id' => $participant->id, // Store the participant ID to tie this conversation to them
+                'matching_for_participant_id' => $matchingForParticipantId, // Store the participant the provider is looking for a match for
+                'initiator_user_id' => $sender->id, // Provider who initiated
+                'recipient_user_id' => $receiverUser->id, // Support coordinator who receives
+                'initiator_participant_id' => $matchingForParticipantId, // Provider's participant being matched
+                'recipient_participant_id' => $participant->id, // Matched participant
                 'last_message_at' => now(),
             ]);
         } else {

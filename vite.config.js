@@ -10,10 +10,10 @@ export default defineConfig({
         }),
     ],
     server: {
-        host: '192.168.1.22', // Listen on all network interfaces
+        host: '192.168.254.135', // Listen on all network interfaces
         port: 5173,     // Default Vite port
         hmr: {
-            host: '192.168.1.22', // Use your specific development PC's IP here for HMR
+            host: '192.168.254.135', // Use your specific development PC's IP here for HMR
             clientPort: 5173
         },
         cors: {

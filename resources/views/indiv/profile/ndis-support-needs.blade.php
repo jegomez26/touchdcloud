@@ -160,10 +160,10 @@
                 <div>
                     <label for="uses_assistive_technology_mobility_aids" class="block text-sm font-medium text-gray-700">Do you use assistive technology or mobility aids?</label>
                     <select name="uses_assistive_technology_mobility_aids" id="uses_assistive_technology_mobility_aids" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                        <option value="" disabled selected>Select an option</option>
+                        <option value="" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') === '' ? 'selected' : '' }}>Select an option</option>
                         {{-- Values are 1 (Yes), 0 (No) --}}
-                        <option value="1" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') == 1 ? 'selected' : '' }}>Yes</option>
-                        <option value="0" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') == 0 ? 'selected' : '' }}>No</option>
+                        <option value="1" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') == '1' ? 'selected' : '' }}>Yes</option>
+                        <option value="0" {{ old('uses_assistive_technology_mobility_aids', $participant->uses_assistive_technology_mobility_aids ?? '') == '0' ? 'selected' : '' }}>No</option>
                     </select>
                 </div>
 
