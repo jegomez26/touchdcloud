@@ -11,6 +11,7 @@
 .env.production
 .env-prod
 .env.example
+.md
 
 # IDE and Editor specific files
 .DS_Store
