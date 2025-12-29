@@ -10,7 +10,8 @@
 .env.backup
 .env.production
 .env-prod
-.env.example
+.env-production
+.env.examplepu
 .md
 
 # IDE and Editor specific files
