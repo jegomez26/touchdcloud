@@ -1374,7 +1374,7 @@
     {{-- Flatpickr JS (Moved here to ensure it loads before your inline script) --}}
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     {{-- Stripe.js --}}
-    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://js.stripe.com/clover/stripe.js"></script>
 
     @stack('scripts')
 
@@ -1601,15 +1601,29 @@
                         // Mount the element
                         this.paymentElement.mount('#payment-element');
                         
-                        // Wait for element to be ready
+                        // Wait for element to be fully mounted and ready
                         await new Promise((resolve) => {
-                            // Give Stripe Elements time to fully mount
-                            setTimeout(() => {
-                                this.paymentElementsReady = true;
-                                this.isInitializingElements = false;
-                                this.loading = false;
-                                resolve();
-                            }, 500);
+                            // Check if element is mounted by checking for Stripe Elements classes
+                            let attempts = 0;
+                            const maxAttempts = 20; // 2 seconds max
+                            
+                            const checkMounted = setInterval(() => {
+                                attempts++;
+                                const container = document.getElementById('payment-element');
+                                const isMounted = container && (
+                                    container.querySelector('.StripeElement') || 
+                                    container.querySelector('[data-testid]') ||
+                                    container.children.length > 0
+                                );
+                                
+                                if (isMounted || attempts >= maxAttempts) {
+                                    clearInterval(checkMounted);
+                                    this.paymentElementsReady = true;
+                                    this.isInitializingElements = false;
+                                    this.loading = false;
+                                    resolve();
+                                }
+                            }, 100);
                         });
                         
                     } catch (error) {
@@ -1837,7 +1851,26 @@
                     this.loading = true;
                     
                     try {
-                        // Confirm payment with Stripe
+                        // Verify element is still mounted before proceeding
+                        const paymentElementContainer = document.getElementById('payment-element');
+                        if (!this.paymentElement || !paymentElementContainer || !paymentElementContainer.hasChildNodes()) {
+                            throw new Error('Payment form is not ready. Please refresh and try again.');
+                        }
+                        
+                        // Use submit() first to validate, then confirmPayment
+                        const { error: submitError } = await this.elements.submit();
+                        if (submitError) {
+                            const errorElement = document.getElementById('card-errors');
+                            if (errorElement) {
+                                errorElement.textContent = submitError.message;
+                            }
+                            this.loading = false;
+                            this.errorMessage = submitError.message;
+                            this.showErrorModal = true;
+                            return;
+                        }
+                        
+                        // Confirm payment with Stripe - this will handle payment confirmation
                         const { error, paymentIntent } = await this.stripe.confirmPayment({
                             elements: this.elements,
                             confirmParams: {

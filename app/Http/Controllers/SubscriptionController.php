@@ -401,6 +401,26 @@ class SubscriptionController extends Controller
         }
 
         $plan = Plan::findOrFail($request->plan_id);
+        
+        // Validate plan has required prices BEFORE processing
+        if ($request->billing_period === 'yearly' && (!$plan->yearly_price || $plan->yearly_price <= 0)) {
+            Log::error('Plan does not have yearly price in createPaymentIntent', [
+                'plan_id' => $plan->id,
+                'plan_slug' => $plan->slug,
+                'yearly_price' => $plan->yearly_price,
+            ]);
+            return response()->json(['error' => 'Yearly pricing is not available for this plan. Please select monthly billing.'], 400);
+        }
+        
+        if ($request->billing_period === 'monthly' && (!$plan->monthly_price || $plan->monthly_price <= 0)) {
+            Log::error('Plan does not have monthly price in createPaymentIntent', [
+                'plan_id' => $plan->id,
+                'plan_slug' => $plan->slug,
+                'monthly_price' => $plan->monthly_price,
+            ]);
+            return response()->json(['error' => 'Monthly pricing is not available for this plan.'], 400);
+        }
+        
         $usePromo = $request->input('use_promo', false);
         
         // Check if promo is available and applicable
@@ -420,6 +440,20 @@ class SubscriptionController extends Controller
             $price = $promoPrice;
         } else {
             $price = $request->billing_period === 'yearly' ? $plan->yearly_price : $plan->monthly_price;
+        }
+        
+        // Final validation - ensure price is valid
+        if (!$price || $price <= 0) {
+            Log::error('Invalid price calculated for payment intent', [
+                'plan_id' => $plan->id,
+                'plan_slug' => $plan->slug,
+                'billing_period' => $request->billing_period,
+                'calculated_price' => $price,
+                'is_promo' => $isPromoEligible,
+                'plan_monthly_price' => $plan->monthly_price,
+                'plan_yearly_price' => $plan->yearly_price,
+            ]);
+            return response()->json(['error' => 'Invalid pricing for this plan. Please contact support.'], 400);
         }
 
         // Determine trial period
@@ -519,8 +553,10 @@ class SubscriptionController extends Controller
         Stripe::setApiKey($stripeSecret);
 
         try {
-            // Retrieve the payment intent
-            $paymentIntent = \Stripe\PaymentIntent::retrieve($request->payment_intent_id);
+            // Retrieve the payment intent with expanded payment method
+            $paymentIntent = \Stripe\PaymentIntent::retrieve($request->payment_intent_id, [
+                'expand' => ['payment_method', 'latest_charge.payment_method'],
+            ]);
             
             // For trials, payment might be $0 and status might be 'succeeded' or 'requires_capture'
             // For non-trials, status should be 'succeeded'
@@ -539,11 +575,41 @@ class SubscriptionController extends Controller
             $promoPrice = isset($metadata['promo_price']) && !empty($metadata['promo_price']) ? (float)$metadata['promo_price'] : null;
             $trialDays = isset($metadata['trial_days']) ? (int)$metadata['trial_days'] : 0;
             
-            // Determine price
-            if ($isPromo && $promoPrice && $request->billing_period === 'monthly') {
+            // Use billing_period from request (more reliable than metadata)
+            $billingPeriod = $request->billing_period;
+            
+            // Log for debugging
+            Log::info('Confirming subscription', [
+                'payment_intent_id' => $paymentIntent->id,
+                'plan_id' => $plan->id,
+                'billing_period_request' => $request->billing_period,
+                'billing_period_metadata' => $metadata['billing_period'] ?? 'not set',
+                'plan_yearly_price' => $plan->yearly_price,
+                'plan_monthly_price' => $plan->monthly_price,
+            ]);
+            
+            // Determine price - use request billing_period, not metadata
+            if ($isPromo && $promoPrice && $billingPeriod === 'monthly') {
                 $price = $promoPrice;
             } else {
-                $price = $request->billing_period === 'yearly' ? $plan->yearly_price : $plan->monthly_price;
+                $price = $billingPeriod === 'yearly' ? $plan->yearly_price : $plan->monthly_price;
+            }
+            
+            // Validate price exists
+            if ($billingPeriod === 'yearly' && (!$plan->yearly_price || $plan->yearly_price <= 0)) {
+                Log::error('Yearly price not available for plan', [
+                    'plan_id' => $plan->id,
+                    'billing_period' => $billingPeriod,
+                ]);
+                return response()->json(['error' => 'Yearly pricing is not available for this plan.'], 400);
+            }
+            
+            if ($billingPeriod === 'monthly' && (!$plan->monthly_price || $plan->monthly_price <= 0)) {
+                Log::error('Monthly price not available for plan', [
+                    'plan_id' => $plan->id,
+                    'billing_period' => $billingPeriod,
+                ]);
+                return response()->json(['error' => 'Monthly pricing is not available for this plan.'], 400);
             }
 
             // Get customer and payment method
@@ -553,17 +619,106 @@ class SubscriptionController extends Controller
             
             $customer = Customer::retrieve($paymentIntent->customer);
             
-            // Get payment method - it might be in payment_method or latest_charge
-            $paymentMethodId = $paymentIntent->payment_method;
+            // Get payment method - try multiple ways
+            $paymentMethodId = null;
+            
+            // First, try direct payment_method property (may be string ID or expanded object)
+            if (isset($paymentIntent->payment_method) && $paymentIntent->payment_method) {
+                if (is_string($paymentIntent->payment_method)) {
+                    $paymentMethodId = $paymentIntent->payment_method;
+                } elseif (is_object($paymentIntent->payment_method) && isset($paymentIntent->payment_method->id)) {
+                    $paymentMethodId = $paymentIntent->payment_method->id;
+                }
+            }
+            
+            // If not found and we have latest_charge, try to get from charge
             if (!$paymentMethodId && isset($paymentIntent->latest_charge)) {
-                $charge = \Stripe\Charge::retrieve($paymentIntent->latest_charge);
-                $paymentMethodId = $charge->payment_method ?? null;
+                try {
+                    // latest_charge might be expanded or just an ID
+                    if (is_string($paymentIntent->latest_charge)) {
+                        $charge = \Stripe\Charge::retrieve($paymentIntent->latest_charge, [
+                            'expand' => ['payment_method'],
+                        ]);
+                    } else {
+                        $charge = $paymentIntent->latest_charge;
+                    }
+                    
+                    if (isset($charge->payment_method)) {
+                        $paymentMethodId = is_string($charge->payment_method)
+                            ? $charge->payment_method
+                            : ($charge->payment_method->id ?? null);
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Could not retrieve charge for payment method', [
+                        'charge_id' => is_string($paymentIntent->latest_charge) ? $paymentIntent->latest_charge : 'object',
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+            
+            // If still not found, list payment methods for the customer and use the most recent one
+            if (!$paymentMethodId && $paymentIntent->customer) {
+                try {
+                    $paymentMethods = \Stripe\PaymentMethod::all([
+                        'customer' => $paymentIntent->customer,
+                        'type' => 'card',
+                        'limit' => 1,
+                    ]);
+                    
+                    if ($paymentMethods->data && count($paymentMethods->data) > 0) {
+                        $paymentMethodId = $paymentMethods->data[0]->id;
+                        Log::info('Using customer default payment method', [
+                            'payment_method_id' => $paymentMethodId,
+                            'customer_id' => $paymentIntent->customer,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Could not list payment methods for customer', [
+                        'customer_id' => $paymentIntent->customer,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+            
+            // If still not found, try to attach payment method from the payment intent's payment method
+            if (!$paymentMethodId && isset($paymentIntent->payment_method) && $paymentIntent->payment_method) {
+                // The payment method might need to be attached to the customer
+                try {
+                    $pmId = is_string($paymentIntent->payment_method) 
+                        ? $paymentIntent->payment_method 
+                        : $paymentIntent->payment_method->id ?? null;
+                    
+                    if ($pmId) {
+                        // Try to attach it to customer if not already attached
+                        try {
+                            $pm = \Stripe\PaymentMethod::retrieve($pmId);
+                            if (!$pm->customer) {
+                                $pm->attach(['customer' => $paymentIntent->customer]);
+                            }
+                            $paymentMethodId = $pmId;
+                        } catch (\Exception $e) {
+                            // If attach fails, try using it anyway
+                            $paymentMethodId = $pmId;
+                            Log::info('Using payment method from payment intent', [
+                                'payment_method_id' => $paymentMethodId,
+                            ]);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Could not retrieve payment method', [
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
             
             if (!$paymentMethodId) {
                 Log::error('Payment method not found in payment intent', [
                     'payment_intent_id' => $paymentIntent->id,
-                    'payment_intent' => $paymentIntent->toArray(),
+                    'payment_intent_status' => $paymentIntent->status,
+                    'has_payment_method' => isset($paymentIntent->payment_method),
+                    'has_latest_charge' => isset($paymentIntent->latest_charge),
+                    'customer_id' => $paymentIntent->customer ?? 'none',
+                    'payment_intent_object' => json_encode($paymentIntent->toArray()),
                 ]);
                 return response()->json(['error' => 'Payment method not found. Please try again.'], 400);
             }
@@ -593,31 +748,50 @@ class SubscriptionController extends Controller
                 'unit_amount' => $price * 100,
                 'currency' => 'aud',
                 'recurring' => [
-                    'interval' => $request->billing_period === 'yearly' ? 'year' : 'month',
+                    'interval' => $billingPeriod === 'yearly' ? 'year' : 'month',
                 ],
             ]);
 
             // Create subscription in Stripe using the Price ID
-            $stripeSubscription = StripeSubscription::create([
+            $subscriptionParams = [
                 'customer' => $customer->id,
                 'items' => [[
                     'price' => $stripePrice->id,
                 ]],
                 'default_payment_method' => $paymentMethodId,
-                'trial_end' => $trialEnd,
                 'metadata' => [
                     'user_id' => $user->id,
                     'plan_id' => $plan->id,
-                    'billing_period' => $request->billing_period,
+                    'billing_period' => $billingPeriod,
                     'is_founding_partner' => $isPromo ? 'true' : 'false',
                 ],
+            ];
+            
+            // Only add trial_end if it's set
+            if ($trialEnd) {
+                $subscriptionParams['trial_end'] = $trialEnd;
+            }
+            
+            $stripeSubscription = StripeSubscription::create($subscriptionParams);
+            
+            Log::info('Stripe subscription created', [
+                'subscription_id' => $stripeSubscription->id,
+                'plan_id' => $plan->id,
+                'billing_period' => $billingPeriod,
+                'price' => $price,
             ]);
 
             // Create local subscription immediately (no webhook needed)
-            $subscription = $this->createLocalSubscription($user, $plan, $stripeSubscription, $request->billing_period, [
+            $subscription = $this->createLocalSubscription($user, $plan, $stripeSubscription, $billingPeriod, [
                 'is_founding_partner' => $isPromo ? 'true' : 'false',
                 'promo_price' => $promoPrice ? (string)$promoPrice : '',
             ], $trialDays);
+            
+            Log::info('Local subscription created', [
+                'subscription_id' => $subscription->id,
+                'plan_id' => $plan->id,
+                'billing_period' => $billingPeriod,
+            ]);
 
             // Create payment record - always create it, even for trials (amount will be 0)
             try {
@@ -629,7 +803,7 @@ class SubscriptionController extends Controller
                         'status' => $paymentIntent->status === 'succeeded' ? 'succeeded' : ($paymentIntent->status === 'requires_capture' ? 'pending' : 'failed'),
                         'amount' => $paymentIntent->amount / 100, // Convert from cents (will be 0 for trials)
                         'currency' => strtolower($paymentIntent->currency),
-                        'description' => $plan->name . ' Subscription - ' . ucfirst($request->billing_period) . ($trialDays > 0 && !$isPromo ? ' (Trial)' : ''),
+                        'description' => $plan->name . ' Subscription - ' . ucfirst($billingPeriod) . ($trialDays > 0 && !$isPromo ? ' (Trial)' : ''),
                         'paid_at' => $paymentIntent->amount > 0 ? now() : null,
                     ]
                 );
@@ -753,8 +927,14 @@ class SubscriptionController extends Controller
             'includes_property_listings' => $plan->includes_property_listings,
             'has_featured_placement' => $plan->has_featured_placement,
             'trial_ends_at' => $trialEndsAt,
-            'starts_at' => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-            'ends_at' => $stripeSubscription->cancel_at ? Carbon::createFromTimestamp($stripeSubscription->cancel_at) : null,
+            'starts_at' => $stripeSubscription->current_period_start 
+                ? Carbon::createFromTimestamp($stripeSubscription->current_period_start) 
+                : now(),
+            'ends_at' => $stripeSubscription->cancel_at 
+                ? Carbon::createFromTimestamp($stripeSubscription->cancel_at) 
+                : ($stripeSubscription->current_period_end 
+                    ? Carbon::createFromTimestamp($stripeSubscription->current_period_end) 
+                    : null),
             'is_founding_partner' => $isPromo,
             'auto_renew' => !$stripeSubscription->cancel_at_period_end,
         ]);
@@ -1442,8 +1622,14 @@ class SubscriptionController extends Controller
                 'includes_property_listings' => $plan->includes_property_listings,
                 'has_featured_placement' => $plan->has_featured_placement,
                 'trial_ends_at' => $trialEndsAt,
-                'starts_at' => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-                'ends_at' => $stripeSubscription->cancel_at ? Carbon::createFromTimestamp($stripeSubscription->cancel_at) : null,
+                'starts_at' => $stripeSubscription->current_period_start 
+                    ? Carbon::createFromTimestamp($stripeSubscription->current_period_start) 
+                    : now(),
+                'ends_at' => $stripeSubscription->cancel_at 
+                    ? Carbon::createFromTimestamp($stripeSubscription->cancel_at) 
+                    : ($stripeSubscription->current_period_end 
+                        ? Carbon::createFromTimestamp($stripeSubscription->current_period_end) 
+                        : null),
                 'is_founding_partner' => $isPromo,
                 'auto_renew' => !$stripeSubscription->cancel_at_period_end,
             ]);
@@ -1452,8 +1638,14 @@ class SubscriptionController extends Controller
             $subscription->update([
                 'stripe_status' => $stripeSubscription->status,
                 'trial_ends_at' => $trialEndsAt,
-                'starts_at' => Carbon::createFromTimestamp($stripeSubscription->current_period_start),
-                'ends_at' => $stripeSubscription->cancel_at ? Carbon::createFromTimestamp($stripeSubscription->cancel_at) : null,
+                'starts_at' => $stripeSubscription->current_period_start 
+                    ? Carbon::createFromTimestamp($stripeSubscription->current_period_start) 
+                    : ($subscription->starts_at ?? now()),
+                'ends_at' => $stripeSubscription->cancel_at 
+                    ? Carbon::createFromTimestamp($stripeSubscription->cancel_at) 
+                    : ($stripeSubscription->current_period_end 
+                        ? Carbon::createFromTimestamp($stripeSubscription->current_period_end) 
+                        : null),
                 'auto_renew' => !$stripeSubscription->cancel_at_period_end,
             ]);
         }
